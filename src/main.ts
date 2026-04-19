@@ -1,6 +1,11 @@
 import { app, BrowserWindow, ipcMain, nativeImage } from "electron";
-import path from "path";
-import fs from "fs";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from 'node:url';
+
+// ESM 환경에서 __dirname 정의
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // 앱의 루트 경로를 구합니다.
 const APP_PATH = app.getAppPath();
@@ -44,9 +49,9 @@ ipcMain.handle("reminder:get-all", async (event, key) => {
 function createWindow() {
   const isMac = process.platform === "darwin";
   
-  // 에셋 경로 설정
+  // 에셋 경로 설정 (Vite 빌드 후 dist/assets에 위치)
   const iconFileName = isMac ? "logo.icns" : "logo.ico";
-  const iconPath = path.join(APP_PATH, "src", "assets", iconFileName);
+  const iconPath = path.join(__dirname, '../../src/assets', iconFileName);
 
   const image = nativeImage.createFromPath(iconPath);
 
@@ -63,24 +68,20 @@ function createWindow() {
     useContentSize: true,
     icon: image,
     webPreferences: {
-      preload: path.join(APP_PATH, "preload.cjs"),
+      preload: path.join(__dirname, '../preload/preload.mjs'),
       contextIsolation: true,
       nodeIntegration: false,
       spellcheck: false,
     },
   });
 
-  const indexPath = path.join(APP_PATH, "dist", "index.html");
+  const indexPath = path.join(__dirname, '../dist/index.html');
 
-  // electron-is-dev 대신 app.isPackaged 사용
-  if (!app.isPackaged) {
-    const devUrl = "http://localhost:9000";
-    mainWindow.loadURL(devUrl).catch(() => {
-      mainWindow.loadFile(indexPath);
-    });
+  if (process.env.VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(indexPath);
+    mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'));
   }
 
   mainWindow.on("close", (e) => {
