@@ -1,0 +1,10 @@
+/* 
+  Tickit Main Stylesheet
+  - 각 모듈별로 분리된 CSS를 통합합니다.
+*/
+
+@import './modules/base.css';
+@import './modules/layout.css';
+@import './modules/components.css';
+@import './modules/picker.css';
+@import './modules/login.css';

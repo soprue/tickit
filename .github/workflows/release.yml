@@ -1,0 +1,41 @@
+name: Build/Release Tickit
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# 릴리스 생성을 위해 쓰기 권한을 명시적으로 부여합니다.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false # 한 운영체제에서 실패해도 다른 쪽은 계속 진행하도록 설정
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22 # 더 최신인 22 버전으로 상향
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Build and Publish Application
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx electron-builder --publish always

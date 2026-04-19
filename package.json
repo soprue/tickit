@@ -1,0 +1,69 @@
+{
+  "name": "tickit",
+  "productName": "Tickit",
+  "version": "1.0.0",
+  "description": "Tickit - Simple, Pure, Vanilla TS Reminder App",
+  "main": "dist/main.js",
+  "author": "soprue",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soprue/vanilla-reminder.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "tsc && webpack",
+    "dev": "tsc && concurrently \"webpack serve\" \"electron .\"",
+    "dist": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.tickit.app",
+    "productName": "Tickit",
+    "copyright": "Copyright © 2024 soprue",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "src/assets/**/*",
+      "preload.cjs"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg",
+      "icon": "src/assets/logo.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "src/assets/logo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "soprue",
+        "repo": "vanilla-reminder"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "concurrently": "^9.2.1",
+    "css-loader": "^7.1.4",
+    "electron": "^41.0.0",
+    "electron-builder": "^25.1.8",
+    "electron-reload": "^2.0.0-alpha.1",
+    "html-webpack-plugin": "^5.6.6",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "webpack": "^5.92.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.3"
+  },
+  "type": "module"
+}

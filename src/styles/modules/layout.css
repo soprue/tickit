@@ -1,0 +1,289 @@
+/* 
+  2. Layout Structure
+*/
+
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg);
+  transition: background-color var(--transition-normal);
+}
+
+.sidemenu {
+  width: var(--sidebar-width);
+  height: 100%;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sidebar);
+  position: relative;
+  flex-shrink: 0;
+  z-index: 100;
+  transition: background-color var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--spacing-lg) 0; /* 위아래 균형 잡힌 패딩 추가 */
+  box-sizing: border-box;
+}
+
+.reminder-list-wrapper {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-lg) var(--spacing-md);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  scroll-behavior: smooth;
+}
+
+.reminder-list-wrapper::-webkit-scrollbar {
+  width: 4px;
+}
+
+.reminder-list-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-sm);
+}
+
+/* Search Bar & Filters */
+.search-bar-container {
+  padding: 0 var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background-color: var(--color-white);
+  font-size: 14px;
+  color: var(--color-black);
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  background-color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+.filter-toggle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background-color: var(--color-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.filter-toggle-btn:hover {
+  background-color: var(--color-gray-lighter);
+}
+
+.filter-toggle-btn.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.filter-icon {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* Save Indicator Toast */
+.save-status-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-full);
+  border: 1.5px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  z-index: 2000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+.save-status-toast.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.save-status-toast.saving {
+  border-color: rgba(231, 76, 50, 0.2);
+}
+
+.save-status-toast.saved {
+  border-color: rgba(46, 204, 113, 0.3);
+  animation: saved-toast-out 3s forwards;
+}
+
+@keyframes saved-toast-out {
+  0% { transform: translateY(0); opacity: 1; }
+  80% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(100px); opacity: 0; }
+}
+
+.save-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.spinner-dot {
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0.5; }
+}
+
+.check-icon {
+  color: #2ecc71;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.save-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-gray-dark);
+  letter-spacing: -0.02em;
+}
+
+.saving .save-text {
+  color: var(--color-primary);
+}
+
+.saved .save-text {
+  color: #27ae60;
+}
+
+/* Dark Mode Overrides */
+.dark-mode .search-input,
+.dark-mode .filter-toggle-btn {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #eeeeee; /* 아이콘 색상을 밝게 변경 */
+}
+
+.dark-mode .search-input:focus {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--color-primary);
+}
+
+.dark-mode .filter-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .filter-toggle-btn.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff; /* 활성화 시 아이콘을 완전한 흰색으로 */
+}
+
+.dark-mode .save-status-toast {
+  background: rgba(30, 30, 30, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .save-text {
+  color: #bbbbbb;
+}
+
+/* Empty Search State */
+.empty-search-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-2xl) 0;
+  text-align: center;
+}
+
+.empty-message {
+  color: var(--color-gray-medium);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Sidebar Specifics */
+.sidemenu-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-img {
+  width: 25px;
+  height: 25px;
+  margin: 0 auto; /* 상하 마진 제거, 패딩으로 대체됨 */
+  display: block;
+}
+
+.sidemenu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.icon-circle {
+  width: 34px;
+  height: 34px;
+  background: var(--color-icon-bg);
+  border-radius: var(--radius-full);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.icon-mask {
+  width: 18px;
+  height: 18px;
+  background-color: var(--color-icon-brown);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  transition: background-color var(--transition-fast);
+}

@@ -1,0 +1,100 @@
+/* 
+  1. Base & Design Tokens
+*/
+
+:root {
+  /* Colors - Base */
+  --color-bg: #efefef;
+  --color-white: #ffffff;
+  --color-primary: #e74c32;
+  --color-black: #1a1a1a;
+  --color-gray-dark: #2c2c2c;
+  --color-gray-medium: #888888;
+  --color-gray-light: #dadada;
+  --color-icon-brown: #281817;
+  
+  /* Component Specific */
+  --color-plus-bg: #d9d9d9;
+  --color-plus-icon: #a5a5a5;
+  --color-icon-bg: #efefef;
+  
+  /* Filters */
+  --filter-plus-icon: none;
+  --filter-done-icon: none;
+  --filter-sidebar-icon: none;
+
+  /* Typography */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.04);
+  --shadow-sidebar: 0px 4px 4px rgba(0, 0, 0, 0.05);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+
+  /* Dimensions */
+  --sidebar-width: 60px;
+  --card-max-width: 340px;
+  --plus-btn-size: 92px;
+}
+
+.dark-mode {
+  --color-bg: #000000;
+  --color-white: #151515;
+  --color-black: #ffffff;
+  --color-gray-dark: #efefef;
+  --color-gray-medium: #888888;
+  --color-gray-light: #454545;
+  --color-icon-brown: #ffffff;
+  
+  --color-plus-bg: #343434;
+  --color-plus-icon: #272727;
+  --color-icon-bg: #2c2c2c;
+
+  /* 정밀 계산된 필터 값 (모든 원본 색상을 무시하고 흰색/밝은 회색으로 변환) */
+  --filter-plus-icon: brightness(0) invert(0.8); 
+  --filter-done-icon: brightness(0) invert(1); /* 완전한 흰색 엑스 표시 */
+  --filter-sidebar-icon: brightness(0) invert(1); /* 완전한 흰색 사이드바 아이콘 */
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  box-sizing: border-box;
+  background-color: var(--color-bg);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  color: var(--color-black);
+}
+
+#root {
+  height: 100%;
+}
