@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { authStore } from '@src/features/auth/domain/AuthStore';
-import { themeStore } from '@src/shared/domain/ThemeStore';
-import { reminderStore } from '@src/features/reminder/domain/ReminderStore';
+import { useAuthStore } from '@src/features/auth/domain/AuthStore';
+import { useThemeStore } from '@src/shared/domain/ThemeStore';
+import { useReminderStore, useSaveStatusStore } from '@src/features/reminder/domain/ReminderStore';
 
-// 부품 컴포넌트 및 서비스 (이들도 나중에 React로 변환되어야 합니다!)
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
@@ -11,7 +10,7 @@ import { reminderService } from './ReminderService';
 import { notificationService } from './NotificationService';
 
 const ReminderPage: React.FC = () => {
-  // 1. 상태 관리 (Vanilla의 this.state 대체)
+  // 1. 상태 관리 (UI 상태)
   const [state, setState] = useState({
     addingSectionId: null as string | null,
     editingItemId: null as number | null,
@@ -26,46 +25,35 @@ const ReminderPage: React.FC = () => {
     pickerMinute: '00',
   });
 
-  // 스토어 데이터 (나중에 Zustand로 바꾸면 더 깔끔해집니다!)
-  const [auth, setAuth] = useState(authStore.getState());
-  const [theme, setTheme] = useState(themeStore.getState());
-  const [reminders, setReminders] = useState(reminderStore.getState());
+  // 2. Zustand 스토어 데이터
+  const { isDarkMode, toggleDarkMode } = useThemeStore();
+  const { logout } = useAuthStore();
+  const { sections } = useReminderStore();
+  const { isSaving } = useSaveStatusStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 2. 초기화 및 스토어 구독 (Vanilla의 init 대체)
+  // 3. 서비스 초기화
   useEffect(() => {
-    // 서비스 초기화
-    reminderService.setComponent({ setState } as any); // 임시 우회
+    reminderService.setComponent({ state, setState } as any);
     notificationService.startMonitoring();
+  }, [state]); // state가 바뀔 때마다 서비스에 최신 상태 전달 (임시)
 
-    // 스토어 구독
-    const unsubs = [
-      authStore.subscribe(() => setAuth(authStore.getState())),
-      themeStore.subscribe(() => setTheme(themeStore.getState())),
-      reminderStore.subscribe(() => setReminders(reminderStore.getState())),
-    ];
-
-    return () => unsubs.forEach(unsub => unsub()); // 언마운트 시 구독 해제
-  }, []);
-
-  // 3. DOM 조작 및 포커스 관리 (Vanilla의 componentDidUpdate 대체)
+  // 4. DOM 조작 및 포커스 관리
   useEffect(() => {
     if (!containerRef.current) return;
-
-    // 입력창 포커스 복구 로직
     const input = containerRef.current.querySelector('.reminder-inline-input, .section-title-input') as HTMLInputElement;
     if (input && (state.addingSectionId || state.editingItemId || state.editingSectionId) && !state.showTimePopover) {
       input.focus();
     }
   }, [state.addingSectionId, state.editingItemId, state.editingSectionId, state.showTimePopover]);
 
-  // 4. 비즈니스 로직 (메모이제이션 활용)
+  // 5. 비즈니스 로직 (메모이제이션 활용)
   const filteredSections = useMemo(() => {
     const isEditingAny = !!(state.addingSectionId || state.editingItemId || state.editingSectionId);
     const isSearching = state.searchQuery.trim().length > 0;
 
-    return reminders.sections
+    return sections
       .map(section => ({
         ...section,
         items: section.items.filter(item => {
@@ -79,26 +67,27 @@ const ReminderPage: React.FC = () => {
         if (isSearching) return section.items.length > 0;
         return true;
       });
-  }, [reminders.sections, state.searchQuery, state.hideCompleted, state.addingSectionId, state.editingItemId, state.editingSectionId]);
+  }, [sections, state.searchQuery, state.hideCompleted, state.addingSectionId, state.editingItemId, state.editingSectionId]);
 
   const hasAnyMatches = filteredSections.some(s => s.items.length > 0);
 
-  // 5. 렌더링 (Vanilla의 render 대체)
   return (
-    <div ref={containerRef} className={`app-container ${theme.isDarkMode ? 'dark-mode' : ''}`}>
+    <div ref={containerRef} className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
       {/* 저장 상태 토스트 */}
-      <div className={`save-status-toast ${reminderStore.isSaving ? 'visible saving' : 'saved'}`}>
+      <div className={`save-status-toast ${isSaving ? 'visible saving' : 'saved'}`}>
         <div className="save-icon-wrapper">
-          {reminderStore.isSaving ? <div className="spinner-dot" /> : <span className="check-icon">✓</span>}
+          {isSaving ? <div className="spinner-dot" /> : <span className="check-icon">✓</span>}
         </div>
-        <span className="save-text">{reminderStore.isSaving ? '저장 중...' : '저장 완료'}</span>
+        <span className="save-text">{isSaving ? '저장 중...' : '저장 완료'}</span>
       </div>
 
-      {/* 사이드바 */}
       <Sidebar 
-        isDarkMode={theme.isDarkMode} 
-        onToggleTheme={() => reminderService.toggleDarkMode()} 
-        onLogout={() => reminderService.handleLogout()} 
+        isDarkMode={isDarkMode} 
+        onToggleTheme={toggleDarkMode} 
+        onLogout={() => {
+          logout();
+          window.location.hash = '/login'; // 혹은 Router 사용
+        }} 
       />
 
       <div className="reminder-list-wrapper">
@@ -109,7 +98,7 @@ const ReminderPage: React.FC = () => {
               className="search-input" 
               placeholder="검색어를 입력하세요..." 
               value={state.searchQuery} 
-              onChange={(e) => reminderService.handleSearch(e.target as any)} 
+              onChange={(e) => setState(s => ({ ...s, searchQuery: e.target.value }))} 
             />
             <button 
               className={`filter-toggle-btn ${state.hideCompleted ? 'active' : ''}`} 

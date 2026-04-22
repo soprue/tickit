@@ -49,7 +49,7 @@ export class ReminderService {
     if (text.trim()) {
       reminderStore.updateReminder(sectionId, reminderId, text, selectedTime);
     }
-    this.component.setState({ editingItemId: null });
+    this.component.setState((prev: any) => ({ ...prev, editingItemId: null }));
   }
 
   handleAddReminder(e: KeyboardEvent, sectionId: string) {
@@ -75,7 +75,7 @@ export class ReminderService {
     if (title.trim()) {
       reminderStore.updateSectionTitle(sectionId, title);
     }
-    this.component.setState({ editingSectionId: null });
+    this.component.setState((prev: any) => ({ ...prev, editingSectionId: null }));
   }
 
   handleDeleteSection(sectionId: string) {
@@ -95,7 +95,7 @@ export class ReminderService {
   setEditingItemId(reminderId: number | null) {
     if (!this.component) return;
     if (reminderId === null) {
-      this.component.setState({ editingItemId: null });
+      this.component.setState((prev: any) => ({ ...prev, editingItemId: null }));
       return;
     }
 
@@ -116,7 +116,8 @@ export class ReminderService {
         minute = String(m).padStart(2, '0');
       }
 
-      this.component.setState({ 
+      this.component.setState((prev: any) => ({ 
+        ...prev,
         editingItemId: reminderId,
         addingSectionId: null,
         editingSectionId: null,
@@ -126,22 +127,24 @@ export class ReminderService {
         pickerHour: hour,
         pickerMinute: minute,
         showTimePopover: false
-      });
+      }));
     }
   }
 
   setEditingSectionId(sectionId: string | null) {
     if (!this.component) return;
-    this.component.setState({ 
+    this.component.setState((prev: any) => ({ 
+      ...prev,
       editingSectionId: sectionId,
       addingSectionId: null,
       editingItemId: null
-    });
+    }));
   }
 
   setAddingSection(sectionId: string | null) {
     if (!this.component) return;
-    this.component.setState({ 
+    this.component.setState((prev: any) => ({ 
+      ...prev,
       addingSectionId: sectionId,
       editingItemId: null,
       editingSectionId: null,
@@ -151,13 +154,13 @@ export class ReminderService {
       pickerAMPM: REMINDER_CONFIG.DEFAULT_AMPM,
       pickerHour: REMINDER_CONFIG.DEFAULT_HOUR,
       pickerMinute: REMINDER_CONFIG.DEFAULT_MINUTE
-    });
+    }));
   }
 
   handleSearch(e: Event) {
     if (!this.component) return;
     const target = e.target as HTMLInputElement;
-    this.component.setState({ searchQuery: target.value });
+    this.component.setState((prev: any) => ({ ...prev, searchQuery: target.value }));
   }
 
   /* -------------------------------------------------------------------------- */
@@ -199,14 +202,15 @@ export class ReminderService {
         minute = String(roundedMinute >= 60 ? 55 : roundedMinute).padStart(2, '0');
       }
 
-      this.component.setState({ 
+      this.component.setState((prev: any) => ({ 
+        ...prev,
         showTimePopover: true,
         pickerAMPM: ampm,
         pickerHour: hour,
         pickerMinute: minute
-      });
+      }));
     } else {
-      this.component.setState({ showTimePopover: false });
+      this.component.setState((prev: any) => ({ ...prev, showTimePopover: false }));
     }
   }
 
@@ -222,21 +226,23 @@ export class ReminderService {
     
     date.setHours(h, parseInt(newState.pickerMinute), 0, 0);
 
-    this.component.setState({ 
+    this.component.setState((prev: any) => ({ 
+      ...prev,
       [key]: value,
       selectedTime: date,
       isAllDay: false,
       showTimePopover: false
-    } as any);
+    }));
   }
 
   setAllDay() {
     if (!this.component) return;
-    this.component.setState({ 
+    this.component.setState((prev: any) => ({ 
+      ...prev,
       selectedTime: undefined,
       isAllDay: true,
       showTimePopover: false 
-    });
+    }));
   }
 }
 

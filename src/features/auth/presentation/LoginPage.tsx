@@ -1,19 +1,17 @@
 import { useNavigate } from 'react-router-dom';
-
-import { authStore } from '@src/features/auth/domain/AuthStore';
-import { themeStore } from '@src/shared/domain/ThemeStore';
+import { useAuthStore } from '@src/features/auth/domain/AuthStore';
+import { useThemeStore } from '@src/shared/domain/ThemeStore';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import logoIcon from '@assets/logo.webp';
 
 function LoginPage() {
   const navigate = useNavigate();
 
-  const { isLoggedIn, user } = authStore.getState();
-  const { isDarkMode } = themeStore.getState();
+  const { isLoggedIn, user, login, logout } = useAuthStore();
+  const { isDarkMode } = useThemeStore();
 
   const handleLogin = () => {
-    // 실제 서비스라면 여기서 입력값을 검증하거나 OAuth 등을 처리
-    authStore.login('사용자', 'user@example.com');
+    login('사용자', 'user@example.com');
     navigate('/');
   };
 
@@ -22,7 +20,7 @@ function LoginPage() {
   };
 
   const handleLogout = () => {
-    authStore.logout();
+    logout();
   };
 
   const handleGoMain = () => {
