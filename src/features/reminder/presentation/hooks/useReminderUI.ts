@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import { reminderStore } from '@src/features/reminder/domain/ReminderStore';
+import { useReminderStore, reminderStore } from '@src/features/reminder/domain/ReminderStore';
 import { authStore } from '@src/features/auth/domain/AuthStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
 
 /**
- * 리마인더 페이지의 UI 상태(검색, 필터, 편집 모드 등) 및 CRUD 액션을 관리하는 커스텀 훅
+ * 리마인더 페이지의 UI 상태(편집 모드, 타임 피커 등) 및 CRUD 액션을 관리하는 커스텀 훅
  */
 export const useReminderUI = () => {
+  const { sections } = useReminderStore();
+  
   const [state, setState] = useState({
     addingSectionId: null as string | null,
     editingItemId: null as number | null,
     editingSectionId: null as string | null,
-    searchQuery: '',
-    hideCompleted: false,
     showTimePopover: false,
     selectedTime: undefined as Date | undefined,
     isAllDay: false,
@@ -20,14 +20,6 @@ export const useReminderUI = () => {
     pickerHour: '09',
     pickerMinute: '00',
   });
-
-  const setSearchQuery = (query: string) => {
-    setState(prev => ({ ...prev, searchQuery: query }));
-  };
-
-  const toggleHideCompleted = () => {
-    setState(prev => ({ ...prev, hideCompleted: !prev.hideCompleted }));
-  };
 
   /* -------------------------------------------------------------------------- */
   /* 상태 제어 (UI State)                                                        */
@@ -39,7 +31,6 @@ export const useReminderUI = () => {
       return;
     }
 
-    const { sections } = reminderStore.getState();
     const foundItem = sections.flatMap(s => s.items).find(it => it.id === reminderId);
 
     if (foundItem) {
@@ -222,8 +213,6 @@ export const useReminderUI = () => {
   return {
     state,
     setState,
-    setSearchQuery,
-    toggleHideCompleted,
     setEditingItemId,
     setEditingSectionId,
     setAddingSection,

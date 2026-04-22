@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
 import { useReminderStore, useSaveStatusStore } from '@src/features/reminder/domain/ReminderStore';
 
@@ -6,72 +6,42 @@ import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { useReminderUI } from './hooks/useReminderUI';
+import { useSearchFilter } from './hooks/useSearchFilter';
 import { useNotificationMonitor } from './hooks/useNotificationMonitor';
 
 const ReminderPage: React.FC = () => {
-  // 1. UI 상태 관리 (Custom Hook)
-  const { 
-    state, 
-    setState, 
-    setSearchQuery, 
-    toggleHideCompleted,
-    setEditingItemId,
-    setEditingSectionId,
-    setAddingSection,
-    toggleTimePopover,
-    addSection,
-    updateSectionTitle,
-    deleteSection,
-    toggleReminder,
-    deleteReminder,
-    updateReminder,
-    addReminder,
-    updatePickerTime,
-    setAllDay,
-    logout
-  } = useReminderUI();
-
-  // 2. 알림 모니터링 (React Lifecycle 통합)
-  useNotificationMonitor();
-
-  // 3. Zustand 스토어 데이터
-  const { isDarkMode, toggleDarkMode } = useThemeStore();
+  // 1. 데이터 가져오기
   const { sections } = useReminderStore();
+  const { isDarkMode, toggleDarkMode } = useThemeStore();
   const { isSaving } = useSaveStatusStore();
+
+  // 2. UI 인터랙션 훅
+  const ui = useReminderUI();
+
+  // 3. 필터링 및 검색 훅 (UI의 편집 상태에 의존)
+  const isEditingAny = !!(ui.state.addingSectionId || ui.state.editingItemId || ui.state.editingSectionId);
+  const { 
+    searchQuery, 
+    hideCompleted, 
+    filteredSections, 
+    hasAnyMatches, 
+    setSearchQuery, 
+    toggleHideCompleted 
+  } = useSearchFilter(sections, isEditingAny);
+
+  // 4. 알림 모니터링
+  useNotificationMonitor();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 4. DOM 조작 및 포커스 관리
+  // 5. 포커스 관리
   useEffect(() => {
     if (!containerRef.current) return;
     const input = containerRef.current.querySelector('.reminder-inline-input, .section-title-input') as HTMLInputElement;
-    if (input && (state.addingSectionId || state.editingItemId || state.editingSectionId) && !state.showTimePopover) {
+    if (input && (ui.state.addingSectionId || ui.state.editingItemId || ui.state.editingSectionId) && !ui.state.showTimePopover) {
       input.focus();
     }
-  }, [state.addingSectionId, state.editingItemId, state.editingSectionId, state.showTimePopover]);
-
-  // 5. 비즈니스 로직 (메모이제이션 활용)
-  const filteredSections = useMemo(() => {
-    const isEditingAny = !!(state.addingSectionId || state.editingItemId || state.editingSectionId);
-    const isSearching = state.searchQuery.trim().length > 0;
-
-    return sections
-      .map(section => ({
-        ...section,
-        items: section.items.filter(item => {
-          const matchSearch = item.text.toLowerCase().includes(state.searchQuery.toLowerCase());
-          const matchStatus = !state.hideCompleted || !item.done;
-          return matchSearch && matchStatus;
-        })
-      }))
-      .filter(section => {
-        if (isEditingAny) return true;
-        if (isSearching) return section.items.length > 0;
-        return true;
-      });
-  }, [sections, state.searchQuery, state.hideCompleted, state.addingSectionId, state.editingItemId, state.editingSectionId]);
-
-  const hasAnyMatches = filteredSections.some(s => s.items.length > 0);
+  }, [ui.state.addingSectionId, ui.state.editingItemId, ui.state.editingSectionId, ui.state.showTimePopover]);
 
   return (
     <div ref={containerRef} className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -86,7 +56,7 @@ const ReminderPage: React.FC = () => {
       <Sidebar 
         isDarkMode={isDarkMode} 
         onToggleTheme={toggleDarkMode} 
-        onLogout={logout} 
+        onLogout={ui.logout} 
       />
 
       <div className="reminder-list-wrapper">
@@ -96,11 +66,11 @@ const ReminderPage: React.FC = () => {
               type="text" 
               className="search-input" 
               placeholder="검색어를 입력하세요..." 
-              value={state.searchQuery} 
+              value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
             />
             <button 
-              className={`filter-toggle-btn ${state.hideCompleted ? 'active' : ''}`} 
+              className={`filter-toggle-btn ${hideCompleted ? 'active' : ''}`} 
               onClick={toggleHideCompleted}
               title="완료된 항목 숨기기"
             >
@@ -110,7 +80,7 @@ const ReminderPage: React.FC = () => {
         </div>
 
         <div className="sections-container">
-          {state.searchQuery.trim() && !hasAnyMatches && !(state.addingSectionId || state.editingItemId || state.editingSectionId) ? (
+          {searchQuery.trim() && !hasAnyMatches && !isEditingAny ? (
             <div className="empty-search-state"><p className="empty-message">해당하는 리마인더가 없습니다.</p></div>
           ) : (
             filteredSections.map((section) => (
@@ -119,32 +89,32 @@ const ReminderPage: React.FC = () => {
                 title={section.title}
                 category={section.id}
                 items={section.items}
-                addingSectionId={state.addingSectionId}
-                editingItemId={state.editingItemId}
-                isEditingTitle={state.editingSectionId === section.id}
-                showTimePopover={state.showTimePopover}
-                selectedTime={state.selectedTime}
-                isAllDay={state.isAllDay}
-                pickerState={{ ampm: state.pickerAMPM, hour: state.pickerHour, minute: state.pickerMinute }}
-                onUpdateSectionTitle={updateSectionTitle}
-                onDeleteSection={deleteSection}
-                onSetEditingSectionId={setEditingSectionId}
-                onSetAddingSection={setAddingSection}
-                onToggleTimePopover={toggleTimePopover}
-                onAddReminder={addReminder}
-                onToggleReminder={toggleReminder}
-                onDeleteReminder={deleteReminder}
-                onUpdateReminder={updateReminder}
-                onSetEditingItemId={setEditingItemId}
-                onUpdatePickerTime={updatePickerTime}
-                onSetAllDay={setAllDay}
+                addingSectionId={ui.state.addingSectionId}
+                editingItemId={ui.state.editingItemId}
+                isEditingTitle={ui.state.editingSectionId === section.id}
+                showTimePopover={ui.state.showTimePopover}
+                selectedTime={ui.state.selectedTime}
+                isAllDay={ui.state.isAllDay}
+                pickerState={{ ampm: ui.state.pickerAMPM, hour: ui.state.pickerHour, minute: ui.state.pickerMinute }}
+                onUpdateSectionTitle={ui.updateSectionTitle}
+                onDeleteSection={ui.deleteSection}
+                onSetEditingSectionId={ui.setEditingSectionId}
+                onSetAddingSection={ui.setAddingSection}
+                onToggleTimePopover={ui.toggleTimePopover}
+                onAddReminder={ui.addReminder}
+                onToggleReminder={ui.toggleReminder}
+                onDeleteReminder={ui.deleteReminder}
+                onUpdateReminder={ui.updateReminder}
+                onSetEditingItemId={ui.setEditingItemId}
+                onUpdatePickerTime={ui.updatePickerTime}
+                onSetAllDay={ui.setAllDay}
               />
             ))
           )}
         </div>
 
-        {!state.searchQuery.trim() && (
-          <button className="plus-btn-container" onClick={addSection}>
+        {!searchQuery.trim() && (
+          <button className="plus-btn-container" onClick={ui.addSection}>
             <Icon name="plus" size={30} />
           </button>
         )}
