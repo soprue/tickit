@@ -5,8 +5,8 @@ import { useReminderStore, useSaveStatusStore } from '@src/features/reminder/dom
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
-import { notificationService } from './NotificationService';
 import { useReminderUI } from './hooks/useReminderUI';
+import { useNotificationMonitor } from './hooks/useNotificationMonitor';
 
 const ReminderPage: React.FC = () => {
   // 1. UI 상태 관리 (Custom Hook)
@@ -31,17 +31,15 @@ const ReminderPage: React.FC = () => {
     logout
   } = useReminderUI();
 
-  // 2. Zustand 스토어 데이터
+  // 2. 알림 모니터링 (React Lifecycle 통합)
+  useNotificationMonitor();
+
+  // 3. Zustand 스토어 데이터
   const { isDarkMode, toggleDarkMode } = useThemeStore();
   const { sections } = useReminderStore();
   const { isSaving } = useSaveStatusStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // 3. 서비스 초기화
-  useEffect(() => {
-    notificationService.startMonitoring();
-  }, []); // 알림 모니터링은 한 번만 시작
 
   // 4. DOM 조작 및 포커스 관리
   useEffect(() => {
