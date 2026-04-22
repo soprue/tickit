@@ -7,20 +7,18 @@ import { transformSync } from 'esbuild';
 import generateIconTypesPlugin from './scripts/vite-plugin-generate-icon-types';
 
 export default defineConfig({
-  // OXC는 유지합니다.
   oxc: true,
   plugins: [
-    // 1. SVGR: SVG를 JSX 코드로 변환
+    // 1. SVGR: JSX 변환만 수행 (색상 치환 옵션 제거)
     svgr({
       include: '**/*.svg?react',
     }),
-    // 2. SVG JSX Fix: SVGR이 만든 JSX 코드를 OXC가 파싱하기 전에 표준 JS로 먼저 변환
+    // 2. SVG JSX Fix: OXC 파싱 오류 방지를 위한 esbuild 변환 (필수)
     {
       name: 'svg-jsx-fix',
       enforce: 'pre',
       transform(code, id) {
         if (id.includes('.svg?react')) {
-          // JSX 문법만 esbuild로 빠르게 제거해서 OXC에게 넘겨줍니다.
           const result = transformSync(code, {
             loader: 'jsx',
             format: 'esm',
@@ -33,26 +31,16 @@ export default defineConfig({
         }
       },
     },
-    // 3. React: 메인 코드들은 OXC가 빠르게 처리
     react(),
-    // 4. 아이콘 타입 자동 생성 플러그인
     generateIconTypesPlugin(),
     electron({
       main: {
         entry: 'src/main.ts',
-        vite: {
-          build: {
-            outDir: 'dist-electron/main',
-          },
-        },
+        vite: { build: { outDir: 'dist-electron/main' } },
       },
       preload: {
         input: 'preload.cjs',
-        vite: {
-          build: {
-            outDir: 'dist-electron/preload',
-          },
-        },
+        vite: { build: { outDir: 'dist-electron/preload' } },
       },
     }),
   ],

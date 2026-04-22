@@ -49,7 +49,7 @@ const EditMode: React.FC<ReminderItemProps> = (props) => {
     <form className="input-area-wrapper" onSubmit={(e) => e.preventDefault()} style={{ marginBottom: '8px' }}>
       <div className="input-container">
         <div className={checkboxClass}>
-          {item.done && <div className="icon-cancel-mask" style={{ pointerEvents: 'none' }}></div>}
+          {item.done && <Icon name="cancel" size={7} />}
         </div>
         <input 
           type="text" 
@@ -95,7 +95,7 @@ const ViewMode: React.FC<ReminderItemProps> = (props) => {
   return (
     <div className="reminder-row" onDoubleClick={startEdit}>
       <div className={`checkbox-rect ${item.done ? 'done' : ''}`} onClick={toggleDone}>
-        {item.done && <div className="icon-cancel-mask" style={{ pointerEvents: 'none' }}></div>}
+        {item.done && <Icon name="cancel" size={7} />}
       </div>
       
       <div className="item-content" onClick={toggleDone} style={{ cursor: 'pointer', flex: 1 }}>

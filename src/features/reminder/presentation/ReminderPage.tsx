@@ -145,7 +145,7 @@ const ReminderPage: React.FC = () => {
 
         {!state.searchQuery.trim() && (
           <button className="plus-btn-container" onClick={() => reminderService.addSection()}>
-            <Icon name="plus" size={24} />
+            <Icon name="plus" size={30} />
           </button>
         )}
       </div>

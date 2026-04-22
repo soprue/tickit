@@ -16,6 +16,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleTheme, 
   onLogout 
 }) => {
+  // 다크모드 여부에 따라 아이콘 색상을 CSS 변수에서 가져오거나 직접 지정
+  const iconColor = 'var(--color-icon-brown)';
+
   return (
     <aside className="sidemenu">
       <div className="sidemenu-top">
@@ -24,10 +27,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="sidemenu-buttons">
         <div className="icon-circle" onClick={onToggleTheme} title="테마 변경">
-          <Icon name={isDarkMode ? 'sunlight' : 'halfmoon'} size={20} />
+          <Icon name={isDarkMode ? 'sunlight' : 'halfmoon'} size={20} color={iconColor} />
         </div>
         <div className="icon-circle" onClick={onLogout} title="로그아웃">
-          <Icon name="logout" size={20} />
+          <Icon name="logout" size={20} color={iconColor} />
         </div>
       </div>
     </aside>
