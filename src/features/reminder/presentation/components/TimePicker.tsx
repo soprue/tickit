@@ -15,8 +15,8 @@ export const TimePicker: React.FC<TimePickerProps> = ({ pickerState, style, onUp
   const hourOptions = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const minuteOptions = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
 
-  const updateTime = (key: string, val: string) => {
-    onUpdatePickerTime(key as any, val);
+  const updateTime = (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', val: string) => {
+    onUpdatePickerTime(key, val);
   };
 
   return (

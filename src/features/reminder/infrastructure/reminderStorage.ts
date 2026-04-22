@@ -1,16 +1,16 @@
 import { StateStorage } from 'zustand/middleware';
-import { ReminderSectionData, initialSections } from '../domain/reminder';
+import { Reminder, ReminderSectionData, initialSections } from '../domain/reminder';
 import { useSaveStatusStore } from '../domain/ReminderStore';
 
 /**
  * 불러온 데이터의 날짜 형식을 복원함
  */
-const hydrateReminders = (data: any): ReminderSectionData[] => {
+const hydrateReminders = (data: { sections: ReminderSectionData[] } | null): ReminderSectionData[] => {
   if (!data || !data.sections) return initialSections;
 
-  return data.sections.map((section: any) => ({
+  return data.sections.map((section: ReminderSectionData) => ({
     ...section,
-    items: section.items.map((item: any) => {
+    items: section.items.map((item: Reminder) => {
       let hydratedTime: Date | undefined = undefined;
       if (item.time) {
         const date = new Date(item.time);
@@ -32,9 +32,9 @@ const hydrateReminders = (data: any): ReminderSectionData[] => {
  */
 export const reminderStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
-    if (typeof window === 'undefined' || !(window as any).api) return null;
+    if (typeof window === 'undefined' || !window.api) return null;
     try {
-      const data = await (window as any).api.invoke('reminder:get-all', name);
+      const data = await window.api.invoke('reminder:get-all', name);
       if (data) {
         const hydratedSections = hydrateReminders(data);
         return JSON.stringify({ state: { sections: hydratedSections } });
@@ -46,12 +46,12 @@ export const reminderStorage: StateStorage = {
     }
   },
   setItem: async (name: string, value: string): Promise<void> => {
-    if (typeof window === 'undefined' || !(window as any).api) return;
+    if (typeof window === 'undefined' || !window.api) return;
     try {
       const data = JSON.parse(value);
       // useSaveStatusStore를 사용하여 루프를 방지함
       useSaveStatusStore.getState().setIsSaving(true);
-      await (window as any).api.invoke('reminder:save', {
+      await window.api.invoke('reminder:save', {
         key: name,
         data: data.state
       });

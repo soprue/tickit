@@ -5,9 +5,9 @@ import { StateStorage } from 'zustand/middleware';
  */
 export const authStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
-    if (typeof window === 'undefined' || !(window as any).api) return null;
+    if (typeof window === 'undefined' || !window.api) return null;
     try {
-      const data = await (window as any).api.invoke('reminder:get-all', name);
+      const data = await window.api.invoke('reminder:get-all', name);
       return data ? JSON.stringify({ state: data }) : null;
     } catch (e) {
       console.error(`[AuthStore] Load error:`, e);
@@ -15,10 +15,10 @@ export const authStorage: StateStorage = {
     }
   },
   setItem: async (name: string, value: string): Promise<void> => {
-    if (typeof window === 'undefined' || !(window as any).api) return;
+    if (typeof window === 'undefined' || !window.api) return;
     try {
       const data = JSON.parse(value);
-      await (window as any).api.invoke('reminder:save', {
+      await window.api.invoke('reminder:save', {
         key: name,
         data: data.state
       });

@@ -4,10 +4,12 @@ import { Icon } from '@src/shared/presentation/components/Icon';
 import { formatKoreanTime } from '@src/shared/utils/date';
 import { TimePicker } from './TimePicker';
 
+import { Reminder } from '../../domain/reminder';
+
 interface ReminderSectionProps {
   title: string;
   category: string;
-  items: any[];
+  items: Reminder[];
   addingSectionId: string | null;
   editingItemId: number | null;
   isEditingTitle: boolean;

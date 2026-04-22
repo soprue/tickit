@@ -97,7 +97,7 @@ export const useReminderStore = create<ReminderState>()(
 // 하위 호환성을 위해 reminderStore 객체 유지
 export const reminderStore = {
   getState: () => useReminderStore.getState(),
-  subscribe: (listener: (state: any) => void) => useReminderStore.subscribe(listener),
+  subscribe: (listener: (state: ReminderState) => void) => useReminderStore.subscribe(listener),
   get isSaving() { return useSaveStatusStore.getState().isSaving; },
   addSection: (title: string) => useReminderStore.getState().addSection(title),
   updateSectionTitle: (sectionId: string, title: string) => useReminderStore.getState().updateSectionTitle(sectionId, title),
