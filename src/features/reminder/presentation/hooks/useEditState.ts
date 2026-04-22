@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { reminderStore } from '@src/features/reminder/domain/ReminderStore';
+import { useReminderStore } from '@src/features/reminder/domain/ReminderStore';
 import { useTimePickerState } from './useTimePickerState';
 
 /**
@@ -13,6 +13,8 @@ export const useEditState = () => {
     editingSectionId: null as string | null,
   });
 
+  // 스토어에서 데이터 가져오기 (훅 방식)
+  const sections = useReminderStore(state => state.sections);
   const timePicker = useTimePickerState();
 
   const setEditingItemId = (reminderId: number | null) => {
@@ -21,7 +23,6 @@ export const useEditState = () => {
       return;
     }
 
-    const { sections } = reminderStore.getState();
     const foundItem = sections.flatMap(s => s.items).find(it => it.id === reminderId);
 
     if (foundItem) {
