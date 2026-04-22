@@ -1,128 +1,29 @@
-import { useState } from 'react';
 import { useReminderStore, reminderStore } from '@src/features/reminder/domain/ReminderStore';
 import { authStore } from '@src/features/auth/domain/AuthStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
+import { useEditState } from './useEditState';
+import { useSearchFilter } from './useSearchFilter';
 
 /**
- * 리마인더 페이지의 UI 상태(편집 모드, 타임 피커 등) 및 CRUD 액션을 관리하는 커스텀 훅
+ * 리마인더 페이지의 모든 상태와 액션을 통합 관리하는 "지휘관(Facade)" 훅.
+ * 내부적으로 useEditState와 useSearchFilter를 조립하여 데이터 흐름을 중재합니다.
  */
 export const useReminderUI = () => {
+  // 1. 기초 데이터 및 상태 훅 호출
   const { sections } = useReminderStore();
-  
-  const [state, setState] = useState({
-    addingSectionId: null as string | null,
-    editingItemId: null as number | null,
-    editingSectionId: null as string | null,
-    showTimePopover: false,
-    selectedTime: undefined as Date | undefined,
-    isAllDay: false,
-    pickerAMPM: 'AM' as 'AM' | 'PM',
-    pickerHour: '09',
-    pickerMinute: '00',
-  });
+  const edit = useEditState();
+
+  // 2. 상태 간의 연결 (편집 상태에 따라 필터링 결과가 달라짐)
+  const isEditingAny = !!(
+    edit.editState.addingSectionId || 
+    edit.editState.editingItemId || 
+    edit.editState.editingSectionId
+  );
+
+  const filter = useSearchFilter(sections, isEditingAny);
 
   /* -------------------------------------------------------------------------- */
-  /* 상태 제어 (UI State)                                                        */
-  /* -------------------------------------------------------------------------- */
-
-  const setEditingItemId = (reminderId: number | null) => {
-    if (reminderId === null) {
-      setState(prev => ({ ...prev, editingItemId: null }));
-      return;
-    }
-
-    const foundItem = sections.flatMap(s => s.items).find(it => it.id === reminderId);
-
-    if (foundItem) {
-      let ampm: 'AM' | 'PM' = REMINDER_CONFIG.DEFAULT_AMPM;
-      let hour: string = REMINDER_CONFIG.DEFAULT_HOUR;
-      let minute: string = REMINDER_CONFIG.DEFAULT_MINUTE;
-
-      if (foundItem.time instanceof Date) {
-        const h = foundItem.time.getHours();
-        const m = foundItem.time.getMinutes();
-        ampm = h >= 12 ? 'PM' : 'AM';
-        const displayHour = h % 12 || 12;
-        hour = String(displayHour);
-        minute = String(m).padStart(2, '0');
-      }
-
-      setState(prev => ({ 
-        ...prev,
-        editingItemId: reminderId,
-        addingSectionId: null,
-        editingSectionId: null,
-        selectedTime: foundItem.time,
-        isAllDay: foundItem.isAllDay,
-        pickerAMPM: ampm,
-        pickerHour: hour,
-        pickerMinute: minute,
-        showTimePopover: false
-      }));
-    }
-  };
-
-  const setEditingSectionId = (sectionId: string | null) => {
-    setState(prev => ({ 
-      ...prev,
-      editingSectionId: sectionId,
-      addingSectionId: null,
-      editingItemId: null
-    }));
-  };
-
-  const setAddingSection = (sectionId: string | null) => {
-    setState(prev => ({ 
-      ...prev,
-      addingSectionId: sectionId,
-      editingItemId: null,
-      editingSectionId: null,
-      showTimePopover: false,
-      selectedTime: undefined,
-      isAllDay: false,
-      pickerAMPM: REMINDER_CONFIG.DEFAULT_AMPM,
-      pickerHour: REMINDER_CONFIG.DEFAULT_HOUR,
-      pickerMinute: REMINDER_CONFIG.DEFAULT_MINUTE
-    }));
-  };
-
-  const toggleTimePopover = () => {
-    const isOpening = !state.showTimePopover;
-
-    if (isOpening) {
-      const { selectedTime, isAllDay } = state;
-      let ampm: 'AM' | 'PM' = REMINDER_CONFIG.DEFAULT_AMPM;
-      let hour: string = REMINDER_CONFIG.DEFAULT_HOUR;
-      let minute: string = REMINDER_CONFIG.DEFAULT_MINUTE;
-
-      const timeDate = selectedTime instanceof Date ? selectedTime : (selectedTime ? new Date(selectedTime) : null);
-      
-      if (timeDate && !isNaN(timeDate.getTime()) && !isAllDay) {
-        const h = timeDate.getHours();
-        const m = timeDate.getMinutes();
-        ampm = h >= 12 ? 'PM' : 'AM';
-        const displayHour = h % 12 || 12;
-        hour = String(displayHour).padStart(2, '0');
-        minute = String(m).padStart(2, '0');
-        
-        const roundedMinute = Math.round(m / 5) * 5;
-        minute = String(roundedMinute >= 60 ? 55 : roundedMinute).padStart(2, '0');
-      }
-
-      setState(prev => ({ 
-        ...prev,
-        showTimePopover: true,
-        pickerAMPM: ampm,
-        pickerHour: hour,
-        pickerMinute: minute
-      }));
-    } else {
-      setState(prev => ({ ...prev, showTimePopover: false }));
-    }
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /* CRUD 액션                                                                   */
+  /* CRUD 액션 (비즈니스 로직과 상태 제어의 결합)                                   */
   /* -------------------------------------------------------------------------- */
 
   const addSection = () => {
@@ -133,7 +34,7 @@ export const useReminderUI = () => {
     if (title.trim()) {
       reminderStore.updateSectionTitle(sectionId, title);
     }
-    setState(prev => ({ ...prev, editingSectionId: null }));
+    edit.clearEditState();
   };
 
   const deleteSection = (sectionId: string) => {
@@ -153,52 +54,23 @@ export const useReminderUI = () => {
   };
 
   const updateReminder = (sectionId: string, reminderId: number, text: string) => {
-    const { editingItemId, selectedTime, isAllDay } = state;
+    const { editingItemId, selectedTime, isAllDay } = edit.editState;
     if (editingItemId !== reminderId) return;
 
     if (text.trim()) {
       reminderStore.updateReminder(sectionId, reminderId, text, selectedTime, isAllDay);
     }
-    setState(prev => ({ ...prev, editingItemId: null }));
+    edit.clearEditState();
   };
 
   const addReminder = (sectionId: string, text: string) => {
-    const { addingSectionId, selectedTime, isAllDay } = state;
+    const { addingSectionId, selectedTime, isAllDay } = edit.editState;
     if (addingSectionId !== sectionId) return;
 
     if (!text.trim()) return;
 
     reminderStore.addReminder(sectionId, text, selectedTime, isAllDay);
-    setAddingSection(null);
-  };
-
-  const updatePickerTime = (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => {
-    const newState = { ...state, [key]: value };
-    
-    // Date 객체 생성 (오늘 날짜 기준)
-    const date = new Date();
-    let h = parseInt(newState.pickerHour);
-    if (newState.pickerAMPM === 'PM' && h < 12) h += 12;
-    if (newState.pickerAMPM === 'AM' && h === 12) h = 0;
-    
-    date.setHours(h, parseInt(newState.pickerMinute), 0, 0);
-
-    setState(prev => ({ 
-      ...prev,
-      [key]: value,
-      selectedTime: date,
-      isAllDay: false,
-      showTimePopover: false
-    }));
-  };
-
-  const setAllDay = () => {
-    setState(prev => ({ 
-      ...prev,
-      selectedTime: undefined,
-      isAllDay: true,
-      showTimePopover: false 
-    }));
+    edit.setAddingSection(null);
   };
 
   /* -------------------------------------------------------------------------- */
@@ -210,13 +82,29 @@ export const useReminderUI = () => {
     window.location.hash = '#/login';
   };
 
+  // 3. 페이지가 필요한 모든 정보를 하나의 객체로 묶어서 반환 (인터페이스 통합)
   return {
-    state,
-    setState,
-    setEditingItemId,
-    setEditingSectionId,
-    setAddingSection,
-    toggleTimePopover,
+    // UI 상태 (from useEditState)
+    state: edit.editState,
+    isEditingAny,
+    
+    // 편집 액션 (from useEditState)
+    setEditingItemId: edit.setEditingItemId,
+    setEditingSectionId: edit.setEditingSectionId,
+    setAddingSection: edit.setAddingSection,
+    toggleTimePopover: edit.toggleTimePopover,
+    updatePickerTime: edit.updatePickerTime,
+    setAllDay: edit.setAllDay,
+
+    // 검색 및 필터링 (from useSearchFilter)
+    searchQuery: filter.searchQuery,
+    hideCompleted: filter.hideCompleted,
+    filteredSections: filter.filteredSections,
+    hasAnyMatches: filter.hasAnyMatches,
+    setSearchQuery: filter.setSearchQuery,
+    toggleHideCompleted: filter.toggleHideCompleted,
+
+    // CRUD 및 기타 액션
     addSection,
     updateSectionTitle,
     deleteSection,
@@ -224,8 +112,6 @@ export const useReminderUI = () => {
     deleteReminder,
     updateReminder,
     addReminder,
-    updatePickerTime,
-    setAllDay,
     logout
   };
 };

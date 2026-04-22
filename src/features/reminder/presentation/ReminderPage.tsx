@@ -1,40 +1,27 @@
 import React, { useEffect, useRef } from 'react';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
-import { useReminderStore, useSaveStatusStore } from '@src/features/reminder/domain/ReminderStore';
+import { useSaveStatusStore } from '@src/features/reminder/domain/ReminderStore';
 
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { useReminderUI } from './hooks/useReminderUI';
-import { useSearchFilter } from './hooks/useSearchFilter';
 import { useNotificationMonitor } from './hooks/useNotificationMonitor';
 
 const ReminderPage: React.FC = () => {
-  // 1. 데이터 가져오기
-  const { sections } = useReminderStore();
+  // 1. 모든 UI 로직 및 필터링 데이터를 하나의 "통합 훅"에서 가져옵니다.
+  const ui = useReminderUI();
+
+  // 2. 알림 모니터링
+  useNotificationMonitor();
+
+  // 3. 글로벌 설정 상태 (테마 및 저장 중 여부)
   const { isDarkMode, toggleDarkMode } = useThemeStore();
   const { isSaving } = useSaveStatusStore();
 
-  // 2. UI 인터랙션 훅
-  const ui = useReminderUI();
-
-  // 3. 필터링 및 검색 훅 (UI의 편집 상태에 의존)
-  const isEditingAny = !!(ui.state.addingSectionId || ui.state.editingItemId || ui.state.editingSectionId);
-  const { 
-    searchQuery, 
-    hideCompleted, 
-    filteredSections, 
-    hasAnyMatches, 
-    setSearchQuery, 
-    toggleHideCompleted 
-  } = useSearchFilter(sections, isEditingAny);
-
-  // 4. 알림 모니터링
-  useNotificationMonitor();
-
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 5. 포커스 관리
+  // 4. 포커스 관리 (입력창 자동 포커스)
   useEffect(() => {
     if (!containerRef.current) return;
     const input = containerRef.current.querySelector('.reminder-inline-input, .section-title-input') as HTMLInputElement;
@@ -45,7 +32,7 @@ const ReminderPage: React.FC = () => {
 
   return (
     <div ref={containerRef} className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
-      {/* 저장 상태 토스트 */}
+      {/* 저장 상태 알림 토스트 */}
       <div className={`save-status-toast ${isSaving ? 'visible saving' : 'saved'}`}>
         <div className="save-icon-wrapper">
           {isSaving ? <div className="spinner-dot" /> : <span className="check-icon">✓</span>}
@@ -66,12 +53,12 @@ const ReminderPage: React.FC = () => {
               type="text" 
               className="search-input" 
               placeholder="검색어를 입력하세요..." 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)} 
+              value={ui.searchQuery} 
+              onChange={(e) => ui.setSearchQuery(e.target.value)} 
             />
             <button 
-              className={`filter-toggle-btn ${hideCompleted ? 'active' : ''}`} 
-              onClick={toggleHideCompleted}
+              className={`filter-toggle-btn ${ui.hideCompleted ? 'active' : ''}`} 
+              onClick={ui.toggleHideCompleted}
               title="완료된 항목 숨기기"
             >
               <span className="filter-icon">✓</span>
@@ -80,10 +67,11 @@ const ReminderPage: React.FC = () => {
         </div>
 
         <div className="sections-container">
-          {searchQuery.trim() && !hasAnyMatches && !isEditingAny ? (
+          {/* 검색 결과가 없을 때의 예외 처리 */}
+          {ui.searchQuery.trim() && !ui.hasAnyMatches && !ui.isEditingAny ? (
             <div className="empty-search-state"><p className="empty-message">해당하는 리마인더가 없습니다.</p></div>
           ) : (
-            filteredSections.map((section) => (
+            ui.filteredSections.map((section) => (
               <ReminderSection 
                 key={section.id}
                 title={section.title}
@@ -113,7 +101,8 @@ const ReminderPage: React.FC = () => {
           )}
         </div>
 
-        {!searchQuery.trim() && (
+        {/* 검색 중이 아닐 때만 섹션 추가 버튼 노출 */}
+        {!ui.searchQuery.trim() && (
           <button className="plus-btn-container" onClick={ui.addSection}>
             <Icon name="plus" size={30} />
           </button>
