@@ -1,26 +1,23 @@
 import { useState } from 'react';
 import { reminderStore } from '@src/features/reminder/domain/ReminderStore';
-import { REMINDER_CONFIG } from '@src/shared/constants';
+import { useTimePickerState } from './useTimePickerState';
 
 /**
- * 리마인더 편집/추가 관련 UI 상태를 관리하는 커스텀 훅
+ * 리마인더 편집/추가 관련 아이디 상태를 관리하는 커스텀 훅.
+ * 시간 관련 복잡한 로직은 useTimePickerState에 위임합니다.
  */
 export const useEditState = () => {
-  const [state, setState] = useState({
+  const [ids, setIds] = useState({
     addingSectionId: null as string | null,
     editingItemId: null as number | null,
     editingSectionId: null as string | null,
-    showTimePopover: false,
-    selectedTime: undefined as Date | undefined,
-    isAllDay: false,
-    pickerAMPM: 'AM' as 'AM' | 'PM',
-    pickerHour: '09',
-    pickerMinute: '00',
   });
+
+  const timePicker = useTimePickerState();
 
   const setEditingItemId = (reminderId: number | null) => {
     if (reminderId === null) {
-      setState(prev => ({ ...prev, editingItemId: null }));
+      setIds(prev => ({ ...prev, editingItemId: null }));
       return;
     }
 
@@ -28,138 +25,56 @@ export const useEditState = () => {
     const foundItem = sections.flatMap(s => s.items).find(it => it.id === reminderId);
 
     if (foundItem) {
-      let ampm: 'AM' | 'PM' = REMINDER_CONFIG.DEFAULT_AMPM;
-      let hour: string = REMINDER_CONFIG.DEFAULT_HOUR;
-      let minute: string = REMINDER_CONFIG.DEFAULT_MINUTE;
+      // 시간 상태 초기화는 전용 훅에 위임
+      timePicker.setInitialTime(foundItem.time, foundItem.isAllDay);
 
-      if (foundItem.time instanceof Date) {
-        const h = foundItem.time.getHours();
-        const m = foundItem.time.getMinutes();
-        ampm = h >= 12 ? 'PM' : 'AM';
-        const displayHour = h % 12 || 12;
-        hour = String(displayHour);
-        minute = String(m).padStart(2, '0');
-      }
-
-      setState(prev => ({ 
-        ...prev,
+      setIds({ 
         editingItemId: reminderId,
         addingSectionId: null,
         editingSectionId: null,
-        selectedTime: foundItem.time,
-        isAllDay: foundItem.isAllDay,
-        pickerAMPM: ampm,
-        pickerHour: hour,
-        pickerMinute: minute,
-        showTimePopover: false
-      }));
+      });
     }
   };
 
   const setEditingSectionId = (sectionId: string | null) => {
-    setState(prev => ({ 
-      ...prev,
+    setIds({ 
       editingSectionId: sectionId,
       addingSectionId: null,
       editingItemId: null
-    }));
+    });
   };
 
   const setAddingSection = (sectionId: string | null) => {
-    setState(prev => ({ 
-      ...prev,
+    // 추가 모드 진입 시 시간 상태 리셋
+    timePicker.resetTimeState();
+
+    setIds({ 
       addingSectionId: sectionId,
       editingItemId: null,
       editingSectionId: null,
-      showTimePopover: false,
-      selectedTime: undefined,
-      isAllDay: false,
-      pickerAMPM: REMINDER_CONFIG.DEFAULT_AMPM,
-      pickerHour: REMINDER_CONFIG.DEFAULT_HOUR,
-      pickerMinute: REMINDER_CONFIG.DEFAULT_MINUTE
-    }));
-  };
-
-  const toggleTimePopover = () => {
-    const isOpening = !state.showTimePopover;
-
-    if (isOpening) {
-      const { selectedTime, isAllDay } = state;
-      let ampm: 'AM' | 'PM' = REMINDER_CONFIG.DEFAULT_AMPM;
-      let hour: string = REMINDER_CONFIG.DEFAULT_HOUR;
-      let minute: string = REMINDER_CONFIG.DEFAULT_MINUTE;
-
-      const timeDate = selectedTime instanceof Date ? selectedTime : (selectedTime ? new Date(selectedTime) : null);
-      
-      if (timeDate && !isNaN(timeDate.getTime()) && !isAllDay) {
-        const h = timeDate.getHours();
-        const m = timeDate.getMinutes();
-        ampm = h >= 12 ? 'PM' : 'AM';
-        const displayHour = h % 12 || 12;
-        hour = String(displayHour).padStart(2, '0');
-        minute = String(m).padStart(2, '0');
-        
-        const roundedMinute = Math.round(m / 5) * 5;
-        minute = String(roundedMinute >= 60 ? 55 : roundedMinute).padStart(2, '0');
-      }
-
-      setState(prev => ({ 
-        ...prev,
-        showTimePopover: true,
-        pickerAMPM: ampm,
-        pickerHour: hour,
-        pickerMinute: minute
-      }));
-    } else {
-      setState(prev => ({ ...prev, showTimePopover: false }));
-    }
-  };
-
-  const updatePickerTime = (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => {
-    const newState = { ...state, [key]: value };
-    
-    const date = new Date();
-    let h = parseInt(newState.pickerHour);
-    if (newState.pickerAMPM === 'PM' && h < 12) h += 12;
-    if (newState.pickerAMPM === 'AM' && h === 12) h = 0;
-    
-    date.setHours(h, parseInt(newState.pickerMinute), 0, 0);
-
-    setState(prev => ({ 
-      ...prev,
-      [key]: value,
-      selectedTime: date,
-      isAllDay: false,
-      showTimePopover: false
-    }));
-  };
-
-  const setAllDay = () => {
-    setState(prev => ({ 
-      ...prev,
-      selectedTime: undefined,
-      isAllDay: true,
-      showTimePopover: false 
-    }));
+    });
   };
 
   const clearEditState = () => {
-    setState(prev => ({
-      ...prev,
+    setIds({
       addingSectionId: null,
       editingItemId: null,
       editingSectionId: null
-    }));
+    });
+    timePicker.resetTimeState();
   };
 
   return {
-    editState: state,
+    editState: {
+      ...ids,
+      ...timePicker.timeState
+    },
     setEditingItemId,
     setEditingSectionId,
     setAddingSection,
-    toggleTimePopover,
-    updatePickerTime,
-    setAllDay,
+    toggleTimePopover: timePicker.toggleTimePopover,
+    updatePickerTime: timePicker.updatePickerTime,
+    setAllDay: timePicker.setAllDay,
     clearEditState
   };
 };
