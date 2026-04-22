@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
 import { useSaveStatusStore } from '@src/features/reminder/domain/ReminderStore';
 
@@ -21,14 +21,7 @@ const ReminderPage: React.FC = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 4. 포커스 관리 (입력창 자동 포커스)
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const input = containerRef.current.querySelector('.reminder-inline-input, .section-title-input') as HTMLInputElement;
-    if (input && (ui.state.addingSectionId || ui.state.editingItemId || ui.state.editingSectionId) && !ui.state.showTimePopover) {
-      input.focus();
-    }
-  }, [ui.state.addingSectionId, ui.state.editingItemId, ui.state.editingSectionId, ui.state.showTimePopover]);
+  // 4. 포커스 관리 (각 컴포넌트 내부에서 autoFocus로 처리되므로 더 이상 수동 DOM 조작이 필요 없습니다.)
 
   return (
     <div ref={containerRef} className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
