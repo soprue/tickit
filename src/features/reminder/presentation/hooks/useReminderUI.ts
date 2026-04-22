@@ -1,4 +1,6 @@
+import { useNavigate } from 'react-router-dom';
 import { useReminderStore } from '@src/features/reminder/domain/ReminderStore';
+import { useModalStore } from '@src/shared/domain/ModalStore';
 import { authStore } from '@src/features/auth/domain/AuthStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
 import { useEditState } from './useEditState';
@@ -9,6 +11,9 @@ import { useSearchFilter } from './useSearchFilter';
  * 내부적으로 useEditState와 useSearchFilter를 조립하여 데이터 흐름을 중재합니다.
  */
 export const useReminderUI = () => {
+  const navigate = useNavigate();
+  const { showConfirm } = useModalStore();
+
   // 1. 스토어 훅을 통해 데이터와 액션 모두 가져오기
   const { 
     sections, 
@@ -33,7 +38,7 @@ export const useReminderUI = () => {
   const filter = useSearchFilter(sections, isEditingAny);
 
   /* -------------------------------------------------------------------------- */
-  /* CRUD 액션 (훅에서 가져온 액션 함수들 활용)                                    */
+  /* CRUD 액션                                                                   */
   /* -------------------------------------------------------------------------- */
 
   const addSection = () => {
@@ -48,9 +53,11 @@ export const useReminderUI = () => {
   };
 
   const deleteSection = (sectionId: string) => {
-    if (confirm('이 섹션을 삭제하시겠습니까?')) {
-      _deleteSection(sectionId);
-    }
+    showConfirm({
+      title: '섹션 삭제',
+      message: '이 섹션을 삭제하시겠습니까? 섹션 내 모든 리마인더가 삭제됩니다.',
+      onConfirm: () => _deleteSection(sectionId),
+    });
   };
 
   const toggleReminder = (sectionId: string, reminderId: number) => {
@@ -58,9 +65,11 @@ export const useReminderUI = () => {
   };
 
   const deleteReminder = (sectionId: string, reminderId: number) => {
-    if (confirm('이 항목을 삭제하시겠습니까?')) {
-      _deleteReminder(sectionId, reminderId);
-    }
+    showConfirm({
+      title: '리마인더 삭제',
+      message: '이 항목을 삭제하시겠습니까?',
+      onConfirm: () => _deleteReminder(sectionId, reminderId),
+    });
   };
 
   const updateReminder = (sectionId: string, reminderId: number, text: string) => {
@@ -89,7 +98,7 @@ export const useReminderUI = () => {
 
   const logout = () => {
     authStore.logout();
-    window.location.hash = '#/login';
+    navigate('/login');
   };
 
   return {
