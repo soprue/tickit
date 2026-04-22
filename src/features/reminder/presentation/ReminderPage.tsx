@@ -5,7 +5,6 @@ import { useReminderStore, useSaveStatusStore } from '@src/features/reminder/dom
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
-import { reminderService } from './ReminderService';
 import { notificationService } from './NotificationService';
 import { useReminderUI } from './hooks/useReminderUI';
 
@@ -27,6 +26,8 @@ const ReminderPage: React.FC = () => {
     deleteReminder,
     updateReminder,
     addReminder,
+    updatePickerTime,
+    setAllDay,
     logout
   } = useReminderUI();
 
@@ -39,9 +40,8 @@ const ReminderPage: React.FC = () => {
 
   // 3. 서비스 초기화
   useEffect(() => {
-    reminderService.setComponent({ state, setState } as any);
     notificationService.startMonitoring();
-  }, [state, setState]); // state나 setState가 바뀔 때마다 서비스에 최신 상태 전달
+  }, []); // 알림 모니터링은 한 번만 시작
 
   // 4. DOM 조작 및 포커스 관리
   useEffect(() => {
@@ -138,6 +138,8 @@ const ReminderPage: React.FC = () => {
                 onDeleteReminder={deleteReminder}
                 onUpdateReminder={updateReminder}
                 onSetEditingItemId={setEditingItemId}
+                onUpdatePickerTime={updatePickerTime}
+                onSetAllDay={setAllDay}
               />
             ))
           )}

@@ -25,6 +25,8 @@ interface ReminderSectionProps {
   onDeleteReminder: (sectionId: string, reminderId: number) => void;
   onUpdateReminder: (sectionId: string, reminderId: number, text: string) => void;
   onSetEditingItemId: (reminderId: number | null) => void;
+  onUpdatePickerTime: (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => void;
+  onSetAllDay: () => void;
 }
 
 /**
@@ -99,7 +101,9 @@ const SectionFooter: React.FC<{
   onSetAddingSection: (sectionId: string | null) => void;
   onToggleTimePopover: () => void;
   onAddReminder: (sectionId: string, text: string) => void;
-}> = ({ category, isAdding, showTimePopover, selectedTime, isAllDay, pickerState, onSetAddingSection, onToggleTimePopover, onAddReminder }) => {
+  onUpdatePickerTime: (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => void;
+  onSetAllDay: () => void;
+}> = ({ category, isAdding, showTimePopover, selectedTime, isAllDay, pickerState, onSetAddingSection, onToggleTimePopover, onAddReminder, onUpdatePickerTime, onSetAllDay }) => {
   if (!isAdding) {
     return (
       <div className="section-footer">
@@ -157,7 +161,13 @@ const SectionFooter: React.FC<{
             <span className="time-text">{displayTime === 'All Day' ? '' : displayTime}</span>
           </button>
         </div>
-        {showTimePopover && <TimePicker pickerState={pickerState} />}
+        {showTimePopover && (
+          <TimePicker 
+            pickerState={pickerState} 
+            onUpdatePickerTime={onUpdatePickerTime}
+            onSetAllDay={onSetAllDay}
+          />
+        )}
       </form>
     </div>
   );
@@ -171,7 +181,8 @@ export const ReminderSection: React.FC<ReminderSectionProps> = (props) => {
     title, category, items, addingSectionId, editingItemId, isEditingTitle, 
     showTimePopover, selectedTime, isAllDay, pickerState,
     onUpdateSectionTitle, onDeleteSection, onSetEditingSectionId, onSetAddingSection, 
-    onToggleTimePopover, onAddReminder, onToggleReminder, onDeleteReminder, onUpdateReminder, onSetEditingItemId
+    onToggleTimePopover, onAddReminder, onToggleReminder, onDeleteReminder, onUpdateReminder, onSetEditingItemId,
+    onUpdatePickerTime, onSetAllDay
   } = props;
   const isFixed = category === 'EVERYDAY' || category === 'TODO';
   const isAdding = addingSectionId === category;
@@ -203,6 +214,8 @@ export const ReminderSection: React.FC<ReminderSectionProps> = (props) => {
             onUpdateReminder={onUpdateReminder}
             onSetEditingItemId={onSetEditingItemId}
             onToggleTimePopover={onToggleTimePopover}
+            onUpdatePickerTime={onUpdatePickerTime}
+            onSetAllDay={onSetAllDay}
           />
         ))}
       </div>
@@ -216,6 +229,8 @@ export const ReminderSection: React.FC<ReminderSectionProps> = (props) => {
         onSetAddingSection={onSetAddingSection}
         onToggleTimePopover={onToggleTimePopover}
         onAddReminder={onAddReminder}
+        onUpdatePickerTime={onUpdatePickerTime}
+        onSetAllDay={onSetAllDay}
       />
     </section>
   );

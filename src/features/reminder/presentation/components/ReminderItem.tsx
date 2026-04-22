@@ -17,13 +17,15 @@ interface ReminderItemProps {
   onUpdateReminder: (sectionId: string, reminderId: number, text: string) => void;
   onSetEditingItemId: (reminderId: number | null) => void;
   onToggleTimePopover: () => void;
+  onUpdatePickerTime: (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => void;
+  onSetAllDay: () => void;
 }
 
 /**
  * 수정 모드 UI (React)
  */
 const EditMode: React.FC<ReminderItemProps> = (props) => {
-  const { sectionId, item, selectedTime, isAllDay, pickerState, showTimePopover, onUpdateReminder, onSetEditingItemId, onToggleTimePopover } = props;
+  const { sectionId, item, selectedTime, isAllDay, pickerState, showTimePopover, onUpdateReminder, onSetEditingItemId, onToggleTimePopover, onUpdatePickerTime, onSetAllDay } = props;
 
   const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') onUpdateReminder(sectionId, item.id, e.currentTarget.value);
@@ -72,7 +74,14 @@ const EditMode: React.FC<ReminderItemProps> = (props) => {
           <span className="time-text">{displayTime === 'All Day' ? '' : displayTime}</span>
         </button>
       </div>
-      {showTimePopover && <TimePicker pickerState={pickerState} style={{ top: '36px' }} />}
+      {showTimePopover && (
+        <TimePicker 
+          pickerState={pickerState} 
+          style={{ top: '36px' }} 
+          onUpdatePickerTime={onUpdatePickerTime}
+          onSetAllDay={onSetAllDay}
+        />
+      )}
     </form>
   );
 };

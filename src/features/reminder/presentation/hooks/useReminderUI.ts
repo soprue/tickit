@@ -181,6 +181,35 @@ export const useReminderUI = () => {
     setAddingSection(null);
   };
 
+  const updatePickerTime = (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => {
+    const newState = { ...state, [key]: value };
+    
+    // Date 객체 생성 (오늘 날짜 기준)
+    const date = new Date();
+    let h = parseInt(newState.pickerHour);
+    if (newState.pickerAMPM === 'PM' && h < 12) h += 12;
+    if (newState.pickerAMPM === 'AM' && h === 12) h = 0;
+    
+    date.setHours(h, parseInt(newState.pickerMinute), 0, 0);
+
+    setState(prev => ({ 
+      ...prev,
+      [key]: value,
+      selectedTime: date,
+      isAllDay: false,
+      showTimePopover: false
+    }));
+  };
+
+  const setAllDay = () => {
+    setState(prev => ({ 
+      ...prev,
+      selectedTime: undefined,
+      isAllDay: true,
+      showTimePopover: false 
+    }));
+  };
+
   /* -------------------------------------------------------------------------- */
   /* 기타 액션                                                                    */
   /* -------------------------------------------------------------------------- */
@@ -206,6 +235,8 @@ export const useReminderUI = () => {
     deleteReminder,
     updateReminder,
     addReminder,
+    updatePickerTime,
+    setAllDay,
     logout
   };
 };
