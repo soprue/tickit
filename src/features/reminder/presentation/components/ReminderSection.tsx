@@ -1,6 +1,5 @@
 import React from 'react';
 import { ReminderItem } from './ReminderItem';
-import { reminderService } from '../ReminderService';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { formatKoreanTime } from '@src/shared/utils/date';
 import { TimePicker } from './TimePicker';
@@ -16,6 +15,16 @@ interface ReminderSectionProps {
   selectedTime: Date | undefined;
   isAllDay: boolean;
   pickerState: { ampm: string; hour: string; minute: string };
+  onUpdateSectionTitle: (sectionId: string, title: string) => void;
+  onDeleteSection: (sectionId: string) => void;
+  onSetEditingSectionId: (sectionId: string | null) => void;
+  onSetAddingSection: (sectionId: string | null) => void;
+  onToggleTimePopover: () => void;
+  onAddReminder: (sectionId: string, text: string) => void;
+  onToggleReminder: (sectionId: string, reminderId: number) => void;
+  onDeleteReminder: (sectionId: string, reminderId: number) => void;
+  onUpdateReminder: (sectionId: string, reminderId: number, text: string) => void;
+  onSetEditingItemId: (reminderId: number | null) => void;
 }
 
 /**
@@ -26,11 +35,14 @@ const SectionHeader: React.FC<{
   category: string;
   isEditingTitle: boolean;
   isFixed: boolean;
-}> = ({ title, category, isEditingTitle, isFixed }) => {
+  onUpdateSectionTitle: (sectionId: string, title: string) => void;
+  onSetEditingSectionId: (sectionId: string | null) => void;
+  onDeleteSection: (sectionId: string) => void;
+}> = ({ title, category, isEditingTitle, isFixed, onUpdateSectionTitle, onSetEditingSectionId, onDeleteSection }) => {
   if (isEditingTitle && !isFixed) {
     const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') reminderService.handleUpdateSectionTitle(category, e.currentTarget.value);
-      else if (e.key === 'Escape') reminderService.setEditingSectionId(null);
+      if (e.key === 'Enter') onUpdateSectionTitle(category, e.currentTarget.value);
+      else if (e.key === 'Escape') onSetEditingSectionId(null);
     };
 
     const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -38,7 +50,7 @@ const SectionHeader: React.FC<{
       setTimeout(() => {
         const activeEl = document.activeElement;
         if (activeEl && (activeEl.classList.contains('section-title-input') || activeEl.classList.contains('reminder-inline-input'))) return;
-        reminderService.handleUpdateSectionTitle(category, value);
+        onUpdateSectionTitle(category, value);
       }, 200);
     };
 
@@ -57,8 +69,8 @@ const SectionHeader: React.FC<{
   }
 
   const titleClass = `section-title ${!isFixed ? 'editable' : ''}`;
-  const editTitle = () => !isFixed && reminderService.setEditingSectionId(category);
-  const deleteSection = () => reminderService.handleDeleteSection(category);
+  const editTitle = () => !isFixed && onSetEditingSectionId(category);
+  const deleteSectionAction = () => onDeleteSection(category);
 
   return (
     <div className="section-header">
@@ -66,7 +78,7 @@ const SectionHeader: React.FC<{
         {title}
       </h2>
       {!isFixed && (
-        <button className="section-delete-btn" onClick={deleteSection} title="섹션 삭제">
+        <button className="section-delete-btn" onClick={deleteSectionAction} title="섹션 삭제">
           <Icon name="minusSquare" size={18} />
         </button>
       )}
@@ -84,13 +96,16 @@ const SectionFooter: React.FC<{
   selectedTime: Date | undefined;
   isAllDay: boolean;
   pickerState: { ampm: string; hour: string; minute: string };
-}> = ({ category, isAdding, showTimePopover, selectedTime, isAllDay, pickerState }) => {
+  onSetAddingSection: (sectionId: string | null) => void;
+  onToggleTimePopover: () => void;
+  onAddReminder: (sectionId: string, text: string) => void;
+}> = ({ category, isAdding, showTimePopover, selectedTime, isAllDay, pickerState, onSetAddingSection, onToggleTimePopover, onAddReminder }) => {
   if (!isAdding) {
     return (
       <div className="section-footer">
         <div 
           className="reminder-row" 
-          onClick={() => reminderService.setAddingSection(category)} 
+          onClick={() => onSetAddingSection(category)} 
           style={{ cursor: 'pointer' }}
         >
           <div className="checkbox-rect done" style={{ borderStyle: 'dashed' }}></div>
@@ -103,8 +118,7 @@ const SectionFooter: React.FC<{
   const badgeClass = `time-badge ${!isAllDay && selectedTime ? 'active' : ''}`;
   const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      // e를 HTMLInputElement로 캐스팅하거나 필요한 값만 전달하도록 서비스 수정 필요할 수 있음
-      reminderService.handleAddReminder(e.nativeEvent, category);
+      onAddReminder(category, e.currentTarget.value);
     }
   };
 
@@ -115,7 +129,7 @@ const SectionFooter: React.FC<{
       const activeEl = document.activeElement;
       const isStillInInput = activeEl && (activeEl.classList.contains('reminder-inline-input') || activeEl.classList.contains('section-title-input'));
       if (isStillInInput || (activeEl && activeEl.closest('.time-popover-box'))) return;
-      reminderService.setAddingSection(null);
+      onSetAddingSection(null);
     }, 250);
   };
 
@@ -137,7 +151,7 @@ const SectionFooter: React.FC<{
           <button 
             type="button" 
             className={badgeClass} 
-            onClick={() => reminderService.toggleTimePopover()}
+            onClick={() => onToggleTimePopover()}
           >
             <Icon name="clock" size={14} className="time-icon" />
             <span className="time-text">{displayTime === 'All Day' ? '' : displayTime}</span>
@@ -153,7 +167,12 @@ const SectionFooter: React.FC<{
  * 카테고리별 섹션 카드 컴포넌트 (React)
  */
 export const ReminderSection: React.FC<ReminderSectionProps> = (props) => {
-  const { title, category, items, addingSectionId, editingItemId, isEditingTitle, showTimePopover, selectedTime, isAllDay, pickerState } = props;
+  const { 
+    title, category, items, addingSectionId, editingItemId, isEditingTitle, 
+    showTimePopover, selectedTime, isAllDay, pickerState,
+    onUpdateSectionTitle, onDeleteSection, onSetEditingSectionId, onSetAddingSection, 
+    onToggleTimePopover, onAddReminder, onToggleReminder, onDeleteReminder, onUpdateReminder, onSetEditingItemId
+  } = props;
   const isFixed = category === 'EVERYDAY' || category === 'TODO';
   const isAdding = addingSectionId === category;
 
@@ -163,7 +182,10 @@ export const ReminderSection: React.FC<ReminderSectionProps> = (props) => {
         title={title} 
         category={category} 
         isEditingTitle={isEditingTitle} 
-        isFixed={isFixed} 
+        isFixed={isFixed}
+        onUpdateSectionTitle={onUpdateSectionTitle}
+        onSetEditingSectionId={onSetEditingSectionId}
+        onDeleteSection={onDeleteSection}
       />
       <div className="items-container">
         {items.map((item) => (
@@ -176,6 +198,11 @@ export const ReminderSection: React.FC<ReminderSectionProps> = (props) => {
             selectedTime={selectedTime}
             isAllDay={isAllDay}
             pickerState={pickerState}
+            onToggleReminder={onToggleReminder}
+            onDeleteReminder={onDeleteReminder}
+            onUpdateReminder={onUpdateReminder}
+            onSetEditingItemId={onSetEditingItemId}
+            onToggleTimePopover={onToggleTimePopover}
           />
         ))}
       </div>
@@ -185,7 +212,10 @@ export const ReminderSection: React.FC<ReminderSectionProps> = (props) => {
         showTimePopover={isAdding && showTimePopover} 
         selectedTime={selectedTime} 
         isAllDay={isAllDay} 
-        pickerState={pickerState} 
+        pickerState={pickerState}
+        onSetAddingSection={onSetAddingSection}
+        onToggleTimePopover={onToggleTimePopover}
+        onAddReminder={onAddReminder}
       />
     </section>
   );

@@ -7,22 +7,28 @@ import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { reminderService } from './ReminderService';
 import { notificationService } from './NotificationService';
+import { useReminderUI } from './hooks/useReminderUI';
 
 const ReminderPage: React.FC = () => {
-  // 1. 상태 관리 (UI 상태)
-  const [state, setState] = useState({
-    addingSectionId: null as string | null,
-    editingItemId: null as number | null,
-    editingSectionId: null as string | null,
-    searchQuery: '',
-    hideCompleted: false,
-    showTimePopover: false,
-    selectedTime: undefined as Date | undefined,
-    isAllDay: false,
-    pickerAMPM: 'AM' as 'AM' | 'PM',
-    pickerHour: '09',
-    pickerMinute: '00',
-  });
+  // 1. UI 상태 관리 (Custom Hook)
+  const { 
+    state, 
+    setState, 
+    setSearchQuery, 
+    toggleHideCompleted,
+    setEditingItemId,
+    setEditingSectionId,
+    setAddingSection,
+    toggleTimePopover,
+    addSection,
+    updateSectionTitle,
+    deleteSection,
+    toggleReminder,
+    deleteReminder,
+    updateReminder,
+    addReminder,
+    logout
+  } = useReminderUI();
 
   // 2. Zustand 스토어 데이터
   const { isDarkMode, toggleDarkMode } = useThemeStore();
@@ -35,7 +41,7 @@ const ReminderPage: React.FC = () => {
   useEffect(() => {
     reminderService.setComponent({ state, setState } as any);
     notificationService.startMonitoring();
-  }, [state]); // state가 바뀔 때마다 서비스에 최신 상태 전달 (임시)
+  }, [state, setState]); // state나 setState가 바뀔 때마다 서비스에 최신 상태 전달
 
   // 4. DOM 조작 및 포커스 관리
   useEffect(() => {
@@ -82,7 +88,7 @@ const ReminderPage: React.FC = () => {
       <Sidebar 
         isDarkMode={isDarkMode} 
         onToggleTheme={toggleDarkMode} 
-        onLogout={() => reminderService.handleLogout()} 
+        onLogout={logout} 
       />
 
       <div className="reminder-list-wrapper">
@@ -93,11 +99,11 @@ const ReminderPage: React.FC = () => {
               className="search-input" 
               placeholder="검색어를 입력하세요..." 
               value={state.searchQuery} 
-              onChange={(e) => setState(s => ({ ...s, searchQuery: e.target.value }))} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
             />
             <button 
               className={`filter-toggle-btn ${state.hideCompleted ? 'active' : ''}`} 
-              onClick={() => setState(s => ({ ...s, hideCompleted: !s.hideCompleted }))}
+              onClick={toggleHideCompleted}
               title="완료된 항목 숨기기"
             >
               <span className="filter-icon">✓</span>
@@ -122,13 +128,23 @@ const ReminderPage: React.FC = () => {
                 selectedTime={state.selectedTime}
                 isAllDay={state.isAllDay}
                 pickerState={{ ampm: state.pickerAMPM, hour: state.pickerHour, minute: state.pickerMinute }}
+                onUpdateSectionTitle={updateSectionTitle}
+                onDeleteSection={deleteSection}
+                onSetEditingSectionId={setEditingSectionId}
+                onSetAddingSection={setAddingSection}
+                onToggleTimePopover={toggleTimePopover}
+                onAddReminder={addReminder}
+                onToggleReminder={toggleReminder}
+                onDeleteReminder={deleteReminder}
+                onUpdateReminder={updateReminder}
+                onSetEditingItemId={setEditingItemId}
               />
             ))
           )}
         </div>
 
         {!state.searchQuery.trim() && (
-          <button className="plus-btn-container" onClick={() => reminderService.addSection()}>
+          <button className="plus-btn-container" onClick={addSection}>
             <Icon name="plus" size={30} />
           </button>
         )}
