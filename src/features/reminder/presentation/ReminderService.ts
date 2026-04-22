@@ -1,8 +1,7 @@
 import { reminderStore } from '@src/features/reminder/domain/ReminderStore';
 import { authStore } from '@src/features/auth/domain/AuthStore';
 import { themeStore } from '@src/shared/domain/ThemeStore';
-import { Router } from '@core/Router';
-import { REMINDER_CONFIG, NOTIFICATION_MESSAGES } from '@src/shared/constants';
+import { REMINDER_CONFIG } from '@src/shared/constants';
 
 /**
  * 리마인더 페이지의 모든 비즈니스 로직을 담당하는 서비스 클래스
@@ -169,7 +168,7 @@ export class ReminderService {
 
   handleLogout() {
     authStore.logout();
-    Router.getInstance().navigate('/login');
+    window.location.hash = '#/login';
   }
 
   toggleDarkMode() {

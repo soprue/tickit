@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useAuthStore } from '@src/features/auth/domain/AuthStore';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
 import { useReminderStore, useSaveStatusStore } from '@src/features/reminder/domain/ReminderStore';
 
@@ -27,7 +26,6 @@ const ReminderPage: React.FC = () => {
 
   // 2. Zustand 스토어 데이터
   const { isDarkMode, toggleDarkMode } = useThemeStore();
-  const { logout } = useAuthStore();
   const { sections } = useReminderStore();
   const { isSaving } = useSaveStatusStore();
 
@@ -84,10 +82,7 @@ const ReminderPage: React.FC = () => {
       <Sidebar 
         isDarkMode={isDarkMode} 
         onToggleTheme={toggleDarkMode} 
-        onLogout={() => {
-          logout();
-          window.location.hash = '/login'; // 혹은 Router 사용
-        }} 
+        onLogout={() => reminderService.handleLogout()} 
       />
 
       <div className="reminder-list-wrapper">
