@@ -86,8 +86,11 @@ html, body {
   padding: 0;
 }
 
-body {
+*, *::before, *::after {
   box-sizing: border-box;
+}
+
+body {
   background-color: var(--color-bg);
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;

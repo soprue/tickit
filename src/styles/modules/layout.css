@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--spacing-lg) 0; /* 위아래 균형 잡힌 패딩 추가 */
+  padding: var(--spacing-lg) 0;
   box-sizing: border-box;
 }
 
@@ -198,7 +198,7 @@
 .dark-mode .filter-toggle-btn {
   background-color: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  color: #eeeeee; /* 아이콘 색상을 밝게 변경 */
+  color: #eeeeee;
 }
 
 .dark-mode .search-input:focus {
@@ -214,7 +214,7 @@
 .dark-mode .filter-toggle-btn.active {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
-  color: #ffffff; /* 활성화 시 아이콘을 완전한 흰색으로 */
+  color: #ffffff;
 }
 
 .dark-mode .save-status-toast {
@@ -227,21 +227,6 @@
   color: #bbbbbb;
 }
 
-/* Empty Search State */
-.empty-search-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--spacing-2xl) 0;
-  text-align: center;
-}
-
-.empty-message {
-  color: var(--color-gray-medium);
-  font-size: 15px;
-  font-weight: 500;
-}
-
 /* Sidebar Specifics */
 .sidemenu-top {
   display: flex;
@@ -252,7 +237,7 @@
 .logo-img {
   width: 25px;
   height: 25px;
-  margin: 0 auto; /* 상하 마진 제거, 패딩으로 대체됨 */
+  margin: 0 auto;
   display: block;
 }
 
@@ -273,17 +258,17 @@
   align-items: center;
   cursor: pointer;
   transition: background-color var(--transition-fast);
+  color: var(--color-icon-brown); /* 부모에 색상 지정 */
 }
 
-.icon-mask {
-  width: 18px;
-  height: 18px;
-  background-color: var(--color-icon-brown);
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: contain;
-  transition: background-color var(--transition-fast);
+.icon-circle svg {
+  transition: color var(--transition-fast);
+}
+
+.icon-circle:hover {
+  background-color: var(--color-gray-light);
+}
+
+.dark-mode .icon-circle:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }

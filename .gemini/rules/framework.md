@@ -1,23 +1,20 @@
-# Framework Core Rules
+# Framework Core Rules (React 19)
 
-이 문서는 `src/core` 하위의 프레임워크 핵심 요소를 사용하는 방법을 정의합니다.
+이 프로젝트는 React 19의 기능을 최대한 활용하여 선언적이고 효율적인 앱을 구축합니다.
 
-## 1. Component (Component.ts)
-- 모든 UI 요소는 `Component`를 상속받은 클래스여야 합니다.
-- **생명주기(Lifecycle)**:
-  - `componentWillMount`: 렌더링 전 초기화.
-  - `render`: JSX를 활용해 UI 반환 (반드시 구현).
-  - `componentDidMount`: DOM 삽입 후 실행 (이벤트 바인딩, API 호출 등).
-  - `setState`: 상태를 변경하며, 비동기(Promise)로 동작함을 유의하십시오.
+## 1. Functional Components
+- 모든 UI는 함수형 컴포넌트로 작성합니다.
+- `autoFocus` 속성을 활용하여 편집 모드 전환 시 포커스를 선언적으로 관리합니다.
 
-## 2. JSX (JSX.ts)
-- 이 프로젝트의 JSX는 **태그 함수(Tagged Template Literal)** 방식입니다. 
-- 예시: `jsx`<div>Hello ${this.props.name}</div>``
-- **이벤트 바인딩**: `on` 접두어를 사용하여 인라인으로 전달합니다. 
-  - 예: `jsx`<button onclick="${this.handleClick.bind(this)}">클릭</button>``
-- 주의: 일반적인 React JSX(`<div>...</div>`) 문법이 아니므로 반드시 `jsx` 백틱 기호를 사용하십시오.
+## 2. Hooks 아키텍처 (계층화)
+- **Atomic Hooks**: 단일 기능만 수행하는 작은 훅 (예: `useSearchFilter`, `useTimePickerState`).
+- **Facade Hooks (Orchestrator)**: 여러 Atomic 훅을 조립하여 페이지에 최종 인터페이스를 제공하는 훅 (예: `useReminderUI`).
+- **규칙**: 컴포넌트는 가급적 하나의 Facade 훅만 구독하여 깨끗한 상태를 유지합니다.
 
-## 3. Router (Router.ts)
-- 페이지 이동은 `Router.getInstance().navigate(path)`를 사용합니다.
-- 새로운 페이지를 추가할 때는 `Router.add(path, PageClass)`를 통해 등록합니다.
-- `window.location.href`를 직접 수정하지 마십시오.
+## 3. React 19 Actions & Transitions
+- 비동기 작업(저장, 삭제 등)은 `useTransition` 기반의 **전역 Action 시스템**을 통해 실행합니다.
+- `isPending` 상태를 활용하여 '저장 중...'과 같은 사용자 피드백을 선언적으로 제공합니다.
+
+## 4. Router (React Router 7)
+- 페이지 이동은 `useNavigate` 훅을 사용합니다.
+- 직접적인 `window.location.hash` 조작을 금지하며, 라우터가 제공하는 선언적 API를 우선시합니다.

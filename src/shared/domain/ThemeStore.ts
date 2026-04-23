@@ -1,30 +1,31 @@
-import { Store } from '@core/Store';
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { STORAGE_KEYS } from '@src/shared/constants';
+import { themeStorage } from '../infrastructure/themeStorage';
 
 interface ThemeState {
   isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
-class ThemeStore extends Store<ThemeState> {
-  constructor() {
-    // 초기 테마 설정: 로컬 스토리지에 없으면 시스템 설정 확인
-    const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    super({
-      isDarkMode: systemDarkMode,
-    }, STORAGE_KEYS.THEME);
-  }
-
-  protected hydrate(data: any): ThemeState {
-    if (data && typeof data.isDarkMode === 'boolean') {
-      return { isDarkMode: data.isDarkMode };
+export const useThemeStore = create<ThemeState>()(
+  persist(
+    (set) => ({
+      isDarkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
+      toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+    }),
+    {
+      name: STORAGE_KEYS.THEME,
+      storage: createJSONStorage(() => themeStorage),
+      // persist 시 state만 저장하고 actions는 제외
+      partialize: (state) => ({ isDarkMode: state.isDarkMode }),
     }
-    return this.state;
-  }
+  )
+);
 
-  toggleDarkMode() {
-    this.setState({ isDarkMode: !this.state.isDarkMode });
-  }
-}
-
-export const themeStore = new ThemeStore();
+// 하위 호환성을 위해 themeStore 객체 유지 (필요 시 점진적 교체)
+export const themeStore = {
+  getState: () => useThemeStore.getState(),
+  subscribe: (listener: (state: ThemeState) => void) => useThemeStore.subscribe(listener),
+  toggleDarkMode: () => useThemeStore.getState().toggleDarkMode(),
+};
