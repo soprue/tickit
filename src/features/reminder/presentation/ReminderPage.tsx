@@ -15,13 +15,11 @@ const ReminderPage: React.FC = () => {
   // 2. 알림 모니터링
   useNotificationMonitor();
 
-  // 3. 글로벌 설정 상태 (테마 및 저장 중 여부)
+  // 3. 글로벌 설정 상태
   const { isDarkMode, toggleDarkMode } = useThemeStore();
   const { isSaving } = useSaveStatusStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // 4. 포커스 관리 (각 컴포넌트 내부에서 autoFocus로 처리되므로 더 이상 수동 DOM 조작이 필요 없습니다.)
 
   return (
     <div ref={containerRef} className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -60,7 +58,6 @@ const ReminderPage: React.FC = () => {
         </div>
 
         <div className="sections-container">
-          {/* 검색 결과가 없을 때의 예외 처리 */}
           {ui.searchQuery.trim() && !ui.hasAnyMatches && !ui.isEditingAny ? (
             <div className="empty-search-state"><p className="empty-message">해당하는 리마인더가 없습니다.</p></div>
           ) : (
@@ -70,31 +67,11 @@ const ReminderPage: React.FC = () => {
                 title={section.title}
                 category={section.id}
                 items={section.items}
-                addingSectionId={ui.state.addingSectionId}
-                editingItemId={ui.state.editingItemId}
-                isEditingTitle={ui.state.editingSectionId === section.id}
-                showTimePopover={ui.state.showTimePopover}
-                selectedTime={ui.state.selectedTime}
-                isAllDay={ui.state.isAllDay}
-                pickerState={{ ampm: ui.state.pickerAMPM, hour: ui.state.pickerHour, minute: ui.state.pickerMinute }}
-                onUpdateSectionTitle={ui.updateSectionTitle}
-                onDeleteSection={ui.deleteSection}
-                onSetEditingSectionId={ui.setEditingSectionId}
-                onSetAddingSection={ui.setAddingSection}
-                onToggleTimePopover={ui.toggleTimePopover}
-                onAddReminder={ui.addReminder}
-                onToggleReminder={ui.toggleReminder}
-                onDeleteReminder={ui.deleteReminder}
-                onUpdateReminder={ui.updateReminder}
-                onSetEditingItemId={ui.setEditingItemId}
-                onUpdatePickerTime={ui.updatePickerTime}
-                onSetAllDay={ui.setAllDay}
               />
             ))
           )}
         </div>
 
-        {/* 검색 중이 아닐 때만 섹션 추가 버튼 노출 */}
         {!ui.searchQuery.trim() && (
           <button className="plus-btn-container" onClick={ui.addSection}>
             <Icon name="plus" size={30} />

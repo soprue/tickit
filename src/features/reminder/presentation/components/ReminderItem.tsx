@@ -3,38 +3,27 @@ import { Icon } from '@src/shared/presentation/components/Icon';
 import { Reminder } from '../../domain/reminder';
 import { formatKoreanTime } from '@src/shared/utils/date';
 import { TimePicker } from './TimePicker';
+import { useReminderUI } from '../hooks/useReminderUI';
 
 interface ReminderItemProps {
   sectionId: string;
   item: Reminder;
-  isEditing: boolean;
-  showTimePopover: boolean;
-  selectedTime: Date | undefined;
-  isAllDay: boolean;
-  pickerState: { ampm: string; hour: string; minute: string };
-  onToggleReminder: (sectionId: string, reminderId: number) => void;
-  onDeleteReminder: (sectionId: string, reminderId: number) => void;
-  onUpdateReminder: (sectionId: string, reminderId: number, text: string) => void;
-  onSetEditingItemId: (reminderId: number | null) => void;
-  onToggleTimePopover: () => void;
-  onUpdatePickerTime: (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => void;
-  onSetAllDay: () => void;
 }
 
 /**
  * 수정 모드 UI (React)
  */
-const EditMode: React.FC<ReminderItemProps> = (props) => {
-  const { sectionId, item, selectedTime, isAllDay, pickerState, showTimePopover, onUpdateReminder, onSetEditingItemId, onToggleTimePopover, onUpdatePickerTime, onSetAllDay } = props;
+const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
+  const ui = useReminderUI();
+  const { selectedTime, isAllDay, pickerAMPM, pickerHour, pickerMinute, showTimePopover } = ui.state;
 
   const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') onUpdateReminder(sectionId, item.id, e.currentTarget.value);
-    else if (e.key === 'Escape') onSetEditingItemId(null);
+    if (e.key === 'Enter') ui.updateReminder(sectionId, item.id, e.currentTarget.value);
+    else if (e.key === 'Escape') ui.setEditingItemId(null);
   };
 
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (showTimePopover) return;
-
     const container = e.currentTarget.closest('.input-area-wrapper');
     if (container && container.contains(e.relatedTarget as Node)) return;
     
@@ -43,18 +32,17 @@ const EditMode: React.FC<ReminderItemProps> = (props) => {
       const activeEl = document.activeElement;
       const isStillInInput = activeEl && (activeEl.classList.contains('reminder-inline-input') || activeEl.classList.contains('section-title-input'));
       if (isStillInInput) return;
-      onUpdateReminder(sectionId, item.id, value);
+      ui.updateReminder(sectionId, item.id, value);
     }, 250);
   };
 
   const badgeClass = `time-badge ${!isAllDay && selectedTime ? 'active' : ''}`;
-  const checkboxClass = `checkbox-rect ${item.done ? 'done' : ''}`;
   const displayTime = isAllDay ? 'All Day' : (selectedTime ? formatKoreanTime(selectedTime) : '');
 
   return (
     <form className="input-area-wrapper" onSubmit={(e) => e.preventDefault()} style={{ marginBottom: '8px' }}>
       <div className="input-container">
-        <div className={checkboxClass}>
+        <div className={`checkbox-rect ${item.done ? 'done' : ''}`}>
           {item.done && <Icon name="cancel" size={7} />}
         </div>
         <input 
@@ -68,7 +56,7 @@ const EditMode: React.FC<ReminderItemProps> = (props) => {
         <button 
           type="button" 
           className={badgeClass} 
-          onClick={() => onToggleTimePopover()}
+          onClick={() => ui.toggleTimePopover()}
         >
           <Icon name="clock" size={14} className="time-icon" />
           <span className="time-text">{displayTime === 'All Day' ? '' : displayTime}</span>
@@ -76,10 +64,10 @@ const EditMode: React.FC<ReminderItemProps> = (props) => {
       </div>
       {showTimePopover && (
         <TimePicker 
-          pickerState={pickerState} 
+          pickerState={{ ampm: pickerAMPM, hour: pickerHour, minute: pickerMinute }} 
           style={{ top: '36px' }} 
-          onUpdatePickerTime={onUpdatePickerTime}
-          onSetAllDay={onSetAllDay}
+          onUpdatePickerTime={ui.updatePickerTime}
+          onSetAllDay={ui.setAllDay}
         />
       )}
     </form>
@@ -89,18 +77,18 @@ const EditMode: React.FC<ReminderItemProps> = (props) => {
 /**
  * 일반 모드 UI (React)
  */
-const ViewMode: React.FC<ReminderItemProps> = (props) => {
-  const { sectionId, item, onToggleReminder, onSetEditingItemId, onDeleteReminder } = props;
+const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
+  const ui = useReminderUI();
   
   const toggleDone = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
-    onToggleReminder(sectionId, item.id);
+    ui.toggleReminder(sectionId, item.id);
   };
 
-  const startEdit = () => onSetEditingItemId(item.id);
+  const startEdit = () => ui.setEditingItemId(item.id);
   const deleteItemAction = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDeleteReminder(sectionId, item.id);
+    ui.deleteReminder(sectionId, item.id);
   };
 
   const displayTime = item.isAllDay ? 'All Day' : (item.time ? formatKoreanTime(item.time) : '');
@@ -125,10 +113,12 @@ const ViewMode: React.FC<ReminderItemProps> = (props) => {
 };
 
 /**
- * 개별 리마인더 항목 컴포넌트 (React)
+ * 개별 리마인더 항목 컴포넌트
  */
 export const ReminderItem: React.FC<ReminderItemProps> = (props) => {
-  return props.isEditing ? <EditMode {...props} /> : <ViewMode {...props} />;
+  const ui = useReminderUI();
+  const isEditing = ui.state.editingItemId === props.item.id;
+  return isEditing ? <EditMode {...props} /> : <ViewMode {...props} />;
 };
 
 export default ReminderItem;
