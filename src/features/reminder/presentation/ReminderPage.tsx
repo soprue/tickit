@@ -1,34 +1,36 @@
 import React, { useRef } from 'react';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
-import { useSaveStatusStore } from '@src/features/reminder/domain/ReminderStore';
 
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { useReminderUI } from './hooks/useReminderUI';
 import { useNotificationMonitor } from './hooks/useNotificationMonitor';
+import { useActionContext } from '@src/shared/context/ActionContext';
 
 const ReminderPage: React.FC = () => {
-  // 1. 모든 UI 로직 및 필터링 데이터를 하나의 "통합 훅"에서 가져옵니다.
+  // 1. 전역 Action 상태 가져오기 (어떤 자식 컴포넌트의 액션에도 반응함)
+  const { isPending } = useActionContext();
+
+  // 2. 통합 훅
   const ui = useReminderUI();
 
-  // 2. 알림 모니터링
+  // 3. 알림 모니터링
   useNotificationMonitor();
 
-  // 3. 글로벌 설정 상태
+  // 4. 글로벌 설정
   const { isDarkMode, toggleDarkMode } = useThemeStore();
-  const { isSaving } = useSaveStatusStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
     <div ref={containerRef} className={`app-container ${isDarkMode ? 'dark-mode' : ''}`}>
-      {/* 저장 상태 알림 토스트 */}
-      <div className={`save-status-toast ${isSaving ? 'visible saving' : 'saved'}`}>
+      {/* 전역 Action 기반 선언적 토스트 */}
+      <div className={`save-status-toast ${isPending ? 'visible saving' : 'saved'}`}>
         <div className="save-icon-wrapper">
-          {isSaving ? <div className="spinner-dot" /> : <span className="check-icon">✓</span>}
+          {isPending ? <div className="spinner-dot" /> : <span className="check-icon">✓</span>}
         </div>
-        <span className="save-text">{isSaving ? '저장 중...' : '저장 완료'}</span>
+        <span className="save-text">{isPending ? '저장 중...' : '저장 완료'}</span>
       </div>
 
       <Sidebar 

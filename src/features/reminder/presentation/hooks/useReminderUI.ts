@@ -5,16 +5,16 @@ import { authStore } from '@src/features/auth/domain/AuthStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
 import { useEditState } from './useEditState';
 import { useSearchFilter } from './useSearchFilter';
+import { useActionContext } from '@src/shared/context/ActionContext';
 
 /**
  * 리마인더 페이지의 모든 상태와 액션을 통합 관리하는 "지휘관(Facade)" 훅.
- * 내부적으로 useEditState와 useSearchFilter를 조립하여 데이터 흐름을 중재합니다.
  */
 export const useReminderUI = () => {
   const navigate = useNavigate();
   const { showConfirm } = useModalStore();
+  const { runAction } = useActionContext(); // 전역 액션 실행 도구
 
-  // 1. 스토어 훅을 통해 데이터와 액션 모두 가져오기
   const { 
     sections, 
     addSection: _addSection, 
@@ -28,7 +28,6 @@ export const useReminderUI = () => {
   
   const edit = useEditState();
 
-  // 2. 상태 간의 연결
   const isEditingAny = !!(
     edit.editState.addingSectionId || 
     edit.editState.editingItemId || 
@@ -37,17 +36,26 @@ export const useReminderUI = () => {
 
   const filter = useSearchFilter(sections, isEditingAny);
 
+  // 저장 완료를 체감할 수 있도록 약간의 대기 시간을 줌
+  const waitSave = () => new Promise(resolve => setTimeout(resolve, 300));
+
   /* -------------------------------------------------------------------------- */
-  /* CRUD 액션                                                                   */
+  /* CRUD 액션 (전역 runAction으로 래핑)                                           */
   /* -------------------------------------------------------------------------- */
 
   const addSection = () => {
-    _addSection(REMINDER_CONFIG.NEW_SECTION_TITLE);
+    runAction(async () => {
+      _addSection(REMINDER_CONFIG.NEW_SECTION_TITLE);
+      await waitSave();
+    });
   };
 
   const updateSectionTitle = (sectionId: string, title: string) => {
     if (title.trim()) {
-      _updateSectionTitle(sectionId, title);
+      runAction(async () => {
+        _updateSectionTitle(sectionId, title);
+        await waitSave();
+      });
     }
     edit.clearEditState();
   };
@@ -56,19 +64,32 @@ export const useReminderUI = () => {
     showConfirm({
       title: '섹션 삭제',
       message: '이 섹션을 삭제하시겠습니까? 섹션 내 모든 리마인더가 삭제됩니다.',
-      onConfirm: () => _deleteSection(sectionId),
+      onConfirm: () => {
+        runAction(async () => {
+          _deleteSection(sectionId);
+          await waitSave();
+        });
+      },
     });
   };
 
   const toggleReminder = (sectionId: string, reminderId: number) => {
-    _toggleReminder(sectionId, reminderId);
+    runAction(async () => {
+      _toggleReminder(sectionId, reminderId);
+      await waitSave();
+    });
   };
 
   const deleteReminder = (sectionId: string, reminderId: number) => {
     showConfirm({
       title: '리마인더 삭제',
       message: '이 항목을 삭제하시겠습니까?',
-      onConfirm: () => _deleteReminder(sectionId, reminderId),
+      onConfirm: () => {
+        runAction(async () => {
+          _deleteReminder(sectionId, reminderId);
+          await waitSave();
+        });
+      },
     });
   };
 
@@ -77,7 +98,10 @@ export const useReminderUI = () => {
     if (editingItemId !== reminderId) return;
 
     if (text.trim()) {
-      _updateReminder(sectionId, reminderId, text, selectedTime, isAllDay);
+      runAction(async () => {
+        _updateReminder(sectionId, reminderId, text, selectedTime, isAllDay);
+        await waitSave();
+      });
     }
     edit.clearEditState();
   };
@@ -88,7 +112,10 @@ export const useReminderUI = () => {
 
     if (!text.trim()) return;
 
-    _addReminder(sectionId, text, selectedTime, isAllDay);
+    runAction(async () => {
+      _addReminder(sectionId, text, selectedTime, isAllDay);
+      await waitSave();
+    });
     edit.setAddingSection(null);
   };
 

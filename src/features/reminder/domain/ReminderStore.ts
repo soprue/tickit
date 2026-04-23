@@ -4,17 +4,6 @@ import { ReminderSectionData, initialSections } from './reminder';
 import { STORAGE_KEYS } from '@src/shared/constants';
 import { reminderStorage } from '../infrastructure/reminderStorage';
 
-// UI 전용 저장 상태 스토어 (영속성 저장 안 함)
-interface SaveStatusState {
-  isSaving: boolean;
-  setIsSaving: (isSaving: boolean) => void;
-}
-
-export const useSaveStatusStore = create<SaveStatusState>((set) => ({
-  isSaving: false,
-  setIsSaving: (isSaving: boolean) => set({ isSaving }),
-}));
-
 interface ReminderState {
   sections: ReminderSectionData[];
   
@@ -29,6 +18,9 @@ interface ReminderState {
   markAsNotified: (sectionId: string, reminderId: number) => void;
 }
 
+/**
+ * 리마인더 할 일 목록과 섹션 데이터를 관리하는 메인 스토어
+ */
 export const useReminderStore = create<ReminderState>()(
   persist(
     (set) => ({
@@ -94,17 +86,8 @@ export const useReminderStore = create<ReminderState>()(
   )
 );
 
-// 하위 호환성을 위해 reminderStore 객체 유지
+// 컴포넌트 라이프사이클 밖(예: setInterval)에서 최신 상태가 필요한 경우를 위해 유지
 export const reminderStore = {
   getState: () => useReminderStore.getState(),
-  subscribe: (listener: (state: ReminderState) => void) => useReminderStore.subscribe(listener),
-  get isSaving() { return useSaveStatusStore.getState().isSaving; },
-  addSection: (title: string) => useReminderStore.getState().addSection(title),
-  updateSectionTitle: (sectionId: string, title: string) => useReminderStore.getState().updateSectionTitle(sectionId, title),
-  deleteSection: (sectionId: string) => useReminderStore.getState().deleteSection(sectionId),
-  addReminder: (sectionId: string, text: string, time?: Date, isAllDay: boolean = false) => useReminderStore.getState().addReminder(sectionId, text, time, isAllDay),
-  toggleReminder: (sectionId: string, reminderId: number) => useReminderStore.getState().toggleReminder(sectionId, reminderId),
-  updateReminder: (sectionId: string, reminderId: number, text: string, time?: Date, isAllDay: boolean = false) => useReminderStore.getState().updateReminder(sectionId, reminderId, text, time, isAllDay),
-  deleteReminder: (sectionId: string, reminderId: number) => useReminderStore.getState().deleteReminder(sectionId, reminderId),
   markAsNotified: (sectionId: string, reminderId: number) => useReminderStore.getState().markAsNotified(sectionId, reminderId),
 };

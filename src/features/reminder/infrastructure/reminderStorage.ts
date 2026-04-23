@@ -1,6 +1,5 @@
 import { StateStorage } from 'zustand/middleware';
 import { Reminder, ReminderSectionData, initialSections } from '../domain/reminder';
-import { useSaveStatusStore } from '../domain/ReminderStore';
 
 /**
  * 불러온 데이터의 날짜 형식을 복원함
@@ -28,7 +27,8 @@ const hydrateReminders = (data: { sections: ReminderSectionData[] } | null): Rem
 };
 
 /**
- * Electron IPC 기반 리마인더 전용 커스텀 스토리지
+ * Electron IPC 기반 리마인더 전용 커스텀 스토리지.
+ * React 19 Action과의 연동을 위해 수동 상태 제어를 제거하고 순수 비동기 함수로 유지합니다.
  */
 export const reminderStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
@@ -49,16 +49,14 @@ export const reminderStorage: StateStorage = {
     if (typeof window === 'undefined' || !window.api) return;
     try {
       const data = JSON.parse(value);
-      // useSaveStatusStore를 사용하여 루프를 방지함
-      useSaveStatusStore.getState().setIsSaving(true);
+      // 실제 IPC 통신 (비동기)
       await window.api.invoke('reminder:save', {
         key: name,
         data: data.state
       });
-      setTimeout(() => useSaveStatusStore.getState().setIsSaving(false), 500);
     } catch (e) {
       console.error(`[ReminderStore] Save error:`, e);
-      useSaveStatusStore.getState().setIsSaving(false);
+      throw e; // 에러를 상위(Action)로 전파
     }
   },
   removeItem: (name: string) => {},
