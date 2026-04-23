@@ -1,24 +1,23 @@
 import { StateStorage } from 'zustand/middleware';
+import { ipc } from '@src/shared/utils/ipc';
 
 /**
- * Electron IPC 기반 인증 전용 커스텀 스토리지
+ * Electron IPC 기반 인증 정보 저장소
  */
 export const authStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
-    if (typeof window === 'undefined' || !window.api) return null;
     try {
-      const data = await window.api.invoke('reminder:get-all', name);
-      return data ? JSON.stringify({ state: data }) : null;
+      const data = await ipc.invoke<any>('reminder:get-all', name);
+      if (data) return JSON.stringify({ state: data });
+      return null;
     } catch (e) {
-      console.error(`[AuthStore] Load error:`, e);
       return null;
     }
   },
   setItem: async (name: string, value: string): Promise<void> => {
-    if (typeof window === 'undefined' || !window.api) return;
     try {
       const data = JSON.parse(value);
-      await window.api.invoke('reminder:save', {
+      await ipc.invoke('reminder:save', {
         key: name,
         data: data.state
       });
@@ -26,7 +25,5 @@ export const authStorage: StateStorage = {
       console.error(`[AuthStore] Save error:`, e);
     }
   },
-  removeItem: async (name: string): Promise<void> => {
-    // 필요 시 구현
-  },
+  removeItem: (name: string) => {},
 };
