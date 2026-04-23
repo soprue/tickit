@@ -1,8 +1,9 @@
 import { useReminderUIStore } from '@src/features/reminder/domain/ReminderUIStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
+import { parseDateToPickerState, createDateFromPickerState } from '@src/shared/utils/date';
 
 /**
- * 전역 UI 스토어를 활용하여 타임 피커 상태를 관리하는 커스텀 훅
+ * 전역 UI 스토어와 공통 시간 유틸리티를 활용하여 타임 피커 상태를 관리하는 커스텀 훅
  */
 export const useTimePickerState = () => {
   const state = useReminderUIStore();
@@ -11,28 +12,22 @@ export const useTimePickerState = () => {
     const isOpening = !state.showTimePopover;
 
     if (isOpening) {
-      let ampm: 'AM' | 'PM' = REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM';
-      let hour: string = REMINDER_CONFIG.DEFAULT_HOUR;
-      let minute: string = REMINDER_CONFIG.DEFAULT_MINUTE;
-
       const timeDate = currentTime instanceof Date ? currentTime : (state.selectedTime ? new Date(state.selectedTime) : null);
       
-      if (timeDate && !isNaN(timeDate.getTime()) && !state.isAllDay) {
-        const h = timeDate.getHours();
-        const m = timeDate.getMinutes();
-        ampm = h >= 12 ? 'PM' : 'AM';
-        const displayHour = h % 12 || 12;
-        hour = String(displayHour).padStart(2, '0');
-        
-        const roundedMinute = Math.round(m / 5) * 5;
-        minute = String(roundedMinute >= 60 ? 55 : roundedMinute).padStart(2, '0');
-      }
+      // 유틸리티를 활용한 선언적 상태 변환
+      const pickerState = timeDate && !isNaN(timeDate.getTime()) && !state.isAllDay
+        ? parseDateToPickerState(timeDate)
+        : { 
+            ampm: REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM', 
+            hour: REMINDER_CONFIG.DEFAULT_HOUR, 
+            minute: REMINDER_CONFIG.DEFAULT_MINUTE 
+          };
 
       state.setUIState({ 
         showTimePopover: true,
-        pickerAMPM: ampm,
-        pickerHour: hour,
-        pickerMinute: minute
+        pickerAMPM: pickerState.ampm,
+        pickerHour: pickerState.hour,
+        pickerMinute: pickerState.minute
       });
     } else {
       state.setUIState({ showTimePopover: false });
@@ -40,16 +35,12 @@ export const useTimePickerState = () => {
   };
 
   const updatePickerTime = (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => {
-    // 입력값을 기반으로 실제 Date 객체 생성
-    const date = new Date();
-    let h = parseInt(key === 'pickerHour' ? value : state.pickerHour);
-    const ampm = key === 'pickerAMPM' ? value : state.pickerAMPM;
+    // 입력값을 기반으로 실제 Date 객체 생성 (유틸리티 활용)
+    const ampm = key === 'pickerAMPM' ? value as 'AM' | 'PM' : state.pickerAMPM;
+    const hour = key === 'pickerHour' ? value : state.pickerHour;
     const minute = key === 'pickerMinute' ? value : state.pickerMinute;
 
-    if (ampm === 'PM' && h < 12) h += 12;
-    if (ampm === 'AM' && h === 12) h = 0;
-    
-    date.setHours(h, parseInt(minute), 0, 0);
+    const date = createDateFromPickerState(ampm, hour, minute);
 
     state.setUIState({ 
       [key]: value,
@@ -68,25 +59,20 @@ export const useTimePickerState = () => {
   };
 
   const setInitialTime = (time: Date | undefined, isAllDay: boolean) => {
-    let ampm: 'AM' | 'PM' = REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM';
-    let hour: string = REMINDER_CONFIG.DEFAULT_HOUR;
-    let minute: string = REMINDER_CONFIG.DEFAULT_MINUTE;
-
-    if (time instanceof Date) {
-      const h = time.getHours();
-      const m = time.getMinutes();
-      ampm = h >= 12 ? 'PM' : 'AM';
-      const displayHour = h % 12 || 12;
-      hour = String(displayHour);
-      minute = String(m).padStart(2, '0');
-    }
+    const pickerState = time instanceof Date 
+      ? parseDateToPickerState(time)
+      : { 
+          ampm: REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM', 
+          hour: REMINDER_CONFIG.DEFAULT_HOUR, 
+          minute: REMINDER_CONFIG.DEFAULT_MINUTE 
+        };
 
     state.setUIState({
       selectedTime: time,
       isAllDay,
-      pickerAMPM: ampm,
-      pickerHour: hour,
-      pickerMinute: minute,
+      pickerAMPM: pickerState.ampm,
+      pickerHour: pickerState.hour,
+      pickerMinute: pickerState.minute,
       showTimePopover: false
     });
   };
