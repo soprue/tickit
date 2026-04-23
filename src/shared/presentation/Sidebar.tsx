@@ -20,16 +20,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const iconColor = 'var(--color-icon-brown)';
 
   return (
-    <aside className="sidemenu">
-      <div className="sidemenu-top">
-        <img src={logoIcon} alt="logo" className="logo-img" />
+    <aside className="w-[var(--sidebar-width)] h-full bg-white shadow-sidebar relative flex-shrink-0 z-[100] transition-colors duration-250 flex flex-col justify-between py-lg box-border dark:bg-[#151515]">
+      <div className="flex flex-col items-center">
+        <img src={logoIcon} alt="logo" className="w-[25px] h-[25px] mx-auto block" />
       </div>
 
-      <div className="sidemenu-buttons">
-        <div className="icon-circle" onClick={onToggleTheme} title="테마 변경">
+      <div className="flex flex-col items-center gap-md">
+        <div 
+          className="w-[34px] h-[34px] bg-icon-bg rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:bg-[#2c2c2c] dark:hover:bg-white/15" 
+          onClick={onToggleTheme} 
+          title="테마 변경"
+        >
           <Icon name={isDarkMode ? 'sunlight' : 'halfmoon'} size={20} color={iconColor} />
         </div>
-        <div className="icon-circle" onClick={onLogout} title="로그아웃">
+        <div 
+          className="w-[34px] h-[34px] bg-icon-bg rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:bg-[#2c2c2c] dark:hover:bg-white/15" 
+          onClick={onLogout} 
+          title="로그아웃"
+        >
           <Icon name="logout" size={20} color={iconColor} />
         </div>
       </div>
