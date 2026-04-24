@@ -6,6 +6,7 @@
   /* Colors - Base (Literal) */
   --color-bg: #efefef;
   --color-white: #ffffff;
+  --color-primary: #E74C32; /* minusSquare 아이콘의 바로 그 오렌지색 */
   --color-black: #1a1a1a;
   --color-gray-dark: #2c2c2c;
   --color-gray-medium: #888888;
@@ -22,7 +23,7 @@
   --color-plus-icon: #a5a5a5;
   --color-icon-bg: #efefef;
 
-  /* Typography, Spacing, Radius, etc. (생략 없이 유지) */
+  /* Typography, Spacing, Radius, etc. */
   --font-size-xs: 12px;
   --font-size-sm: 13px;
   --font-size-base: 15px;
@@ -58,16 +59,19 @@
 .dark {
   --color-bg: #000000;
   --color-white: #151515;
-  --color-black: #000000; /* 다크모드에서도 black은 black으로 유지 */
+  --color-black: #000000;
   --color-gray-dark: #1f1f1f;
   --color-gray-medium: #888888;
   --color-gray-light: #333333;
   --color-gray-soft: rgba(255, 255, 255, 0.05);
   
   /* Semantic Colors - Dark mode switching */
-  --color-text-primary: #ffffff; /* 텍스트는 다크모드에서 흰색으로 */
+  --color-text-primary: #ffffff;
   --color-text-secondary: #aaaaaa;
   --color-border-base: #333333;
+  
+  /* 다크모드에서도 동일한 오렌지색 유지 (대비가 충분함) */
+  --color-primary: #E74C32; 
   
   --color-plus-bg: #343434;
   --color-plus-icon: #272727;
@@ -89,7 +93,7 @@ body {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
-  color: var(--color-text-primary); /* black 대신 text-primary 사용 */
+  color: var(--color-text-primary);
 }
 
 #root {

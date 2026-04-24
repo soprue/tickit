@@ -15,13 +15,17 @@ interface ReminderSectionProps {
 }
 
 /**
- * 섹션 헤더 (React)
+ * 섹션 헤더
  */
-const SectionHeader: React.FC<{
-  title: string;
-  category: string;
-  isFixed: boolean;
-}> = ({ title, category, isFixed }) => {
+function SectionHeader({ 
+  title, 
+  category, 
+  isFixed 
+}: { 
+  title: string; 
+  category: string; 
+  isFixed: boolean; 
+}) {
   const ui = useReminderUI();
   const isEditingTitle = ui.state.editingSectionId === category;
 
@@ -50,7 +54,7 @@ const SectionHeader: React.FC<{
       <div className='flex justify-between items-center'>
         <Input
           variant='underline'
-          className='section-title-input !text-xl !font-bold !p-0 !pb-0'
+          className='section-title-input !text-xl !font-bold !p-0 !pb-0 !text-primary'
           defaultValue={title}
           onKeyDown={onEnter}
           onBlur={onBlur}
@@ -71,7 +75,7 @@ const SectionHeader: React.FC<{
       </h2>
       {!isFixed && (
         <button
-          className='bg-none border-none cursor-pointer p-0 flex items-center transition-transform hover:scale-110 text-gray-light hover:text-primary'
+          className='bg-none border-none cursor-pointer p-0 flex items-center transition-transform hover:scale-110 text-gray-light hover:text-primary dark:text-gray-medium dark:hover:text-primary'
           onClick={() => ui.deleteSection(category)}
           title='섹션 삭제'
         >
@@ -80,14 +84,12 @@ const SectionHeader: React.FC<{
       )}
     </div>
   );
-};
+}
 
 /**
- * 섹션 푸터 (React)
+ * 섹션 푸터
  */
-const SectionFooter: React.FC<{
-  category: string;
-}> = ({ category }) => {
+function SectionFooter({ category }: { category: string }) {
   const ui = useReminderUI();
   const isAdding = ui.state.addingSectionId === category;
   const {
@@ -149,7 +151,7 @@ const SectionFooter: React.FC<{
         onSubmit={(e) => e.preventDefault()}
       >
         <div className='flex items-center gap-sm min-h-[32px]'>
-          <div className='w-4 h-4 border-[1.5px] border-icon-brown rounded-sm shrink-0 dark:border-white/40'></div>
+          <div className='w-4 h-4 border-[1.5px] border-gray-light rounded-sm shrink-0 dark:border-white/40'></div>
           <div className='flex-1 flex items-center'>
             <Input
               variant='underline'
@@ -168,7 +170,7 @@ const SectionFooter: React.FC<{
             <Icon
               name='clock'
               size={12}
-              color={!isAllDay && selectedTime ? 'white' : 'var(--color-icon-brown)'}
+              color={!isAllDay && selectedTime ? 'white' : 'currentColor'}
               className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
             />
             <span className='ml-1.5 leading-none tracking-tight'>
@@ -192,16 +194,16 @@ const SectionFooter: React.FC<{
       </form>
     </div>
   );
-};
+}
 
 /**
  * 카테고리별 섹션 카드 컴포넌트
  */
-export const ReminderSection: React.FC<ReminderSectionProps> = ({
+export function ReminderSection({
   title,
   category,
   items,
-}) => {
+}: ReminderSectionProps) {
   const isFixed = category === 'EVERYDAY' || category === 'TODO';
 
   return (
@@ -217,6 +219,6 @@ export const ReminderSection: React.FC<ReminderSectionProps> = ({
       <SectionFooter category={category} />
     </section>
   );
-};
+}
 
 export default ReminderSection;
