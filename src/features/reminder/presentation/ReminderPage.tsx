@@ -1,6 +1,5 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
-
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
@@ -9,7 +8,7 @@ import { useReminderUI } from './hooks/useReminderUI';
 import { useNotificationMonitor } from './hooks/useNotificationMonitor';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 
-const ReminderPage: React.FC = () => {
+function ReminderPage() {
   // 1. 통합 훅
   const ui = useReminderUI();
 
@@ -40,15 +39,18 @@ const ReminderPage: React.FC = () => {
           <div className='flex items-center gap-2 w-full group'>
             <Input
               type='text'
-              className='flex-1 !px-4 !py-[10px] border border-black/5 bg-white focus:shadow-sm dark:bg-white/10 dark:border-white/5'
+              className='flex-1 !px-4 !py-[10px] border border-black/5 bg-white focus:shadow-sm dark:bg-black dark:border-white/5'
               placeholder='검색어를 입력하세요...'
               value={ui.searchQuery}
               onChange={(e) => ui.setSearchQuery(e.target.value)}
             />
             <button
               className={`
-                w-[38px] h-[38px] rounded-lg border border-black/5 flex justify-center items-center cursor-pointer transition-all shrink-0
-                ${ui.hideCompleted ? 'bg-primary border-primary text-white' : 'bg-white hover:bg-gray-50 dark:bg-white/10 dark:border-white/5 dark:text-white dark:hover:bg-white/15'}
+                w-[38px] h-[38px] rounded-lg border flex justify-center items-center cursor-pointer transition-all shrink-0 shadow-sm
+                ${ui.hideCompleted 
+                  ? 'bg-primary border-primary text-white hover:brightness-110 active:scale-95' 
+                  : 'bg-white border-black/5 text-text-primary hover:bg-gray-50 active:bg-gray-100 dark:bg-black dark:border-white/5 dark:hover:bg-gray-dark'
+                }
               `}
               onClick={ui.toggleHideCompleted}
               title='완료된 항목 숨기기'
@@ -61,7 +63,7 @@ const ReminderPage: React.FC = () => {
         <div className='flex flex-col gap-md'>
           {ui.searchQuery.trim() && !ui.hasAnyMatches && !ui.isEditingAny ? (
             <div className='flex flex-col items-center justify-center py-2xl opacity-50'>
-              <p className='text-[15px] font-medium text-black dark:text-white'>
+              <p className='text-[15px] font-medium text-text-primary'>
                 해당하는 리마인더가 없습니다.
               </p>
             </div>
@@ -79,7 +81,7 @@ const ReminderPage: React.FC = () => {
 
         {!ui.searchQuery.trim() && (
           <button
-            className='w-[var(--plus-btn-size)] h-[var(--plus-btn-size)] bg-plus-bg text-plus-icon rounded-full border-none flex justify-center items-center cursor-pointer mx-auto mt-sm mb-2xl shrink-0 transition-all duration-normal hover:scale-105 active:scale-95 dark:bg-[#343434] dark:text-[#272727]'
+            className='w-[var(--plus-btn-size)] h-[var(--plus-btn-size)] bg-plus-bg text-plus-icon rounded-full border-none flex justify-center items-center cursor-pointer mx-auto mt-sm mb-2xl shrink-0 transition-all duration-normal hover:scale-105 active:scale-95 dark:bg-gray-dark dark:text-gray-medium'
             onClick={ui.addSection}
             title='새 섹션 추가'
           >
@@ -89,6 +91,6 @@ const ReminderPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default ReminderPage;

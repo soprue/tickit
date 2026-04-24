@@ -159,7 +159,7 @@ const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
 
       <div className='flex flex-col flex-1 min-w-0 pr-20'>
         <p
-          className={`font-medium text-[15px] m-0 leading-[1.2] transition-colors ${item.done ? 'text-gray-light line-through decoration-gray-light/50' : 'text-black dark:text-white'}`}
+          className={`font-medium text-[15px] m-0 leading-[1.2] transition-colors ${item.done ? 'text-gray-light line-through decoration-gray-light/50' : 'text-text-primary'}`}
         >
           {item.text}
         </p>

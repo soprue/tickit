@@ -38,7 +38,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ pickerState, style, onUp
             <div 
               key={opt}
               className={`h-[40px] flex items-center justify-center text-[14px] transition-all duration-300 snap-center cursor-pointer select-none
-                ${pickerState.ampm === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-black dark:text-white'}`} 
+                ${pickerState.ampm === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-text-primary'}`} 
               onClick={() => updateTime('pickerAMPM', opt)}
             >
               {opt}
@@ -52,7 +52,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ pickerState, style, onUp
             <div 
               key={opt}
               className={`h-[40px] flex items-center justify-center text-[14px] transition-all duration-300 snap-center cursor-pointer select-none
-                ${pickerState.hour === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-black dark:text-white'}`} 
+                ${pickerState.hour === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-text-primary'}`} 
               onClick={() => updateTime('pickerHour', opt)}
             >
               {opt}
@@ -66,7 +66,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ pickerState, style, onUp
             <div 
               key={opt}
               className={`h-[40px] flex items-center justify-center text-[14px] transition-all duration-300 snap-center cursor-pointer select-none
-                ${pickerState.minute === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-black dark:text-white'}`} 
+                ${pickerState.minute === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-text-primary'}`} 
               onClick={() => updateTime('pickerMinute', opt)}
             >
               {opt}

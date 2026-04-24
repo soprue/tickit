@@ -34,7 +34,7 @@ export const GlobalModal: React.FC = () => {
           <h3 className="text-[18px] font-bold text-primary m-0">{title}</h3>
         </div>
         <div className="mb-6">
-          <p className="text-[15px] text-black dark:text-gray-200 leading-relaxed m-0">{message}</p>
+          <p className="text-[15px] text-text-primary leading-relaxed m-0">{message}</p>
         </div>
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={handleCancel}>

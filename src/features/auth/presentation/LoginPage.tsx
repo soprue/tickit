@@ -36,14 +36,14 @@ function LoginPage() {
           alt='logo'
           className='w-[60px] h-[60px] mb-sm rounded-lg object-contain shadow-sm'
         />
-        <h1 className='text-[30px] font-black m-0 mb-xl text-black tracking-[-0.05em] leading-none dark:text-white'>
+        <h1 className='text-[30px] font-black m-0 mb-xl text-text-primary tracking-[-0.05em] leading-none'>
           Tickit
         </h1>
 
         {isLoggedIn ? (
           <div className='flex flex-col gap-3 w-full animate-in fade-in zoom-in duration-300'>
             <p className='text-sm text-gray-medium py-md'>
-              <strong className='text-black dark:text-white font-bold'>
+              <strong className='text-text-primary font-bold'>
                 {user?.name}
               </strong>
               님, 환영합니다! 🎉
@@ -83,7 +83,7 @@ function LoginPage() {
               onClick={handleGoogleLogin}
             >
               <Icon name='google' size={20} />
-              <span className='text-[14px] tracking-tight text-black'>
+              <span className='text-[14px] tracking-tight text-text-primary'>
                 Google 계정으로 로그인
               </span>
             </Button>
@@ -91,7 +91,7 @@ function LoginPage() {
         )}
 
         <button
-          className='mt-xl bg-none border-none text-[12px] text-gray-medium/60 cursor-pointer hover:text-black dark:hover:text-white transition-colors hover:underline underline-offset-4'
+          className='mt-xl bg-none border-none text-[12px] text-gray-medium/60 cursor-pointer hover:text-text-primary transition-colors hover:underline underline-offset-4'
           onClick={handleGoMain}
         >
           메인 페이지로 돌아가기
