@@ -59,14 +59,8 @@ function LoginPage() {
         ) : (
           <div className='flex flex-col gap-3 w-full animate-in fade-in slide-in-from-bottom-4 duration-500'>
             <div className='flex flex-col gap-2 w-full'>
-              <Input
-                type='text'
-                placeholder='아이디'
-              />
-              <Input
-                type='password'
-                placeholder='비밀번호'
-              />
+              <Input type='text' placeholder='아이디' />
+              <Input type='password' placeholder='비밀번호' />
             </div>
 
             <Button
@@ -84,11 +78,13 @@ function LoginPage() {
 
             <Button
               variant='secondary'
-              className='flex items-center justify-center gap-3 w-full !bg-white dark:!bg-[#2c2c2c] !text-black dark:!text-white border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow'
+              className='flex items-center justify-center gap-3 w-full bg-white dark:bg-[#1f1f1f] border border-[#dadce0] dark:border-[#444746] font-medium transition-all hover:bg-[#f8f9fa] dark:hover:bg-[#2a2a2a] hover:border-[#d2d4d7] dark:hover:border-[#5f6368] shadow-none'
               onClick={handleGoogleLogin}
             >
-              <Icon name='google' size={18} />
-              <span className='font-medium text-[14px]'>Google로 계속하기</span>
+              <Icon name='google' size={20} />
+              <span className='text-[14px] tracking-tight text-black'>
+                Google 계정으로 로그인
+              </span>
             </Button>
           </div>
         )}
