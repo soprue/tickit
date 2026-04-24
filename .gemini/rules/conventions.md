@@ -17,8 +17,26 @@
 - **타입 Import**: `import type { ... }`를 사용하여 타입 전용 임포트를 명시하십시오.
 - **Any 금지**: 타입을 알 수 없는 경우 `unknown`을 사용하고 타입 가드(Type Guard)를 활용하십시오.
 
-## 3. 함수 및 이벤트 핸들러
-- **선언 방식**: 모든 컴포넌트와 함수는 화살표 함수(`const Func = () => {}`)를 기본으로 사용합니다.
+## 3. 함수 및 컴포넌트 선언 방식 (Modern Standard)
+- **컴포넌트 선언**: 모든 컴포넌트는 일반 함수 선언문(`function Component() {}`)을 기본으로 사용합니다. 이는 호이스팅 지원, 명확한 함수 이름 식별, 그리고 React 19 표준과의 부합을 위함입니다.
+- **`React.FC` 사용 금지**: 암시적 children 타입의 모호함과 제네릭 지원 한계로 인해 더 이상 사용하지 않습니다.
+- **일반 함수**: 내부 헬퍼 함수나 이벤트 핸들러는 화살표 함수(`const func = () => {}`)를 사용해도 무관합니다.
+
+```tsx
+// ✅ Good: 일반 함수 선언문 (추천)
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function Card({ children, className = '' }: CardProps) {
+  return <div className={className}>{children}</div>;
+}
+
+// ❌ Bad: React.FC 사용
+export const Card: React.FC<CardProps> = ({ children }) => { ... };
+```
+
 - **이벤트 핸들러**:
   - 내부 로직 실행 함수: `handle` + `이벤트명` (예: `handleDeleteClick`)
   - Props로 전달되는 콜백: `on` + `동작` (예: `onDelete`)

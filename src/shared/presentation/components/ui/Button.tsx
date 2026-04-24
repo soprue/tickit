@@ -12,14 +12,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 /**
  * 공통 버튼 컴포넌트 (UI Primitive)
  */
-export const Button: React.FC<ButtonProps> = ({
+export function Button({
   variant = 'primary',
   size = 'md',
   className = '',
   isLoading,
   children,
   ...props
-}) => {
+}: ButtonProps) {
   // 베이스 스타일
   const baseStyles = 'inline-flex items-center justify-center rounded-lg font-bold transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer border-none';
 
@@ -54,4 +54,4 @@ export const Button: React.FC<ButtonProps> = ({
       {children}
     </button>
   );
-};
+}

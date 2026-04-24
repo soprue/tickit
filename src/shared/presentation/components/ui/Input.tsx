@@ -10,7 +10,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
  * 공통 입력창 컴포넌트 (UI Primitive)
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant = 'default', className = '', ...props }, ref) => {
+  function Input({ variant = 'default', className = '', ...props }, ref) {
     // 베이스 스타일
     const baseStyles = 'w-full outline-none transition-all duration-200 placeholder:text-gray-medium/50';
 

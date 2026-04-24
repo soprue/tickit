@@ -3,6 +3,7 @@ import { useAuthStore } from '@src/features/auth/domain/AuthStore';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { Button } from '@src/shared/presentation/components/ui/Button';
 import { Input } from '@src/shared/presentation/components/ui/Input';
+import { Card } from '@src/shared/presentation/components/ui/Card';
 import logoIcon from '@assets/logo.webp';
 
 function LoginPage() {
@@ -29,7 +30,7 @@ function LoginPage() {
 
   return (
     <div className='flex justify-center items-center h-full bg-bg p-lg box-border select-none'>
-      <div className='bg-white px-xl py-2xl rounded-xl shadow-lg w-full max-w-[320px] min-h-[500px] text-center flex flex-col items-center justify-center dark:bg-[#151515] transition-colors duration-300'>
+      <Card className='w-full max-w-[320px] min-h-[500px] text-center flex flex-col items-center justify-center !py-2xl'>
         <img
           src={logoIcon}
           alt='logo'
@@ -95,7 +96,7 @@ function LoginPage() {
         >
           메인 페이지로 돌아가기
         </button>
-      </div>
+      </Card>
     </div>
   );
 }
