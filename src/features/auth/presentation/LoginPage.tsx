@@ -84,11 +84,11 @@ function LoginPage() {
 
             <Button
               variant='secondary'
-              className='flex items-center justify-center gap-3 w-full !bg-white dark:!bg-[#2c2c2c] !text-black dark:!text-white border border-gray-light/30'
+              className='flex items-center justify-center gap-3 w-full !bg-white dark:!bg-[#2c2c2c] !text-black dark:!text-white border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow'
               onClick={handleGoogleLogin}
             >
-              <Icon name='google' size={16} />
-              Google로 계속하기
+              <Icon name='google' size={18} />
+              <span className='font-medium text-[14px]'>Google로 계속하기</span>
             </Button>
           </div>
         )}
