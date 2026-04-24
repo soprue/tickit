@@ -57,7 +57,7 @@
   --plus-btn-size: 92px;
 }
 
-.dark-mode {
+.dark {
   --color-bg: #000000;
   --color-white: #151515;
   --color-black: #ffffff;
@@ -69,7 +69,8 @@
   
   --color-plus-bg: #343434;
   --color-plus-icon: #272727;
-  --color-icon-bg: #2c2c2c;
+  --color-icon-bg: #222222; /* 기존 #2c2c2c에서 더 어둡게 조정 */
+  --color-icon-brown: #cccccc; /* 다크모드에서 너무 쨍하지 않은 연회색으로 조정 */
 }
 
 html, body {

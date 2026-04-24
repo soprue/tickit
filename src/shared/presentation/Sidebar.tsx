@@ -16,9 +16,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleTheme, 
   onLogout 
 }) => {
-  // 다크모드 여부에 따라 아이콘 색상을 CSS 변수에서 가져오거나 직접 지정
-  const iconColor = 'var(--color-icon-brown)';
-
   return (
     <aside className="w-[var(--sidebar-width)] h-full bg-white shadow-[2px_0_10px_rgba(0,0,0,0.03)] relative flex-shrink-0 z-[100] transition-colors duration-250 flex flex-col justify-between py-6 box-border dark:bg-[#151515] dark:shadow-[2px_0_10px_rgba(0,0,0,0.2)]">
       <div className="flex flex-col items-center">
@@ -26,20 +23,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className="flex flex-col items-center gap-4">
-        <div 
-          className="w-[34px] h-[34px] bg-gray-100 dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-all duration-150 hover:bg-gray-200 dark:hover:bg-white/10 active:scale-90" 
-          onClick={onToggleTheme} 
+        <button 
+          className="w-[34px] h-[34px] bg-[var(--color-icon-bg)] rounded-full flex justify-center items-center cursor-pointer transition-all duration-150 hover:opacity-80 dark:hover:bg-white/10 active:scale-90 border-none outline-none" 
+          onClick={() => {
+            console.log('Theme toggle clicked, current mode:', isDarkMode);
+            onToggleTheme();
+          }} 
           title="테마 변경"
         >
-          <Icon name={isDarkMode ? 'sunlight' : 'halfmoon'} size={20} color={iconColor} />
-        </div>
-        <div 
-          className="w-[34px] h-[34px] bg-gray-100 dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-all duration-150 hover:bg-gray-200 dark:hover:bg-white/10 active:scale-90" 
+          <Icon 
+            name={isDarkMode ? 'sunlight' : 'halfmoon'} 
+            size={20} 
+            color="var(--color-icon-brown)" 
+          />
+        </button>
+        <button 
+          className="w-[34px] h-[34px] bg-[var(--color-icon-bg)] rounded-full flex justify-center items-center cursor-pointer transition-all duration-150 hover:opacity-80 dark:hover:bg-white/10 active:scale-90 border-none outline-none" 
           onClick={onLogout} 
           title="로그아웃"
         >
-          <Icon name="logout" size={20} color={iconColor} />
-        </div>
+          <Icon name="logout" size={20} color="var(--color-icon-brown)" />
+        </button>
       </div>
     </aside>
   );
