@@ -1,5 +1,5 @@
 /* 
-  1. Base & Design Tokens
+  1. Base & Design Tokens (Tailwind Variable Source)
 */
 
 :root {
@@ -11,17 +11,13 @@
   --color-gray-dark: #2c2c2c;
   --color-gray-medium: #888888;
   --color-gray-light: #dadada;
+  --color-gray-soft: #fdf2f0;
   --color-icon-brown: #281817;
   
   /* Component Specific */
   --color-plus-bg: #d9d9d9;
   --color-plus-icon: #a5a5a5;
   --color-icon-bg: #efefef;
-  
-  /* Filters */
-  --filter-plus-icon: none;
-  --filter-done-icon: none;
-  --filter-sidebar-icon: none;
 
   /* Typography */
   --font-size-xs: 12px;
@@ -68,16 +64,12 @@
   --color-gray-dark: #efefef;
   --color-gray-medium: #888888;
   --color-gray-light: #454545;
+  --color-gray-soft: rgba(255, 255, 255, 0.05);
   --color-icon-brown: #ffffff;
   
   --color-plus-bg: #343434;
   --color-plus-icon: #272727;
   --color-icon-bg: #2c2c2c;
-
-  /* 정밀 계산된 필터 값 (모든 원본 색상을 무시하고 흰색/밝은 회색으로 변환) */
-  --filter-plus-icon: brightness(0) invert(0.8); 
-  --filter-done-icon: brightness(0) invert(1); /* 완전한 흰색 엑스 표시 */
-  --filter-sidebar-icon: brightness(0) invert(1); /* 완전한 흰색 사이드바 아이콘 */
 }
 
 html, body {
