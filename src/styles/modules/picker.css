@@ -26,7 +26,6 @@
 .reminder-inline-input {
   flex: 1;
   min-width: 0; /* 중요: 텍스트가 길어도 배지를 밀어내지 않고 줄어들게 함 */
-  border: none !important;
   outline: none;
   background: transparent;
   font-family: inherit;

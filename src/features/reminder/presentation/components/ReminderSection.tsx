@@ -100,10 +100,10 @@ const SectionFooter: React.FC<{
   if (!isAdding) {
     return (
       <div
-        className='flex items-start gap-sm cursor-pointer group no-drag'
+        className='flex items-start gap-sm cursor-pointer group no-drag py-1.5'
         onClick={() => ui.setAddingSection(category)}
       >
-        <div className='w-4 h-4 border-[1.5px] border-dashed border-gray-light rounded-sm shrink-0 mt-[3px] transition-colors group-hover:border-primary/50'></div>
+        <div className='w-4 h-4 border-[1.5px] border-dashed border-gray-light rounded-sm shrink-0 mt-[3.5px] transition-colors group-hover:border-primary/50'></div>
         <div className='flex-1'>
           <p className='font-medium text-base text-gray-light m-0 leading-tight transition-colors group-hover:text-primary/60 dark:text-gray-medium/60'>
             눌러서 추가하기
@@ -112,8 +112,6 @@ const SectionFooter: React.FC<{
       </div>
     );
   }
-
-  const badgeClass = `flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold transition-all ${!isAllDay && selectedTime ? 'bg-primary text-white' : 'bg-gray-soft text-gray-medium hover:bg-gray-light'}`;
 
   const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -143,38 +141,41 @@ const SectionFooter: React.FC<{
       : '';
 
   return (
-    <div className='mt-[-2px]'>
+    <div className='mt-0.5'>
       <form
         className='input-area-wrapper relative flex flex-col no-drag'
         onSubmit={(e) => e.preventDefault()}
       >
-        <div className='flex items-center gap-sm'>
-          <div className='w-4 h-4 border-[1.5px] border-icon-brown rounded-sm shrink-0 mt-[2px] dark:border-white/40'></div>
-          <input
-            type='text'
-            className='reminder-inline-input flex-1 bg-transparent border-none outline-none text-base font-medium text-black dark:text-white placeholder:text-gray-medium/40 p-0 leading-tight'
-            placeholder='할 일을 입력하세요...'
-            onKeyDown={onEnter}
-            onBlur={onBlur}
-            autoFocus
-          />
+        <div className='flex items-center gap-sm min-h-[32px]'>
+          <div className='w-4 h-4 border-[1.5px] border-icon-brown rounded-sm shrink-0 dark:border-white/40'></div>
+          <div className='flex-1 flex items-center'>
+            <input
+              type='text'
+              className='reminder-inline-input w-full bg-transparent border-b-[1.5px] border-transparent focus:border-primary/60 outline-none text-base font-medium text-black dark:text-white placeholder:text-gray-medium/40 p-0 pb-[2px] leading-tight transition-all duration-200'
+              placeholder='할 일을 입력하세요...'
+              onKeyDown={onEnter}
+              onBlur={onBlur}
+              autoFocus
+            />
+          </div>
           <button
             type='button'
-            className={`flex items-center gap-1 px-[6px] py-[3px] rounded-md text-[11px] font-bold transition-all shrink-0 ${!isAllDay && selectedTime ? 'bg-primary text-white shadow-sm' : 'bg-gray-soft text-gray-medium/60 hover:bg-gray-light dark:bg-white/5 dark:text-gray-medium/60'}`}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 active:scale-95 border-none shadow-sm ${!isAllDay && selectedTime ? 'bg-primary text-white shadow-primary/20' : 'bg-gray-soft text-gray-dark/70 hover:bg-gray-light dark:bg-white/10 dark:text-gray-medium'}`}
             onClick={() => ui.toggleTimePopover()}
           >
             <Icon
               name='clock'
               size={12}
-              color={!isAllDay && selectedTime ? 'white' : 'currentColor'}
+              color={!isAllDay && selectedTime ? 'white' : 'var(--color-icon-brown)'}
+              className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
             />
-            <span className='leading-none'>
+            <span className='leading-none tracking-tight'>
               {displayTime === 'All Day' ? 'All Day' : displayTime}
             </span>
           </button>
         </div>
         {showTimePopover && (
-          <div className='absolute top-[0px] right-0 z-500 animate-in fade-in slide-in-from-top-2 zoom-in-95 duration-200 ease-out origin-top-right'>
+          <div className='absolute top-[34px] right-0 z-[500] animate-in fade-in slide-in-from-top-2 zoom-in-95 duration-200 ease-out origin-top-right'>
             <TimePicker
               pickerState={{
                 ampm: pickerAMPM,
@@ -202,10 +203,10 @@ export const ReminderSection: React.FC<ReminderSectionProps> = ({
   const isFixed = category === 'EVERYDAY' || category === 'TODO';
 
   return (
-    <section className='w-full min-w-[303px] bg-white rounded-lg p-lg box-border mb-md shadow-sm transition-colors duration-normal flex flex-col gap-lg dark:bg-[#151515]'>
+    <section className='w-full min-w-[303px] bg-white rounded-lg p-lg box-border mb-md shadow-sm transition-colors duration-normal flex flex-col gap-md dark:bg-[#151515]'>
       <SectionHeader title={title} category={category} isFixed={isFixed} />
       <div
-        className={`flex flex-col gap-lg ${items.length === 0 ? 'hidden' : 'flex'}`}
+        className={`flex flex-col gap-3 ${items.length === 0 ? 'hidden' : 'flex'}`}
       >
         {items.map((item) => (
           <ReminderItem key={item.id} sectionId={category} item={item} />

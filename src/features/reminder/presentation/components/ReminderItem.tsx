@@ -15,60 +15,111 @@ interface ReminderItemProps {
  */
 const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
   const ui = useReminderUI();
-  const { selectedTime, isAllDay, pickerAMPM, pickerHour, pickerMinute, showTimePopover } = ui.state;
+  const formRef = React.useRef<HTMLFormElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const {
+    selectedTime,
+    isAllDay,
+    pickerAMPM,
+    pickerHour,
+    pickerMinute,
+    showTimePopover,
+  } = ui.state;
 
   const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') ui.updateReminder(sectionId, item.id, e.currentTarget.value);
+    if (e.key === 'Enter')
+      ui.updateReminder(sectionId, item.id, e.currentTarget.value);
     else if (e.key === 'Escape') ui.setEditingItemId(null);
   };
 
-  const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (showTimePopover) return;
-    const container = e.currentTarget.closest('.input-area-wrapper');
-    if (container && container.contains(e.relatedTarget as Node)) return;
-    
-    const value = e.currentTarget.value;
-    setTimeout(() => {
-      const activeEl = document.activeElement;
-      const isStillInInput = activeEl && (activeEl.classList.contains('reminder-inline-input') || activeEl.classList.contains('section-title-input'));
-      if (isStillInInput) return;
-      ui.updateReminder(sectionId, item.id, value);
-    }, 250);
-  };
+  // 영역 외 클릭 시 자동 저장 로직
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(e.target as Node)) {
+        const value = inputRef.current?.value || item.text;
+        ui.updateReminder(sectionId, item.id, value);
+      }
+    };
 
-  const badgeClass = `time-badge ${!isAllDay && selectedTime ? 'active' : ''}`;
-  const displayTime = isAllDay ? 'All Day' : (selectedTime ? formatKoreanTime(selectedTime) : '');
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [ui, sectionId, item.id, item.text]);
+
+  const displayTime = isAllDay
+    ? 'All Day'
+    : selectedTime
+      ? formatKoreanTime(selectedTime)
+      : '';
 
   return (
-    <form className="input-area-wrapper" onSubmit={(e) => e.preventDefault()} style={{ marginBottom: '8px' }}>
-      <div className="input-container">
-        <div className={`checkbox-rect ${item.done ? 'done' : ''}`}>
-          {item.done && <Icon name="cancel" size={7} />}
-        </div>
-        <input 
-          type="text" 
-          className="reminder-inline-input" 
-          defaultValue={item.text} 
-          onKeyDown={onEnter} 
-          onBlur={onBlur} 
+    <form
+      ref={formRef}
+      className='input-area-wrapper relative flex items-start gap-sm no-drag py-[2px]'
+      onSubmit={(e) => e.preventDefault()}
+    >
+      {/* 체크박스 영역: 위치 고정 (mt-3 고정) */}
+      <div
+        className={`w-4 h-4 border-[1.5px] rounded-sm shrink-0 mt-[3px] flex justify-center items-center transition-colors ${item.done ? 'border-gray-light text-gray-light' : 'border-icon-brown dark:border-white/40'}`}
+      >
+        {item.done && <Icon name='cancel' size={7} />}
+      </div>
+
+      {/* 입력 및 시간 버튼 영역: 수직 배치 */}
+      <div className='flex flex-col flex-1 min-w-0 gap-1'>
+        <input
+          ref={inputRef}
+          type='text'
+          className='reminder-inline-input w-full bg-transparent border-b-[1.5px] border-gray-light/30 focus:border-primary/60 outline-none text-[15px] font-medium text-black dark:text-white placeholder:text-gray-medium/40 p-0 leading-tight transition-all duration-200'
+          defaultValue={item.text}
+          onKeyDown={onEnter}
           autoFocus
         />
-        <button 
-          type="button" 
-          className={badgeClass} 
-          onClick={() => ui.toggleTimePopover()}
-        >
-          <Icon name="clock" size={14} className="time-icon" />
-          <span className="time-text">{displayTime === 'All Day' ? '' : displayTime}</span>
-        </button>
+        
+        <div className='flex justify-start animate-in fade-in slide-in-from-top-1 duration-200'>
+          <button
+            type='button'
+            className={`flex items-center gap-1 px-[6px] py-[2.5px] rounded-md text-[10px] font-bold transition-all shrink-0 active:scale-95 border-none ${!isAllDay && selectedTime ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'bg-gray-soft/80 text-gray-dark/70 hover:bg-gray-light dark:bg-white/10 dark:text-gray-medium'}`}
+            onClick={() => ui.toggleTimePopover()}
+          >
+            <Icon
+              name='clock'
+              size={10}
+              color={
+                !isAllDay && selectedTime ? 'white' : 'var(--color-icon-brown)'
+              }
+              className={
+                !isAllDay && selectedTime
+                  ? 'opacity-100'
+                  : 'opacity-60 dark:opacity-100'
+              }
+            />
+            <span className='leading-none tracking-tight'>
+              {displayTime || '시간 추가'}
+            </span>
+          </button>
+        </div>
       </div>
+
+      {/* 가로 폭 유지를 위한 더미 액션 버튼 영역 (ViewMode의 버튼 공간 확보) */}
+      <div className='flex items-center gap-1 opacity-0 shrink-0 ml-2 pointer-events-none'>
+        <button className='p-1 text-[14px]'>✎</button>
+        <button className='p-1 text-[18px]'>×</button>
+      </div>
+
+      {/* 시간 선택 팝오버 */}
       {showTimePopover && (
-        <TimePicker 
-          pickerState={{ ampm: pickerAMPM, hour: pickerHour, minute: pickerMinute }} 
-          style={{ top: '36px' }} 
-          onUpdatePickerTime={ui.updatePickerTime}
-          onSetAllDay={ui.setAllDay}
-        />
+        <div className='absolute top-[100%] left-[24px] z-[500] mt-1 animate-in fade-in slide-in-from-top-1 zoom-in-95 duration-200 ease-out origin-top-left'>
+          <TimePicker
+            pickerState={{
+              ampm: pickerAMPM,
+              hour: pickerHour,
+              minute: pickerMinute,
+            }}
+            onUpdatePickerTime={ui.updatePickerTime}
+            onSetAllDay={ui.setAllDay}
+          />
+        </div>
       )}
     </form>
   );
@@ -79,9 +130,10 @@ const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
  */
 const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
   const ui = useReminderUI();
-  
+
   const toggleDone = (e: React.MouseEvent) => {
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
     ui.toggleReminder(sectionId, item.id);
   };
 
@@ -91,22 +143,57 @@ const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
     ui.deleteReminder(sectionId, item.id);
   };
 
-  const displayTime = item.isAllDay ? 'All Day' : (item.time ? formatKoreanTime(item.time) : '');
+  const displayTime = item.isAllDay
+    ? 'All Day'
+    : item.time
+      ? formatKoreanTime(item.time)
+      : '';
 
   return (
-    <div className="reminder-row" onDoubleClick={startEdit}>
-      <div className={`checkbox-rect ${item.done ? 'done' : ''}`} onClick={toggleDone}>
-        {item.done && <Icon name="cancel" size={7} />}
-      </div>
-      
-      <div className="item-content" onClick={toggleDone} style={{ cursor: 'pointer', flex: 1 }}>
-        <p className={`text-main ${item.done ? 'text-done' : ''}`}>{item.text}</p>
-        {displayTime && <span className={`text-time ${item.done ? 'text-done' : ''}`}>{displayTime}</span>}
+    <div
+      className='flex items-start gap-sm group no-drag select-none py-[2px]'
+      onDoubleClick={startEdit}
+    >
+      <div
+        className={`w-4 h-4 border-[1.5px] rounded-sm shrink-0 mt-[3px] flex justify-center items-center cursor-pointer transition-colors ${item.done ? 'border-gray-light text-gray-light' : 'border-icon-brown dark:border-white/40'}`}
+        onClick={toggleDone}
+      >
+        {item.done && <Icon name='cancel' size={7} />}
       </div>
 
-      <div className="item-actions">
-        <button className="edit-item-btn" onClick={(e) => { e.stopPropagation(); startEdit(); }} title="수정">✎</button>
-        <button className="delete-item-btn" onClick={deleteItemAction} title="삭제">×</button>
+      <div className='flex flex-col flex-1 cursor-pointer' onClick={toggleDone}>
+        <p
+          className={`font-medium text-[15px] m-0 leading-tight transition-colors ${item.done ? 'text-gray-light line-through decoration-gray-light/50' : 'text-black dark:text-white'}`}
+        >
+          {item.text}
+        </p>
+        {displayTime && (
+          <span
+            className={`font-normal text-[13px] mt-1 transition-colors ${item.done ? 'text-gray-light/70' : 'text-gray-medium/80'}`}
+          >
+            {displayTime}
+          </span>
+        )}
+      </div>
+
+      <div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2'>
+        <button
+          className='bg-none border-none text-gray-light/60 cursor-pointer text-[14px] p-1 hover:text-primary transition-colors'
+          onClick={(e) => {
+            e.stopPropagation();
+            startEdit();
+          }}
+          title='수정'
+        >
+          ✎
+        </button>
+        <button
+          className='bg-none border-none text-gray-light/60 cursor-pointer text-[18px] p-1 hover:text-primary transition-colors leading-none'
+          onClick={deleteItemAction}
+          title='삭제'
+        >
+          ×
+        </button>
       </div>
     </div>
   );
