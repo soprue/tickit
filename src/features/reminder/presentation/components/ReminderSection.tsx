@@ -5,6 +5,8 @@ import { formatKoreanTime } from '@src/shared/utils/date';
 import { TimePicker } from './TimePicker';
 import { Reminder } from '../../domain/reminder';
 import { useReminderUI } from '../hooks/useReminderUI';
+import { Button } from '@src/shared/presentation/components/ui/Button';
+import { Input } from '@src/shared/presentation/components/ui/Input';
 
 interface ReminderSectionProps {
   title: string;
@@ -46,9 +48,9 @@ const SectionHeader: React.FC<{
 
     return (
       <div className='flex justify-between items-center'>
-        <input
-          type='text'
-          className='section-title-input font-bold text-xl text-primary bg-transparent border-none border-b-2 border-primary outline-none p-0 m-0 w-full tracking-tight'
+        <Input
+          variant='underline'
+          className='section-title-input !text-xl !font-bold !p-0 !pb-0'
           defaultValue={title}
           onKeyDown={onEnter}
           onBlur={onBlur}
@@ -149,18 +151,18 @@ const SectionFooter: React.FC<{
         <div className='flex items-center gap-sm min-h-[32px]'>
           <div className='w-4 h-4 border-[1.5px] border-icon-brown rounded-sm shrink-0 dark:border-white/40'></div>
           <div className='flex-1 flex items-center'>
-            <input
-              type='text'
-              className='reminder-inline-input w-full bg-transparent border-b-[1.5px] border-transparent focus:border-primary/60 outline-none text-base font-medium text-black dark:text-white placeholder:text-gray-medium/40 p-0 pb-[2px] leading-tight transition-all duration-200'
+            <Input
+              variant='underline'
+              className='!pb-[2px]'
               placeholder='할 일을 입력하세요...'
               onKeyDown={onEnter}
               onBlur={onBlur}
               autoFocus
             />
           </div>
-          <button
-            type='button'
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 active:scale-95 border-none shadow-sm ${!isAllDay && selectedTime ? 'bg-primary text-white shadow-primary/20' : 'bg-gray-soft text-gray-dark/70 hover:bg-gray-light dark:bg-white/10 dark:text-gray-medium'}`}
+          <Button
+            variant={!isAllDay && selectedTime ? 'primary' : 'secondary'}
+            className="!px-2.5 !py-1 !text-xs shrink-0"
             onClick={() => ui.toggleTimePopover()}
           >
             <Icon
@@ -169,10 +171,10 @@ const SectionFooter: React.FC<{
               color={!isAllDay && selectedTime ? 'white' : 'var(--color-icon-brown)'}
               className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
             />
-            <span className='leading-none tracking-tight'>
+            <span className='ml-1.5 leading-none tracking-tight'>
               {displayTime === 'All Day' ? 'All Day' : displayTime}
             </span>
-          </button>
+          </Button>
         </div>
         {showTimePopover && (
           <div className='absolute top-[34px] right-0 z-[500] animate-in fade-in slide-in-from-top-2 zoom-in-95 duration-200 ease-out origin-top-right'>

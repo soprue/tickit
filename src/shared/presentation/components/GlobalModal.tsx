@@ -1,5 +1,6 @@
 import React from 'react';
 import { useModalStore } from '@src/shared/domain/ModalStore';
+import { Button } from './ui/Button';
 
 /**
  * 전역 모달 컴포넌트 (Tailwind 마이그레이션 완료)
@@ -36,18 +37,12 @@ export const GlobalModal: React.FC = () => {
           <p className="text-[15px] text-black dark:text-gray-200 leading-relaxed m-0">{message}</p>
         </div>
         <div className="flex justify-end gap-3">
-          <button 
-            className="px-5 py-2 rounded-lg font-semibold text-[14px] cursor-pointer border-none transition-all bg-gray-soft text-gray-medium hover:bg-gray-light dark:bg-[#3a3a3a] dark:text-gray-400 dark:hover:bg-[#4a4a4a]" 
-            onClick={handleCancel}
-          >
+          <Button variant="secondary" onClick={handleCancel}>
             취소
-          </button>
-          <button 
-            className="px-5 py-2 rounded-lg font-semibold text-[14px] cursor-pointer border-none transition-all bg-primary text-white hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 shadow-md shadow-primary/20" 
-            onClick={handleConfirm}
-          >
+          </Button>
+          <Button variant="primary" onClick={handleConfirm}>
             확인
-          </button>
+          </Button>
         </div>
       </div>
     </div>

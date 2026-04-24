@@ -1,14 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@src/features/auth/domain/AuthStore';
-import { useThemeStore } from '@src/shared/domain/ThemeStore';
 import { Icon } from '@src/shared/presentation/components/Icon';
+import { Button } from '@src/shared/presentation/components/ui/Button';
+import { Input } from '@src/shared/presentation/components/ui/Input';
 import logoIcon from '@assets/logo.webp';
 
 function LoginPage() {
   const navigate = useNavigate();
 
   const { isLoggedIn, user, login, logout } = useAuthStore();
-  const { isDarkMode } = useThemeStore();
 
   const handleLogin = () => {
     login('사용자', 'user@example.com');
@@ -47,46 +47,49 @@ function LoginPage() {
               </strong>
               님, 환영합니다! 🎉
             </p>
-            <button
-              className='w-full p-[14px] bg-primary text-white border-none rounded-lg text-base font-bold cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all shadow-md shadow-primary/20'
+            <Button
+              variant='primary'
+              size='lg'
+              className='w-full'
               onClick={handleLogout}
             >
               로그아웃
-            </button>
+            </Button>
           </div>
         ) : (
           <div className='flex flex-col gap-3 w-full animate-in fade-in slide-in-from-bottom-4 duration-500'>
             <div className='flex flex-col gap-2 w-full'>
-              <input
+              <Input
                 type='text'
-                className='w-full p-[14px] border border-gray-light/30 rounded-lg text-[14px] bg-bg text-black outline-none focus:border-primary focus:bg-white dark:bg-[#2c2c2c] dark:border-white/5 dark:text-white transition-all placeholder:text-gray-medium/50'
                 placeholder='아이디'
               />
-              <input
+              <Input
                 type='password'
-                className='w-full p-[14px] border border-gray-light/30 rounded-lg text-[14px] bg-bg text-black outline-none focus:border-primary focus:bg-white dark:bg-[#2c2c2c] dark:border-white/5 dark:text-white transition-all placeholder:text-gray-medium/50'
                 placeholder='비밀번호'
               />
             </div>
 
-            <button
-              className='w-full p-[14px] bg-primary text-white border-none rounded-lg text-base font-bold cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all shadow-md shadow-primary/20'
+            <Button
+              variant='primary'
+              size='lg'
+              className='w-full'
               onClick={handleLogin}
             >
               로그인
-            </button>
+            </Button>
 
             <div className="flex items-center my-6 text-gray-medium/40 text-[11px] font-bold uppercase tracking-wider before:content-[''] before:flex-1 before:border-b before:border-gray-light/20 after:content-[''] after:flex-1 after:border-b after:border-gray-light/20 gap-3">
               OR
             </div>
 
-            <button
-              className='flex items-center justify-center gap-3 w-full p-[12px] rounded-lg text-[14px] border border-gray-light/30 bg-white text-black font-medium cursor-pointer hover:bg-gray-50 active:scale-[0.98] transition-all dark:bg-[#2c2c2c] dark:border-white/5 dark:text-white dark:hover:bg-white/5'
+            <Button
+              variant='secondary'
+              className='flex items-center justify-center gap-3 w-full !bg-white dark:!bg-[#2c2c2c] !text-black dark:!text-white border border-gray-light/30'
               onClick={handleGoogleLogin}
             >
               <Icon name='google' size={16} />
               Google로 계속하기
-            </button>
+            </Button>
           </div>
         )}
 

@@ -7,6 +7,7 @@ import { Icon } from '@src/shared/presentation/components/Icon';
 import { SaveStatusToast } from '@src/shared/presentation/components/SaveStatusToast';
 import { useReminderUI } from './hooks/useReminderUI';
 import { useNotificationMonitor } from './hooks/useNotificationMonitor';
+import { Input } from '@src/shared/presentation/components/ui/Input';
 
 const ReminderPage: React.FC = () => {
   // 1. 통합 훅
@@ -21,47 +22,52 @@ const ReminderPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div ref={containerRef} className="flex w-full h-full bg-bg transition-colors duration-normal">
+    <div
+      ref={containerRef}
+      className='flex w-full h-full bg-bg transition-colors duration-normal'
+    >
       {/* 전역 Action 기반 선언적 토스트 */}
       <SaveStatusToast />
 
-      <Sidebar 
-        isDarkMode={isDarkMode} 
-        onToggleTheme={toggleDarkMode} 
-        onLogout={ui.logout} 
+      <Sidebar
+        isDarkMode={isDarkMode}
+        onToggleTheme={toggleDarkMode}
+        onLogout={ui.logout}
       />
 
-      <div className="flex-1 h-full overflow-y-auto overflow-x-hidden p-lg px-md box-border flex flex-col gap-md scroll-smooth">
-        <div className="px-md mb-sm">
-          <div className="flex items-center gap-2 w-full group">
-            <input 
-              type="text" 
-              className="flex-1 px-4 py-[10px] rounded-lg border border-black/5 bg-white text-black text-[14px] outline-none transition-all focus:border-primary focus:shadow-sm dark:bg-white/10 dark:border-white/5 dark:text-white" 
-              placeholder="검색어를 입력하세요..." 
-              value={ui.searchQuery} 
-              onChange={(e) => ui.setSearchQuery(e.target.value)} 
+      <div className='flex-1 h-full overflow-y-auto overflow-x-hidden p-lg px-md box-border flex flex-col gap-md scroll-smooth'>
+        <div className='px-md mb-sm'>
+          <div className='flex items-center gap-2 w-full group'>
+            <Input
+              type='text'
+              className='flex-1 !px-4 !py-[10px] border border-black/5 bg-white focus:shadow-sm dark:bg-white/10 dark:border-white/5'
+              placeholder='검색어를 입력하세요...'
+              value={ui.searchQuery}
+              onChange={(e) => ui.setSearchQuery(e.target.value)}
             />
-            <button 
+            <button
               className={`
                 w-[38px] h-[38px] rounded-lg border border-black/5 flex justify-center items-center cursor-pointer transition-all shrink-0
                 ${ui.hideCompleted ? 'bg-primary border-primary text-white' : 'bg-white hover:bg-gray-50 dark:bg-white/10 dark:border-white/5 dark:text-white dark:hover:bg-white/15'}
-              `} 
+              `}
               onClick={ui.toggleHideCompleted}
-              title="완료된 항목 숨기기"
+              title='완료된 항목 숨기기'
             >
-              <span className="font-extrabold text-[16px]">✓</span>
+              <span className='font-extrabold text-[16px]'>✓</span>
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-md">
+        <div className='flex flex-col gap-md'>
           {ui.searchQuery.trim() && !ui.hasAnyMatches && !ui.isEditingAny ? (
-            <div className="flex flex-col items-center justify-center py-2xl opacity-50">
-              <p className="text-[15px] font-medium text-black dark:text-white">해당하는 리마인더가 없습니다.</p>
+            <div className='flex flex-col items-center justify-center py-2xl opacity-50'>
+              <p className='text-[15px] font-medium text-black dark:text-white'>
+                해당하는 리마인더가 없습니다.
+              </p>
             </div>
           ) : (
             ui.filteredSections.map((section) => (
-              <ReminderSection 
+              <ReminderSection
                 key={section.id}
                 title={section.title}
                 category={section.id}
@@ -72,12 +78,12 @@ const ReminderPage: React.FC = () => {
         </div>
 
         {!ui.searchQuery.trim() && (
-          <button 
-            className="w-[var(--plus-btn-size)] h-[var(--plus-btn-size)] bg-plus-bg text-plus-icon rounded-full border-none flex justify-center items-center cursor-pointer mx-auto mt-sm mb-2xl shrink-0 transition-all duration-normal hover:scale-105 active:scale-95 dark:bg-[#343434] dark:text-[#272727]" 
+          <button
+            className='w-[var(--plus-btn-size)] h-[var(--plus-btn-size)] bg-plus-bg text-plus-icon rounded-full border-none flex justify-center items-center cursor-pointer mx-auto mt-sm mb-2xl shrink-0 transition-all duration-normal hover:scale-105 active:scale-95 dark:bg-[#343434] dark:text-[#272727]'
             onClick={ui.addSection}
-            title="새 섹션 추가"
+            title='새 섹션 추가'
           >
-            <Icon name="plus" size={30} />
+            <Icon name='plus' size={30} />
           </button>
         )}
       </div>
