@@ -29,7 +29,6 @@
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 14px;
   color: var(--color-black);
 }
 
@@ -93,7 +92,7 @@
 
 .time-popover-box {
   position: absolute;
-  top: 36px;
+  top: 0px;
   right: 0;
   background: var(--color-white);
   backdrop-filter: blur(12px);

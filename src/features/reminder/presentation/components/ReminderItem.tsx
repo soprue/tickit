@@ -15,7 +15,7 @@ interface ReminderItemProps {
  */
 const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
   const ui = useReminderUI();
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const {
@@ -36,7 +36,10 @@ const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
   // 영역 외 클릭 시 자동 저장 로직
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (formRef.current && !formRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         const value = inputRef.current?.value || item.text;
         ui.updateReminder(sectionId, item.id, value);
       }
@@ -53,33 +56,33 @@ const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
       : '';
 
   return (
-    <form
-      ref={formRef}
-      className='input-area-wrapper relative flex items-start gap-sm no-drag p-2 -mx-2 -my-1.5 bg-gray-soft/30 dark:bg-white/5 rounded-lg animate-in fade-in zoom-in-95 duration-200 ease-out'
-      onSubmit={(e) => e.preventDefault()}
+    <div
+      ref={containerRef}
+      className='relative flex items-start gap-sm no-drag p-2 -mx-2 -my-1 bg-gray-soft/30 dark:bg-white/5 rounded-lg transition-all duration-200 w-[calc(100%+1rem)] box-border'
     >
-      {/* 체크박스 영역: 위치 고정 */}
+      {/* 체크박스 영역 */}
       <div
         className={`w-4 h-4 border-[1.5px] rounded-sm shrink-0 mt-[3px] flex justify-center items-center transition-colors ${item.done ? 'border-gray-light text-gray-light' : 'border-icon-brown dark:border-white/40'}`}
       >
         {item.done && <Icon name='cancel' size={7} />}
       </div>
 
-      {/* 입력 및 시간 버튼 영역: 우측 끝까지 확장 */}
-      <div className='flex flex-col flex-1 min-w-0 gap-1.5'>
+      {/* 입력창 및 오버레이 배지 영역 */}
+      <div className='relative flex-1 flex items-center min-w-0 pr-20'>
         <input
           ref={inputRef}
           type='text'
-          className='reminder-inline-input w-full bg-transparent border-b-[1.5px] border-primary/20 focus:border-primary/60 outline-none text-[15px] font-medium text-black dark:text-white placeholder:text-gray-medium/40 p-0 pb-[1px] leading-tight transition-all duration-200'
+          className='reminder-inline-input w-full bg-transparent border-b-[1.5px] border-primary/20 focus:border-primary/60 outline-none text-[15px] font-medium text-black dark:text-white placeholder:text-gray-medium/40 p-0 pb-[4px] leading-[1.2] transition-all duration-200'
           defaultValue={item.text}
           onKeyDown={onEnter}
           autoFocus
         />
-        
-        <div className='flex justify-start animate-in fade-in slide-in-from-top-1 duration-200'>
+
+        {/* 우측 오버레이 시간 버튼 */}
+        <div className='absolute right-0 top-[-1px]'>
           <button
             type='button'
-            className={`flex items-center gap-1 px-[6px] py-[2.5px] rounded-md text-[10px] font-bold transition-all shrink-0 active:scale-95 border-none ${!isAllDay && selectedTime ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'bg-white dark:bg-white/10 text-gray-dark/70 hover:bg-gray-light dark:text-gray-medium'}`}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold transition-all shrink-0 active:scale-95 border-none ${!isAllDay && selectedTime ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'bg-white/60 hover:bg-white dark:bg-white/10 text-gray-dark/70 dark:text-gray-medium'}`}
             onClick={() => ui.toggleTimePopover()}
           >
             <Icon
@@ -98,24 +101,24 @@ const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
               {displayTime || '시간 추가'}
             </span>
           </button>
+
+          {/* 시간 선택 팝오버 */}
+          {showTimePopover && (
+            <div className='absolute top-[calc(100%+6px)] right-0 z-[5000] animate-in fade-in slide-in-from-top-1 zoom-in-95 duration-200 ease-out origin-top-right'>
+              <TimePicker
+                pickerState={{
+                  ampm: pickerAMPM,
+                  hour: pickerHour,
+                  minute: pickerMinute,
+                }}
+                onUpdatePickerTime={ui.updatePickerTime}
+                onSetAllDay={ui.setAllDay}
+              />
+            </div>
+          )}
         </div>
       </div>
-
-      {/* 시간 선택 팝오버: 배지 아래에 밀착 */}
-      {showTimePopover && (
-        <div className='absolute top-[100%] left-[32px] z-[500] mt-1 animate-in fade-in slide-in-from-top-1 zoom-in-95 duration-200 ease-out origin-top-left'>
-          <TimePicker
-            pickerState={{
-              ampm: pickerAMPM,
-              hour: pickerHour,
-              minute: pickerMinute,
-            }}
-            onUpdatePickerTime={ui.updatePickerTime}
-            onSetAllDay={ui.setAllDay}
-          />
-        </div>
-      )}
-    </form>
+    </div>
   );
 };
 
@@ -145,19 +148,19 @@ const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
 
   return (
     <div
-      className='flex items-start gap-sm group no-drag select-none py-[2px]'
+      className='flex items-start gap-sm group no-drag select-none p-2 -mx-2 -my-1 rounded-lg bg-transparent hover:bg-gray-soft/10 transition-colors duration-200 cursor-pointer relative w-[calc(100%+1rem)] box-border'
       onDoubleClick={startEdit}
+      onClick={toggleDone}
     >
       <div
-        className={`w-4 h-4 border-[1.5px] rounded-sm shrink-0 mt-[3px] flex justify-center items-center cursor-pointer transition-colors ${item.done ? 'border-gray-light text-gray-light' : 'border-icon-brown dark:border-white/40'}`}
-        onClick={toggleDone}
+        className={`w-4 h-4 border-[1.5px] rounded-sm shrink-0 mt-[3px] flex justify-center items-center transition-colors ${item.done ? 'border-gray-light text-gray-light' : 'border-icon-brown dark:border-white/40'}`}
       >
         {item.done && <Icon name='cancel' size={7} />}
       </div>
 
-      <div className='flex flex-col flex-1 cursor-pointer' onClick={toggleDone}>
+      <div className='flex flex-col flex-1 min-w-0 pr-20'>
         <p
-          className={`font-medium text-[15px] m-0 leading-tight transition-colors ${item.done ? 'text-gray-light line-through decoration-gray-light/50' : 'text-black dark:text-white'}`}
+          className={`font-medium text-[15px] m-0 leading-[1.2] transition-colors ${item.done ? 'text-gray-light line-through decoration-gray-light/50' : 'text-black dark:text-white'}`}
         >
           {item.text}
         </p>
@@ -170,7 +173,7 @@ const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
         )}
       </div>
 
-      <div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2'>
+      <div className='absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 bg-white/80 dark:bg-black/40 backdrop-blur-sm rounded-md px-1'>
         <button
           className='bg-none border-none text-gray-light/60 cursor-pointer text-[14px] p-1 hover:text-primary transition-colors'
           onClick={(e) => {
