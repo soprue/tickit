@@ -27,14 +27,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="flex flex-col items-center gap-4">
         <div 
-          className="w-[34px] h-[34px] bg-[#fdf2f0] dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:hover:bg-white/15" 
+          className="w-[34px] h-[34px] bg-gray-100 dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-all duration-150 hover:bg-gray-200 dark:hover:bg-white/10 active:scale-90" 
           onClick={onToggleTheme} 
           title="테마 변경"
         >
           <Icon name={isDarkMode ? 'sunlight' : 'halfmoon'} size={20} color={iconColor} />
         </div>
         <div 
-          className="w-[34px] h-[34px] bg-[#fdf2f0] dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:hover:bg-white/15" 
+          className="w-[34px] h-[34px] bg-gray-100 dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-all duration-150 hover:bg-gray-200 dark:hover:bg-white/10 active:scale-90" 
           onClick={onLogout} 
           title="로그아웃"
         >
