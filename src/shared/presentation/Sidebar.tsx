@@ -9,7 +9,7 @@ interface SidebarProps {
 }
 
 /**
- * 애플리케이션의 왼쪽 고정 사이드바 컴포넌트 (React)
+ * 애플리케이션의 왼쪽 고정 사이드바 컴포넌트 (Tailwind 마이그레이션 완료)
  */
 export const Sidebar: React.FC<SidebarProps> = ({ 
   isDarkMode, 
@@ -20,21 +20,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const iconColor = 'var(--color-icon-brown)';
 
   return (
-    <aside className="w-[var(--sidebar-width)] h-full bg-white shadow-sidebar relative flex-shrink-0 z-[100] transition-colors duration-250 flex flex-col justify-between py-lg box-border dark:bg-[#151515]">
+    <aside className="w-[var(--sidebar-width)] h-full bg-white shadow-[2px_0_10px_rgba(0,0,0,0.03)] relative flex-shrink-0 z-[100] transition-colors duration-250 flex flex-col justify-between py-6 box-border dark:bg-[#151515] dark:shadow-[2px_0_10px_rgba(0,0,0,0.2)]">
       <div className="flex flex-col items-center">
         <img src={logoIcon} alt="logo" className="w-[25px] h-[25px] mx-auto block" />
       </div>
 
-      <div className="flex flex-col items-center gap-md">
+      <div className="flex flex-col items-center gap-4">
         <div 
-          className="w-[34px] h-[34px] bg-icon-bg rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:bg-[#2c2c2c] dark:hover:bg-white/15" 
+          className="w-[34px] h-[34px] bg-[#fdf2f0] dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:hover:bg-white/15" 
           onClick={onToggleTheme} 
           title="테마 변경"
         >
           <Icon name={isDarkMode ? 'sunlight' : 'halfmoon'} size={20} color={iconColor} />
         </div>
         <div 
-          className="w-[34px] h-[34px] bg-icon-bg rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:bg-[#2c2c2c] dark:hover:bg-white/15" 
+          className="w-[34px] h-[34px] bg-[#fdf2f0] dark:bg-[#2c2c2c] rounded-full flex justify-center items-center cursor-pointer transition-colors duration-150 hover:bg-gray-light dark:hover:bg-white/15" 
           onClick={onLogout} 
           title="로그아웃"
         >
