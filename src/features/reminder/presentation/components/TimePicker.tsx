@@ -8,7 +8,7 @@ interface TimePickerProps {
 }
 
 /**
- * 독립된 시간 선택 피커 컴포넌트 (React)
+ * 독립된 시간 선택 피커 컴포넌트 (Tailwind 마이그레이션 완료)
  */
 export const TimePicker: React.FC<TimePickerProps> = ({ pickerState, style, onUpdatePickerTime, onSetAllDay }) => {
   const ampmOptions = ['AM', 'PM'];
@@ -20,52 +20,58 @@ export const TimePicker: React.FC<TimePickerProps> = ({ pickerState, style, onUp
   };
 
   return (
-    <div className="time-popover-box" style={style}>
+    <div 
+      className="w-[180px] bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-light dark:border-white/10 overflow-hidden"
+      style={style}
+    >
       <div 
-        className="popover-all-day" 
+        className="p-3 text-center text-[12px] font-bold text-primary bg-primary/5 cursor-pointer border-b border-black/5 dark:border-white/5 hover:bg-primary/10 transition-colors select-none" 
         onClick={(e) => { e.stopPropagation(); onSetAllDay(); }}
       >
         ☀️ All Day 로 설정
       </div>
-      <div className="mini-picker-columns">
-        <div className="mini-column">
-          <div className="mini-item"></div>
+      
+      <div className="flex h-[140px] relative [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]">
+        {/* AMPM Column */}
+        <div className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden snap-y snap-mandatory py-[50px]">
           {ampmOptions.map(opt => (
             <div 
               key={opt}
-              className={`mini-item ${pickerState.ampm === opt ? 'selected' : ''}`} 
+              className={`h-[40px] flex items-center justify-center text-[14px] transition-all duration-300 snap-center cursor-pointer select-none
+                ${pickerState.ampm === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-text-primary'}`} 
               onClick={() => updateTime('pickerAMPM', opt)}
             >
               {opt}
             </div>
           ))}
-          <div className="mini-item"></div>
         </div>
-        <div className="mini-column">
-          <div className="mini-item"></div>
+
+        {/* Hour Column */}
+        <div className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden snap-y snap-mandatory py-[50px] border-x border-black/5 dark:border-white/5">
           {hourOptions.map(opt => (
             <div 
               key={opt}
-              className={`mini-item ${pickerState.hour === opt ? 'selected' : ''}`} 
+              className={`h-[40px] flex items-center justify-center text-[14px] transition-all duration-300 snap-center cursor-pointer select-none
+                ${pickerState.hour === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-text-primary'}`} 
               onClick={() => updateTime('pickerHour', opt)}
             >
               {opt}
             </div>
           ))}
-          <div className="mini-item"></div>
         </div>
-        <div className="mini-column">
-          <div className="mini-item"></div>
+
+        {/* Minute Column */}
+        <div className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden snap-y snap-mandatory py-[50px]">
           {minuteOptions.map(opt => (
             <div 
               key={opt}
-              className={`mini-item ${pickerState.minute === opt ? 'selected' : ''}`} 
+              className={`h-[40px] flex items-center justify-center text-[14px] transition-all duration-300 snap-center cursor-pointer select-none
+                ${pickerState.minute === opt ? 'opacity-100 font-extrabold text-primary scale-110' : 'opacity-30 text-text-primary'}`} 
               onClick={() => updateTime('pickerMinute', opt)}
             >
               {opt}
             </div>
           ))}
-          <div className="mini-item"></div>
         </div>
       </div>
     </div>

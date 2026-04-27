@@ -1,10 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: var(--color-bg);
+  --color-white: var(--color-white);
+  --color-primary: var(--color-primary);
+  --color-black: var(--color-black);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-border-base: var(--color-border-base);
+  --color-gray-dark: var(--color-gray-dark);
+  --color-gray-medium: var(--color-gray-medium);
+  --color-gray-light: var(--color-gray-light);
+  --color-icon-brown: var(--color-icon-brown);
+
+  --color-plus-bg: var(--color-plus-bg);
+  --color-plus-icon: var(--color-plus-icon);
+  --color-icon-bg: var(--color-icon-bg);
+
+  --font-size-xs: var(--font-size-xs);
+  --font-size-sm: var(--font-size-sm);
+  --font-size-base: var(--font-size-base);
+  --font-size-lg: var(--font-size-lg);
+  --font-size-xl: var(--font-size-xl);
+
+  --spacing-xs: var(--spacing-xs);
+  --spacing-sm: var(--spacing-sm);
+  --spacing-md: var(--spacing-md);
+  --spacing-lg: var(--spacing-lg);
+  --spacing-xl: var(--spacing-xl);
+  --spacing-2xl: var(--spacing-2xl);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-sidebar: var(--shadow-sidebar);
+
+  --transition-fast: var(--transition-fast);
+  --transition-normal: var(--transition-normal);
+
+  --sidebar-width: var(--sidebar-width);
+  --card-max-width: var(--card-max-width);
+  --plus-btn-size: var(--plus-btn-size);
+}
+
 /* 
   Tickit Main Stylesheet
   - 각 모듈별로 분리된 CSS를 통합합니다.
 */
 
 @import './modules/base.css';
-@import './modules/layout.css';
-@import './modules/components.css';
-@import './modules/picker.css';
-@import './modules/login.css';

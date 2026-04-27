@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import path from 'node:path';
 import electron from 'vite-plugin-electron/simple';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import svgr from 'vite-plugin-svgr';
 import { transformSync } from 'esbuild';
 import generateIconTypesPlugin from './scripts/vite-plugin-generate-icon-types';
@@ -9,6 +10,7 @@ import generateIconTypesPlugin from './scripts/vite-plugin-generate-icon-types';
 export default defineConfig({
   oxc: true,
   plugins: [
+    tailwindcss(),
     // 1. SVGR: JSX 변환만 수행 (색상 치환 옵션 제거)
     svgr({
       include: '**/*.svg?react',

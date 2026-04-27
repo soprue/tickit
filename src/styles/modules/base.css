@@ -1,36 +1,35 @@
 /* 
-  1. Base & Design Tokens
+  1. Base & Design Tokens (Tailwind Variable Source)
 */
 
 :root {
-  /* Colors - Base */
+  /* Colors - Base (Literal) */
   --color-bg: #efefef;
   --color-white: #ffffff;
-  --color-primary: #e74c32;
+  --color-primary: #E74C32; /* minusSquare 아이콘의 바로 그 오렌지색 */
   --color-black: #1a1a1a;
   --color-gray-dark: #2c2c2c;
   --color-gray-medium: #888888;
   --color-gray-light: #dadada;
-  --color-icon-brown: #281817;
+  --color-gray-soft: #f5f5f5; /* 라이트 모드 호버용 */
+  
+  /* Semantic Colors (Text & UI) */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #888888;
+  --color-border-base: #dadada;
   
   /* Component Specific */
   --color-plus-bg: #d9d9d9;
   --color-plus-icon: #a5a5a5;
   --color-icon-bg: #efefef;
-  
-  /* Filters */
-  --filter-plus-icon: none;
-  --filter-done-icon: none;
-  --filter-sidebar-icon: none;
 
-  /* Typography */
+  /* Typography, Spacing, Radius, etc. */
   --font-size-xs: 12px;
   --font-size-sm: 13px;
   --font-size-base: 15px;
   --font-size-lg: 18px;
   --font-size-xl: 20px;
 
-  /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
@@ -38,46 +37,45 @@
   --spacing-xl: 32px;
   --spacing-2xl: 48px;
 
-  /* Border Radius */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* Shadows */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.04);
   --shadow-sidebar: 0px 4px 4px rgba(0, 0, 0, 0.05);
 
-  /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
 
-  /* Dimensions */
   --sidebar-width: 60px;
   --card-max-width: 340px;
   --plus-btn-size: 92px;
 }
 
-.dark-mode {
+.dark {
   --color-bg: #000000;
   --color-white: #151515;
-  --color-black: #ffffff;
-  --color-gray-dark: #efefef;
+  --color-black: #000000;
+  --color-gray-dark: #1f1f1f;
   --color-gray-medium: #888888;
-  --color-gray-light: #454545;
-  --color-icon-brown: #ffffff;
+  --color-gray-light: #333333;
+  --color-gray-soft: #141414; /* 다크 모드 호버용 (살짝 밝아짐) */
+  
+  /* Semantic Colors - Dark mode switching */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #aaaaaa;
+  --color-border-base: #333333;
+  
+  /* 다크모드에서도 동일한 오렌지색 유지 (대비가 충분함) */
+  --color-primary: #E74C32; 
   
   --color-plus-bg: #343434;
   --color-plus-icon: #272727;
-  --color-icon-bg: #2c2c2c;
-
-  /* 정밀 계산된 필터 값 (모든 원본 색상을 무시하고 흰색/밝은 회색으로 변환) */
-  --filter-plus-icon: brightness(0) invert(0.8); 
-  --filter-done-icon: brightness(0) invert(1); /* 완전한 흰색 엑스 표시 */
-  --filter-sidebar-icon: brightness(0) invert(1); /* 완전한 흰색 사이드바 아이콘 */
+  --color-icon-bg: #222222;
 }
 
 html, body {
@@ -95,7 +93,7 @@ body {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
-  color: var(--color-black);
+  color: var(--color-text-primary);
 }
 
 #root {
