@@ -67,11 +67,28 @@ export function useNotificationMonitor() {
         if (!item.time || item.done || item.notified) return;
 
         const itemTime = new Date(item.time);
-        if (now.getTime() >= itemTime.getTime()) {
-          sendNotification(
-            NOTIFICATION_MESSAGES.INDIVIDUAL_TITLE,
-            NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text)
-          );
+        const itemMs = itemTime.getTime();
+        const nowMs = now.getTime();
+
+        // 설정 시간이 현재보다 과거인 경우
+        if (nowMs >= itemMs) {
+          const oneHourAgo = nowMs - (60 * 60 * 1000);
+          
+          // 오늘 날짜이고, 1시간 이내인 경우에만 실제 알림 발송
+          const isToday = itemTime.toDateString() === now.toDateString();
+          const isRecent = itemMs > oneHourAgo;
+
+          if (isToday && isRecent) {
+            sendNotification(
+              NOTIFICATION_MESSAGES.INDIVIDUAL_TITLE,
+              NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text)
+            );
+          } else {
+            // 너무 오래된 알림은 로그만 남기고 조용히 '알림 완료' 처리 (다음에 또 체크 안 하도록)
+            console.log(`[NotificationMonitor] Skipping stale notification: ${item.text} (${itemTime.toLocaleString()})`);
+          }
+          
+          // 알림을 보냈든 너무 오래되어 스킵했든, 다시 울리지 않게 마크
           reminderStore.markAsNotified(item.sectionId, item.id);
         }
       });
