@@ -41,5 +41,4 @@ export const NOTIFICATION_MESSAGES = {
   INDIVIDUAL_TITLE: '리마인더 알림',
   INDIVIDUAL_BODY: (text: string) => `${text} 할 시간이에요`,
   NIGHT_CHECK_TITLE: '오늘 마무리 하셨나요?',
-  NIGHT_CHECK_BODY: (items: string) => `아직 남은 할 일이 있어요: ${items}`,
 } as const;

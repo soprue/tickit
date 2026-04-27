@@ -11,7 +11,6 @@ const NOTIFICATION_MESSAGES = {
   INDIVIDUAL_TITLE: '리마인더 알림',
   INDIVIDUAL_BODY: (text: string) => `${text} 할 시간이에요`,
   NIGHT_CHECK_TITLE: '오늘 마무리 하셨나요?',
-  NIGHT_CHECK_BODY: (items: string) => `아직 남은 할 일이 있어요: ${items}`,
 };
 
 /**
@@ -50,10 +49,12 @@ export class NotificationService {
         return;
       }
 
-      const allItems = sections.flatMap((s: any) => s.items.map((item: any) => ({ ...item, sectionId: s.id })));
+      const allItems = sections.flatMap((s: any) =>
+        s.items.map((item: any) => ({ ...item, sectionId: s.id })),
+      );
       const now = new Date();
       const nowMs = now.getTime();
-      
+
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
@@ -64,20 +65,26 @@ export class NotificationService {
       // 1. 밤 9시 할 일 체크 (21:00 이상)
       if (now.getHours() >= 21 && lastNightCheckDate !== todayDateStr) {
         const unfinishedItems = allItems.filter((item: any) => !item.done);
-        if (unfinishedItems.length > 0) {
-          const itemNames = unfinishedItems.map((it: any) => it.text).join(', ');
-          this.send(
-            NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE,
-            NOTIFICATION_MESSAGES.NIGHT_CHECK_BODY(itemNames)
-          );
+        const count = unfinishedItems.length;
+
+        if (count > 0) {
+          const displayItems = unfinishedItems
+            .slice(0, 3)
+            .map((it: any) => it.text)
+            .join(', ');
+          const itemsText =
+            count > 3 ? `${displayItems} 외 ${count - 3}개` : displayItems;
+          const body = `아직 ${count}개의 할 일이 남았어요: ${itemsText}`;
+
+          this.send(NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE, body);
         }
         state.lastNightCheckDate = todayDateStr;
         hasChanges = true;
       }
 
       // 2. 개별 리마인더 알림
-      const oneHourAgo = nowMs - (60 * 60 * 1000);
-      
+      const oneHourAgo = nowMs - 60 * 60 * 1000;
+
       sections.forEach((section: any) => {
         section.items.forEach((item: any) => {
           if (!item.time || item.done || item.notified) return;
@@ -93,10 +100,10 @@ export class NotificationService {
             if (isToday && isRecent) {
               this.send(
                 NOTIFICATION_MESSAGES.INDIVIDUAL_TITLE,
-                NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text)
+                NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text),
               );
             }
-            
+
             item.notified = true;
             hasChanges = true;
           }
@@ -108,7 +115,6 @@ export class NotificationService {
         await fs.promises.writeFile(FILE_PATH, JSON.stringify(state, null, 2));
         // 브라우저 창이 있다면 데이터 갱신을 알릴 수도 있음 (선택 사항)
       }
-
     } catch (err) {
       console.error('[NotificationService] Check failed:', err);
     }
@@ -121,7 +127,8 @@ export class NotificationService {
    */
   private scheduleNext() {
     const now = new Date();
-    const delay = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 500;
+    const delay =
+      60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 500;
     this.timer = setTimeout(() => this.check(), Math.max(1000, delay));
   }
 
