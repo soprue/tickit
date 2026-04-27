@@ -1,8 +1,8 @@
-import { Notification, app } from 'electron';
+import { Notification, app, powerMonitor } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 
-// 상수 직접 정의 (메인 프로세스에서 @src 별칭 사용이 어려울 수 있음)
+// 상수 직접 정의
 const STORAGE_KEY = 'tickit_data';
 const DATA_DIR = path.join(app.getPath('userData'), 'data');
 const FILE_PATH = path.join(DATA_DIR, `${STORAGE_KEY}.json`);
@@ -18,6 +18,10 @@ const NOTIFICATION_MESSAGES = {
  */
 export class NotificationService {
   private timer: NodeJS.Timeout | null = null;
+  private readonly resumeHandler = () => {
+    console.log('[NotificationService] System resumed from sleep, checking notifications...');
+    this.check();
+  };
 
   constructor() {
     console.log('[NotificationService] Initialized');
@@ -28,6 +32,9 @@ export class NotificationService {
    */
   start() {
     this.check();
+    
+    // 시스템 절전 모드 해제 시 즉시 체크 (Catch-up 로직)
+    powerMonitor.on('resume', this.resumeHandler);
   }
 
   /**
@@ -49,12 +56,10 @@ export class NotificationService {
         return;
       }
 
-      const allItems = sections.flatMap((s: any) =>
-        s.items.map((item: any) => ({ ...item, sectionId: s.id })),
-      );
+      const allItems = sections.flatMap((s: any) => s.items.map((item: any) => ({ ...item, sectionId: s.id })));
       const now = new Date();
       const nowMs = now.getTime();
-
+      
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
@@ -68,23 +73,22 @@ export class NotificationService {
         const count = unfinishedItems.length;
 
         if (count > 0) {
-          const displayItems = unfinishedItems
-            .slice(0, 3)
-            .map((it: any) => it.text)
-            .join(', ');
-          const itemsText =
-            count > 3 ? `${displayItems} 외 ${count - 3}개` : displayItems;
+          const displayItems = unfinishedItems.slice(0, 3).map((it: any) => it.text).join(', ');
+          const itemsText = count > 3 ? `${displayItems} 외 ${count - 3}개` : displayItems;
           const body = `아직 ${count}개의 할 일이 남았어요: ${itemsText}`;
 
-          this.send(NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE, body);
+          this.send(
+            NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE,
+            body
+          );
         }
         state.lastNightCheckDate = todayDateStr;
         hasChanges = true;
       }
 
       // 2. 개별 리마인더 알림
-      const oneHourAgo = nowMs - 60 * 60 * 1000;
-
+      const oneHourAgo = nowMs - (60 * 60 * 1000);
+      
       sections.forEach((section: any) => {
         section.items.forEach((item: any) => {
           if (!item.time || item.done || item.notified) return;
@@ -100,10 +104,10 @@ export class NotificationService {
             if (isToday && isRecent) {
               this.send(
                 NOTIFICATION_MESSAGES.INDIVIDUAL_TITLE,
-                NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text),
+                NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text)
               );
             }
-
+            
             item.notified = true;
             hasChanges = true;
           }
@@ -113,8 +117,8 @@ export class NotificationService {
       // 변경사항이 있으면 파일 저장
       if (hasChanges) {
         await fs.promises.writeFile(FILE_PATH, JSON.stringify(state, null, 2));
-        // 브라우저 창이 있다면 데이터 갱신을 알릴 수도 있음 (선택 사항)
       }
+
     } catch (err) {
       console.error('[NotificationService] Check failed:', err);
     }
@@ -126,9 +130,10 @@ export class NotificationService {
    * 다음 체크 스케줄링 (1분 간격)
    */
   private scheduleNext() {
+    if (this.timer) clearTimeout(this.timer);
+    
     const now = new Date();
-    const delay =
-      60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 500;
+    const delay = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 500;
     this.timer = setTimeout(() => this.check(), Math.max(1000, delay));
   }
 
@@ -148,5 +153,6 @@ export class NotificationService {
 
   stop() {
     if (this.timer) clearTimeout(this.timer);
+    powerMonitor.removeListener('resume', this.resumeHandler);
   }
 }
