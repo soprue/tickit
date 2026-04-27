@@ -39,7 +39,10 @@ function EditMode({ sectionId, item }: ReminderItemProps) {
   // 영역 외 클릭 시 자동 저장 로직
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         const value = inputRef.current?.value || item.text;
         ui.updateReminder(sectionId, item.id, value);
       }
@@ -60,10 +63,10 @@ function EditMode({ sectionId, item }: ReminderItemProps) {
       ref={containerRef}
       className='relative flex items-start gap-sm no-drag p-2 -mx-2 -my-1 bg-gray-soft/40 dark:bg-white/5 rounded-lg transition-all duration-200 w-[calc(100%+1rem)] box-border'
     >
-      <Checkbox 
-        checked={item.done} 
-        onChange={() => ui.toggleReminder(sectionId, item.id)} 
-        className="mt-[3px]"
+      <Checkbox
+        checked={item.done}
+        onChange={() => ui.toggleReminder(sectionId, item.id)}
+        className='mt-[3px]'
       />
 
       <div className='relative flex-1 flex items-center min-w-0 pr-20'>
@@ -75,7 +78,7 @@ function EditMode({ sectionId, item }: ReminderItemProps) {
           onKeyDown={onEnter}
           autoFocus
         />
-        
+
         <div className='absolute right-0 top-[-1px]'>
           <Button
             variant={!isAllDay && selectedTime ? 'primary' : 'secondary'}
@@ -86,7 +89,9 @@ function EditMode({ sectionId, item }: ReminderItemProps) {
               name='clock'
               size={10}
               color={!isAllDay && selectedTime ? 'white' : 'currentColor'}
-              className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
+              className={
+                !isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'
+              }
             />
             <span className='ml-1.5 leading-none tracking-tight'>
               {displayTime || '시간 추가'}
@@ -140,10 +145,10 @@ function ViewMode({ sectionId, item }: ReminderItemProps) {
       onDoubleClick={startEdit}
       onClick={toggleDone}
     >
-      <Checkbox 
-        checked={item.done} 
-        onChange={toggleDone} 
-        className="mt-[3px]"
+      <Checkbox
+        checked={item.done}
+        onChange={toggleDone}
+        className='mt-[3px]'
       />
 
       <div className='flex flex-col flex-1 min-w-0 pr-20'>
@@ -161,9 +166,9 @@ function ViewMode({ sectionId, item }: ReminderItemProps) {
         )}
       </div>
 
-      <div className='absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-lg px-1 py-0.5 border border-black/5 dark:border-white/5'>
+      <div className='absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 bg-white/90 dark:bg-black/60 rounded-lg px-1 py-0.5'>
         <button
-          className='bg-none border-none text-gray-medium/60 cursor-pointer text-[14px] p-1.5 hover:text-primary transition-colors'
+          className='w-6 h-8 bg-none border-none text-gray-medium/60 cursor-pointer text-[14px] flex items-center justify-center hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/20 rounded-md transition-all'
           onClick={(e) => {
             e.stopPropagation();
             startEdit();
@@ -173,11 +178,11 @@ function ViewMode({ sectionId, item }: ReminderItemProps) {
           ✎
         </button>
         <button
-          className='bg-none border-none text-gray-medium/60 cursor-pointer text-[18px] p-1 hover:text-red-500 transition-colors leading-none'
+          className='w-6 h-8 bg-none border-none text-gray-medium/60 cursor-pointer flex items-center justify-center hover:text-red-500 hover:bg-red-500/5 dark:hover:bg-red-500/20 rounded-md transition-all'
           onClick={deleteItemAction}
           title='삭제'
         >
-          <Icon name="cancel" size={14} className="mt-0.5" />
+          <Icon name='cancel' size={14} />
         </button>
       </div>
     </div>
