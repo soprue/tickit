@@ -63,6 +63,8 @@
     "electron-reload": "^2.0.0-alpha.1",
     "esbuild": "^0.28.0",
     "postcss": "^8.5.10",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.7.3",
     "tailwindcss": "^4.2.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
