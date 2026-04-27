@@ -21,13 +21,16 @@ export function Button({
   ...props
 }: ButtonProps) {
   // 베이스 스타일
-  const baseStyles = 'inline-flex items-center justify-center rounded-lg font-bold transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer border-none';
+  const baseStyles =
+    'inline-flex items-center justify-center rounded-lg font-bold transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer border-none';
 
   // 변체(Variant)별 스타일
   const variants: Record<ButtonVariant, string> = {
     primary: 'bg-primary text-white shadow-md shadow-primary/20 hover:brightness-110',
-    secondary: 'bg-gray-soft text-gray-medium hover:bg-gray-light dark:bg-[#3a3a3a] dark:text-gray-400 dark:hover:bg-[#4a4a4a]',
-    ghost: 'bg-transparent hover:bg-black/5 dark:hover:bg-white/10 text-gray-medium dark:text-gray-400',
+    secondary:
+      'bg-gray-soft text-gray-medium hover:bg-gray-light dark:bg-[#3a3a3a] dark:text-gray-400 dark:hover:bg-[#4a4a4a]',
+    ghost:
+      'bg-transparent hover:bg-black/5 dark:hover:bg-white/10 text-gray-medium dark:text-gray-400',
     danger: 'bg-red-500 text-white hover:bg-red-600 shadow-md shadow-red-500/20',
   };
 
@@ -49,7 +52,7 @@ export function Button({
       {...props}
     >
       {isLoading ? (
-        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
       ) : null}
       {children}
     </button>

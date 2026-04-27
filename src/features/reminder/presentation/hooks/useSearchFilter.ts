@@ -13,23 +13,23 @@ export const useSearchFilter = (sections: ReminderSectionData[], isEditingAny: b
     const isSearching = searchQuery.trim().length > 0;
 
     return sections
-      .map(section => ({
+      .map((section) => ({
         ...section,
-        items: section.items.filter(item => {
+        items: section.items.filter((item) => {
           const matchSearch = item.text.toLowerCase().includes(searchQuery.toLowerCase());
           const matchStatus = !hideCompleted || !item.done;
           return matchSearch && matchStatus;
-        })
+        }),
       }))
-      .filter(section => {
+      .filter((section) => {
         if (isEditingAny) return true;
         if (isSearching) return section.items.length > 0;
         return true;
       });
   }, [sections, searchQuery, hideCompleted, isEditingAny]);
 
-  const hasAnyMatches = useMemo(() => 
-    filteredSections.some(s => s.items.length > 0),
+  const hasAnyMatches = useMemo(
+    () => filteredSections.some((s) => s.items.length > 0),
     [filteredSections]
   );
 
@@ -39,6 +39,6 @@ export const useSearchFilter = (sections: ReminderSectionData[], isEditingAny: b
     filteredSections,
     hasAnyMatches,
     setSearchQuery,
-    toggleHideCompleted
+    toggleHideCompleted,
   };
 };

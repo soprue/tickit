@@ -12,11 +12,12 @@ export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
       isDarkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-      toggleDarkMode: () => set((state) => {
-        const next = !state.isDarkMode;
-        console.log('[ThemeStore] Toggling dark mode:', next);
-        return { isDarkMode: next };
-      }),
+      toggleDarkMode: () =>
+        set((state) => {
+          const next = !state.isDarkMode;
+          console.log('[ThemeStore] Toggling dark mode:', next);
+          return { isDarkMode: next };
+        }),
     }),
     {
       name: STORAGE_KEYS.THEME,

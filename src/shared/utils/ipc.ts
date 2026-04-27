@@ -25,7 +25,7 @@ export const ipc = {
    */
   on(channel: string, callback: (...args: any[]) => void) {
     if (typeof window === 'undefined' || !window.api) return () => {};
-    
+
     window.api.on(channel, callback);
-  }
+  },
 };

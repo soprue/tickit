@@ -15,29 +15,29 @@ export const useReminderUI = () => {
   const { showConfirm } = useModalStore();
   const { runAction } = useActionContext(); // 전역 액션 실행 도구
 
-  const { 
-    sections, 
-    addSection: _addSection, 
+  const {
+    sections,
+    addSection: _addSection,
     updateSectionTitle: _updateSectionTitle,
     deleteSection: _deleteSection,
     toggleReminder: _toggleReminder,
     deleteReminder: _deleteReminder,
     updateReminder: _updateReminder,
-    addReminder: _addReminder
+    addReminder: _addReminder,
   } = useReminderStore();
-  
+
   const edit = useEditState();
 
   const isEditingAny = !!(
-    edit.editState.addingSectionId || 
-    edit.editState.editingItemId || 
+    edit.editState.addingSectionId ||
+    edit.editState.editingItemId ||
     edit.editState.editingSectionId
   );
 
   const filter = useSearchFilter(sections, isEditingAny);
 
   // 저장 완료를 체감할 수 있도록 약간의 대기 시간을 줌
-  const waitSave = () => new Promise(resolve => setTimeout(resolve, 300));
+  const waitSave = () => new Promise((resolve) => setTimeout(resolve, 300));
 
   /* -------------------------------------------------------------------------- */
   /* CRUD 액션 (전역 runAction으로 래핑)                                           */
@@ -150,6 +150,6 @@ export const useReminderUI = () => {
     deleteReminder,
     updateReminder,
     addReminder,
-    logout
+    logout,
   };
 };

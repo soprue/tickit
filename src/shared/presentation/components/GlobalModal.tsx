@@ -22,19 +22,19 @@ export function GlobalModal() {
   };
 
   return (
-    <div 
-      className="fixed inset-0 w-full h-full bg-black/40 flex justify-center items-center z-[3000] backdrop-blur-[2px] animate-in fade-in duration-200"
+    <div
+      className="animate-in fade-in fixed inset-0 z-[3000] flex h-full w-full items-center justify-center bg-black/40 backdrop-blur-[2px] duration-200"
       onClick={handleCancel}
     >
-      <div 
-        className="bg-white dark:bg-[#2a2a2a] dark:border dark:border-white/10 w-[90%] max-w-[320px] rounded-2xl p-6 shadow-2xl animate-in slide-in-from-bottom-5 duration-300 ease-out"
+      <div
+        className="animate-in slide-in-from-bottom-5 w-[90%] max-w-[320px] rounded-2xl bg-white p-6 shadow-2xl duration-300 ease-out dark:border dark:border-white/10 dark:bg-[#2a2a2a]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4">
-          <h3 className="text-[18px] font-bold text-primary m-0">{title}</h3>
+          <h3 className="text-primary m-0 text-[18px] font-bold">{title}</h3>
         </div>
         <div className="mb-6">
-          <p className="text-[15px] text-text-primary leading-relaxed m-0">{message}</p>
+          <p className="text-text-primary m-0 text-[15px] leading-relaxed">{message}</p>
         </div>
         <div className="flex justify-end gap-3">
           <Button variant="secondary" onClick={handleCancel}>

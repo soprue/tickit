@@ -12,42 +12,39 @@ interface SidebarProps {
  */
 export function Sidebar({ isDarkMode, onToggleTheme, onLogout }: SidebarProps) {
   return (
-    <aside className='w-(--sidebar-width) h-full bg-white shadow-[2px_0_10px_rgba(0,0,0,0.03)] relative shrink-0 z-100 transition-colors duration-normal flex flex-col justify-between py-8 box-border dark:bg-[#151515] border-r border-black/5 dark:border-white/5'>
-      <div className='flex flex-col items-center'>
+    <aside className="duration-normal relative z-100 box-border flex h-full w-(--sidebar-width) shrink-0 flex-col justify-between border-r border-black/5 bg-white py-8 shadow-[2px_0_10px_rgba(0,0,0,0.03)] transition-colors dark:border-white/5 dark:bg-[#151515]">
+      <div className="flex flex-col items-center">
         <img
           src={logoIcon}
-          alt='logo'
-          className='w-[28px] h-[28px] mx-auto block active:scale-95 transition-transform cursor-pointer'
+          alt="logo"
+          className="mx-auto block h-[28px] w-[28px] cursor-pointer transition-transform active:scale-95"
         />
       </div>
 
-      <div className='flex flex-col items-center gap-6'>
+      <div className="flex flex-col items-center gap-6">
         <button
-          className='w-[34px] h-[34px] bg-icon-bg rounded-full flex justify-center items-center cursor-pointer transition-all duration-fast hover:opacity-80 dark:hover:bg-white/10 active:scale-90 border-none group'
+          className="bg-icon-bg duration-fast group flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all hover:opacity-80 active:scale-90 dark:hover:bg-white/10"
           onClick={() => {
-            console.log(
-              '[Sidebar] Toggling theme, current isDarkMode:',
-              isDarkMode,
-            );
+            console.log('[Sidebar] Toggling theme, current isDarkMode:', isDarkMode);
             onToggleTheme();
           }}
-          title='테마 변경'
+          title="테마 변경"
         >
           <Icon
             name={isDarkMode ? 'sunlight' : 'halfmoon'}
             size={20}
-            className='text-gray-medium dark:text-gray-medium transition-colors'
+            className="text-gray-medium dark:text-gray-medium transition-colors"
           />
         </button>
         <button
-          className='w-[34px] h-[34px] bg-icon-bg rounded-full flex justify-center items-center cursor-pointer transition-all duration-fast hover:opacity-80 dark:hover:bg-white/10 active:scale-90 border-none group'
+          className="bg-icon-bg duration-fast group flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all hover:opacity-80 active:scale-90 dark:hover:bg-white/10"
           onClick={onLogout}
-          title='로그아웃'
+          title="로그아웃"
         >
           <Icon
-            name='logout'
+            name="logout"
             size={20}
-            className='text-gray-medium dark:text-gray-medium transition-colors'
+            className="text-gray-medium dark:text-gray-medium transition-colors"
           />
         </button>
       </div>

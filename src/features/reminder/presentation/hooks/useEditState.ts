@@ -7,7 +7,7 @@ import { useTimePickerState } from './useTimePickerState';
  */
 export const useEditState = () => {
   const ui = useReminderUIStore();
-  const sections = useReminderStore(state => state.sections);
+  const sections = useReminderStore((state) => state.sections);
   const timePicker = useTimePickerState();
 
   const setEditingItemId = (reminderId: number | null) => {
@@ -16,7 +16,7 @@ export const useEditState = () => {
       return;
     }
 
-    const foundItem = sections.flatMap(s => s.items).find(it => it.id === reminderId);
+    const foundItem = sections.flatMap((s) => s.items).find((it) => it.id === reminderId);
 
     if (foundItem) {
       timePicker.setInitialTime(foundItem.time, foundItem.isAllDay);
@@ -42,7 +42,7 @@ export const useEditState = () => {
       addingSectionId: ui.addingSectionId,
       editingItemId: ui.editingItemId,
       editingSectionId: ui.editingSectionId,
-      ...timePicker.timeState
+      ...timePicker.timeState,
     },
     setEditingItemId,
     setEditingSectionId,
@@ -50,6 +50,6 @@ export const useEditState = () => {
     toggleTimePopover: timePicker.toggleTimePopover,
     updatePickerTime: timePicker.updatePickerTime,
     setAllDay: timePicker.setAllDay,
-    clearEditState
+    clearEditState,
   };
 };

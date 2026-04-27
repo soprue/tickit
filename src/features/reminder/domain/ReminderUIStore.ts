@@ -44,16 +44,20 @@ export const useReminderUIStore = create<ReminderUIState>((set) => ({
 
   setSearchQuery: (query) => set({ searchQuery: query }),
   toggleHideCompleted: () => set((state) => ({ hideCompleted: !state.hideCompleted })),
-  setAddingSectionId: (id) => set({ addingSectionId: id, editingItemId: null, editingSectionId: null }),
-  setEditingItemId: (id) => set({ editingItemId: id, addingSectionId: null, editingSectionId: null }),
-  setEditingSectionId: (id) => set({ editingSectionId: id, addingSectionId: null, editingItemId: null }),
+  setAddingSectionId: (id) =>
+    set({ addingSectionId: id, editingItemId: null, editingSectionId: null }),
+  setEditingItemId: (id) =>
+    set({ editingItemId: id, addingSectionId: null, editingSectionId: null }),
+  setEditingSectionId: (id) =>
+    set({ editingSectionId: id, addingSectionId: null, editingItemId: null }),
   setUIState: (newState) => set((state) => ({ ...state, ...newState })),
-  resetEditState: () => set({
-    addingSectionId: null,
-    editingItemId: null,
-    editingSectionId: null,
-    showTimePopover: false,
-    selectedTime: undefined,
-    isAllDay: false,
-  }),
+  resetEditState: () =>
+    set({
+      addingSectionId: null,
+      editingItemId: null,
+      editingSectionId: null,
+      showTimePopover: false,
+      selectedTime: undefined,
+      isAllDay: false,
+    }),
 }));

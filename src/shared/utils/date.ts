@@ -10,7 +10,7 @@ export const formatKoreanTime = (time: Date | string | undefined): string => {
   return date.toLocaleString('ko-KR', {
     hour: 'numeric',
     minute: 'numeric',
-    hour12: true
+    hour12: true,
   });
 };
 
@@ -28,7 +28,7 @@ export const roundToNearestFive = (minutes: number): number => {
 export const parseDateToPickerState = (date: Date) => {
   const h = date.getHours();
   const m = date.getMinutes();
-  
+
   const ampm = h >= 12 ? 'PM' : 'AM';
   const displayHour = h % 12 || 12;
   const roundedMinute = roundToNearestFive(m);
@@ -36,7 +36,7 @@ export const parseDateToPickerState = (date: Date) => {
   return {
     ampm: ampm as 'AM' | 'PM',
     hour: String(displayHour).padStart(2, '0'),
-    minute: String(roundedMinute).padStart(2, '0')
+    minute: String(roundedMinute).padStart(2, '0'),
   };
 };
 
@@ -44,13 +44,17 @@ export const parseDateToPickerState = (date: Date) => {
  * 타임 피커의 입력값들을 조합하여 실제 Date 객체를 생성합니다.
  * (오늘 날짜 기준, 초/밀리초는 0으로 초기화)
  */
-export const createDateFromPickerState = (ampm: 'AM' | 'PM', hour: string, minute: string): Date => {
+export const createDateFromPickerState = (
+  ampm: 'AM' | 'PM',
+  hour: string,
+  minute: string
+): Date => {
   const date = new Date();
   let h = parseInt(hour);
-  
+
   if (ampm === 'PM' && h < 12) h += 12;
   if (ampm === 'AM' && h === 12) h = 0;
-  
+
   date.setHours(h, parseInt(minute), 0, 0);
   return date;
 };

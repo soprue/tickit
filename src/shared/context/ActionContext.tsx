@@ -25,9 +25,7 @@ export const ActionProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return (
-    <ActionContext.Provider value={{ isPending, runAction }}>
-      {children}
-    </ActionContext.Provider>
+    <ActionContext.Provider value={{ isPending, runAction }}>{children}</ActionContext.Provider>
   );
 };
 
