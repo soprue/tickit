@@ -104,12 +104,12 @@ function SectionFooter({ category }: { category: string }) {
   if (!isAdding) {
     return (
       <div
-        className='flex items-start gap-sm cursor-pointer group no-drag py-1.5'
+        className='flex items-start gap-sm cursor-pointer group no-drag py-1.5 px-1 -mx-1 rounded-md hover:bg-gray-soft transition-colors'
         onClick={() => ui.setAddingSection(category)}
       >
-        <div className='w-4 h-4 border-[1.5px] border-dashed border-gray-light rounded-sm shrink-0 mt-[3.5px] transition-colors group-hover:border-primary/50'></div>
+        <div className='w-4 h-4 border-[1.5px] border-dashed border-gray-light rounded-sm shrink-0 mt-[3.5px] transition-colors group-hover:border-gray-medium'></div>
         <div className='flex-1'>
-          <p className='font-medium text-base text-gray-light m-0 leading-tight transition-colors group-hover:text-primary/60 dark:text-gray-medium/60'>
+          <p className='font-medium text-base text-gray-light m-0 leading-tight transition-colors group-hover:text-gray-medium dark:text-gray-medium/60'>
             눌러서 추가하기
           </p>
         </div>
