@@ -4,6 +4,7 @@ import { Icon } from '@src/shared/presentation/components/Icon';
 import { formatKoreanTime } from '@src/shared/utils/date';
 import { TimePicker } from './TimePicker';
 import { Reminder } from '../../domain/reminder';
+import { Category } from '@src/shared/constants';
 import { useReminderUI } from '../hooks/useReminderUI';
 import { Button } from '@src/shared/presentation/components/ui/Button';
 import { Input } from '@src/shared/presentation/components/ui/Input';
@@ -206,7 +207,7 @@ export function ReminderSection({
   category,
   items,
 }: ReminderSectionProps) {
-  const isFixed = category === 'EVERYDAY' || category === 'TODO';
+  const isFixed = category === Category.EVERYDAY || category === Category.TODO;
 
   return (
     <section className='w-full min-w-[303px] bg-white rounded-lg p-lg box-border mb-md shadow-sm transition-colors duration-normal flex flex-col gap-md dark:bg-[#151515]'>
