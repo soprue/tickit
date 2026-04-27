@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { Reminder } from '../../domain/reminder';
 import { formatKoreanTime } from '@src/shared/utils/date';
@@ -14,12 +14,12 @@ interface ReminderItemProps {
 }
 
 /**
- * 수정 모드 UI (React)
+ * 수정 모드 UI
  */
-const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
+function EditMode({ sectionId, item }: ReminderItemProps) {
   const ui = useReminderUI();
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const {
     selectedTime,
@@ -37,7 +37,7 @@ const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
   };
 
   // 영역 외 클릭 시 자동 저장 로직
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         const value = inputRef.current?.value || item.text;
@@ -58,51 +58,41 @@ const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
   return (
     <div
       ref={containerRef}
-      className='relative flex items-start gap-sm no-drag p-2 -mx-2 -my-1 bg-gray-soft/30 dark:bg-white/5 rounded-lg transition-all duration-200 w-[calc(100%+1rem)] box-border'
+      className='relative flex items-start gap-sm no-drag p-2 -mx-2 -my-1 bg-gray-soft/40 dark:bg-white/5 rounded-lg transition-all duration-200 w-[calc(100%+1rem)] box-border'
     >
-      {/* 체크박스 영역: UI Primitive 적용 */}
       <Checkbox 
         checked={item.done} 
         onChange={() => ui.toggleReminder(sectionId, item.id)} 
         className="mt-[3px]"
       />
 
-      {/* 입력창 및 오버레이 배지 영역 */}
       <div className='relative flex-1 flex items-center min-w-0 pr-20'>
         <Input
           ref={inputRef}
           variant='underline'
-          className='pb-[4px] leading-[1.2] pr-[85px]'
+          className='!text-[15px] !font-medium !p-0 !pb-[2px] leading-[1.2] pr-[85px] !text-text-primary'
           defaultValue={item.text}
           onKeyDown={onEnter}
           autoFocus
         />
         
-        {/* 우측 오버레이 시간 버튼: UI Primitive 적용 */}
         <div className='absolute right-0 top-[-1px]'>
           <Button
             variant={!isAllDay && selectedTime ? 'primary' : 'secondary'}
-            className={`!px-2 !py-1 !text-[10px] shrink-0 ${!isAllDay && selectedTime ? '' : '!bg-white/60 dark:!bg-white/10'}`}
+            className={`!px-2.5 !py-1 !text-[10px] shrink-0 ${!isAllDay && selectedTime ? '' : '!bg-white dark:!bg-white/10'}`}
             onClick={() => ui.toggleTimePopover()}
           >
             <Icon
               name='clock'
               size={10}
-              color={
-                !isAllDay && selectedTime ? 'white' : 'var(--color-icon-brown)'
-              }
-              className={
-                !isAllDay && selectedTime
-                  ? 'opacity-100'
-                  : 'opacity-60 dark:opacity-100'
-              }
+              color={!isAllDay && selectedTime ? 'white' : 'currentColor'}
+              className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
             />
             <span className='ml-1.5 leading-none tracking-tight'>
               {displayTime || '시간 추가'}
             </span>
           </Button>
 
-          {/* 시간 선택 팝오버 */}
           {showTimePopover && (
             <div className='absolute top-[calc(100%+6px)] right-0 z-[5000] animate-in fade-in slide-in-from-top-1 zoom-in-95 duration-200 ease-out origin-top-right'>
               <TimePicker
@@ -120,12 +110,12 @@ const EditMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
       </div>
     </div>
   );
-};
+}
 
 /**
- * 일반 모드 UI (React)
+ * 일반 모드 UI
  */
-const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
+function ViewMode({ sectionId, item }: ReminderItemProps) {
   const ui = useReminderUI();
 
   const toggleDone = () => {
@@ -146,11 +136,10 @@ const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
 
   return (
     <div
-      className='flex items-start gap-sm group no-drag select-none p-2 -mx-2 -my-1 rounded-lg bg-transparent hover:bg-gray-soft/10 transition-colors duration-200 cursor-pointer relative w-[calc(100%+1rem)] box-border'
+      className='flex items-start gap-sm group no-drag select-none p-2 -mx-2 -my-1 rounded-lg bg-transparent hover:bg-gray-soft transition-colors duration-200 cursor-pointer relative w-[calc(100%+1rem)] box-border'
       onDoubleClick={startEdit}
       onClick={toggleDone}
     >
-      {/* 체크박스: UI Primitive 적용 */}
       <Checkbox 
         checked={item.done} 
         onChange={toggleDone} 
@@ -159,22 +148,22 @@ const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
 
       <div className='flex flex-col flex-1 min-w-0 pr-20'>
         <p
-          className={`font-medium text-[15px] m-0 leading-[1.2] transition-colors ${item.done ? 'text-gray-light line-through decoration-gray-light/50' : 'text-text-primary'}`}
+          className={`font-medium text-[15px] m-0 leading-[1.2] transition-colors ${item.done ? 'text-gray-light/60 line-through decoration-gray-light/50' : 'text-text-primary'}`}
         >
           {item.text}
         </p>
         {displayTime && (
           <span
-            className={`font-normal text-[13px] mt-1.5 transition-colors ${item.done ? 'text-gray-light/70' : 'text-gray-medium/80'}`}
+            className={`font-normal text-[13px] mt-1.5 transition-colors ${item.done ? 'text-gray-light/50' : 'text-text-secondary/80'}`}
           >
             {displayTime}
           </span>
         )}
       </div>
 
-      <div className='absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 bg-white/80 dark:bg-black/40 backdrop-blur-sm rounded-md px-1'>
+      <div className='absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-lg px-1 py-0.5 border border-black/5 dark:border-white/5'>
         <button
-          className='bg-none border-none text-gray-light/60 cursor-pointer text-[14px] p-1 hover:text-primary transition-colors'
+          className='bg-none border-none text-gray-medium/60 cursor-pointer text-[14px] p-1.5 hover:text-primary transition-colors'
           onClick={(e) => {
             e.stopPropagation();
             startEdit();
@@ -184,24 +173,24 @@ const ViewMode: React.FC<ReminderItemProps> = ({ sectionId, item }) => {
           ✎
         </button>
         <button
-          className='bg-none border-none text-gray-light/60 cursor-pointer text-[18px] p-1 hover:text-primary transition-colors leading-none'
+          className='bg-none border-none text-gray-medium/60 cursor-pointer text-[18px] p-1 hover:text-red-500 transition-colors leading-none'
           onClick={deleteItemAction}
           title='삭제'
         >
-          ×
+          <Icon name="cancel" size={14} className="mt-0.5" />
         </button>
       </div>
     </div>
   );
-};
+}
 
 /**
  * 개별 리마인더 항목 컴포넌트
  */
-export const ReminderItem: React.FC<ReminderItemProps> = (props) => {
+export function ReminderItem(props: ReminderItemProps) {
   const ui = useReminderUI();
   const isEditing = ui.state.editingItemId === props.item.id;
   return isEditing ? <EditMode {...props} /> : <ViewMode {...props} />;
-};
+}
 
 export default ReminderItem;

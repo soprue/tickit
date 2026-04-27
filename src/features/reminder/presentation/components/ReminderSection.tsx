@@ -17,14 +17,14 @@ interface ReminderSectionProps {
 /**
  * 섹션 헤더
  */
-function SectionHeader({ 
-  title, 
-  category, 
-  isFixed 
-}: { 
-  title: string; 
-  category: string; 
-  isFixed: boolean; 
+function SectionHeader({
+  title,
+  category,
+  isFixed,
+}: {
+  title: string;
+  category: string;
+  isFixed: boolean;
 }) {
   const ui = useReminderUI();
   const isEditingTitle = ui.state.editingSectionId === category;
@@ -164,14 +164,16 @@ function SectionFooter({ category }: { category: string }) {
           </div>
           <Button
             variant={!isAllDay && selectedTime ? 'primary' : 'secondary'}
-            className="!px-2.5 !py-1 !text-xs shrink-0"
+            className='!px-2.5 !py-1 !text-xs shrink-0'
             onClick={() => ui.toggleTimePopover()}
           >
             <Icon
               name='clock'
               size={12}
               color={!isAllDay && selectedTime ? 'white' : 'currentColor'}
-              className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
+              className={
+                !isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'
+              }
             />
             <span className='ml-1.5 leading-none tracking-tight'>
               {displayTime === 'All Day' ? 'All Day' : displayTime}
