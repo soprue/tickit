@@ -6,6 +6,8 @@ import { reminderStorage } from '../infrastructure/reminderStorage';
 
 interface ReminderState {
   sections: ReminderSectionData[];
+  /** 마지막으로 밤 9시 알림을 보낸 날짜 (YYYY-MM-DD) */
+  lastNightCheckDate: string | null;
   
   // Actions
   addSection: (title: string) => void;
@@ -16,6 +18,7 @@ interface ReminderState {
   updateReminder: (sectionId: string, reminderId: number, text: string, time?: Date, isAllDay?: boolean) => void;
   deleteReminder: (sectionId: string, reminderId: number) => void;
   markAsNotified: (sectionId: string, reminderId: number) => void;
+  setLastNightCheckDate: (date: string) => void;
 }
 
 /**
@@ -25,6 +28,7 @@ export const useReminderStore = create<ReminderState>()(
   persist(
     (set) => ({
       sections: initialSections,
+      lastNightCheckDate: null,
 
       addSection: (title: string) => set((state) => ({
         sections: [...state.sections, {
@@ -49,7 +53,7 @@ export const useReminderStore = create<ReminderState>()(
           items: [...s.items, { 
             id: Date.now(), 
             text, 
-            time: time?.toISOString(), // Date를 ISO String으로 변환하여 저장
+            time: time?.toISOString(),
             isAllDay, 
             notified: false, 
             done: false 
@@ -70,7 +74,7 @@ export const useReminderStore = create<ReminderState>()(
           items: s.items.map(item => item.id === reminderId ? { 
             ...item, 
             text, 
-            time: time?.toISOString(), // Date를 ISO String으로 변환하여 저장
+            time: time?.toISOString(),
             isAllDay, 
             notified: false 
           } : item)
@@ -90,11 +94,17 @@ export const useReminderStore = create<ReminderState>()(
           items: s.items.map(item => item.id === reminderId ? { ...item, notified: true } : item)
         } : s)
       })),
+
+      setLastNightCheckDate: (date: string) => set({ lastNightCheckDate: date }),
     }),
     {
       name: STORAGE_KEYS.REMINDER,
       storage: createJSONStorage(() => reminderStorage),
-      partialize: (state) => ({ sections: state.sections }),
+      // partialize 시 sections와 lastNightCheckDate 모두 저장
+      partialize: (state) => ({ 
+        sections: state.sections,
+        lastNightCheckDate: state.lastNightCheckDate
+      }),
     }
   )
 );
@@ -103,4 +113,5 @@ export const useReminderStore = create<ReminderState>()(
 export const reminderStore = {
   getState: () => useReminderStore.getState(),
   markAsNotified: (sectionId: string, reminderId: number) => useReminderStore.getState().markAsNotified(sectionId, reminderId),
+  setLastNightCheckDate: (date: string) => useReminderStore.getState().setLastNightCheckDate(date),
 };
