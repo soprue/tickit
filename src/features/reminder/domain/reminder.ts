@@ -6,7 +6,8 @@ import { Category } from '@src/shared/constants';
 export interface Reminder {
   id: number;
   text: string;
-  time?: Date;
+  /** ISO String 형식의 시간 데이터 */
+  time?: string;
   isAllDay: boolean;
   notified: boolean;
   done: boolean;
@@ -26,13 +27,13 @@ export interface ReminderSectionData {
 const today = new Date();
 export const initialSections: ReminderSectionData[] = [
   { id: Category.EVERYDAY, title: 'Everyday', isFixed: true, items: [
-    { id: 1, text: '약 먹기', time: new Date(new Date(today).setHours(14, 0, 0, 0)), isAllDay: false, notified: true, done: true },
-    { id: 2, text: '알고리즘 문제 풀기', time: new Date(new Date(today).setHours(16, 0, 0, 0)), isAllDay: false, notified: false, done: false },
-    { id: 3, text: '산책하기', time: new Date(new Date(today).setHours(23, 0, 0, 0)), isAllDay: false, notified: false, done: true },
+    { id: 1, text: '약 먹기', time: new Date(new Date(today).setHours(14, 0, 0, 0)).toISOString(), isAllDay: false, notified: true, done: true },
+    { id: 2, text: '알고리즘 문제 풀기', time: new Date(new Date(today).setHours(16, 0, 0, 0)).toISOString(), isAllDay: false, notified: false, done: false },
+    { id: 3, text: '산책하기', time: new Date(new Date(today).setHours(23, 0, 0, 0)).toISOString(), isAllDay: false, notified: false, done: true },
   ]},
   { id: Category.TODO, title: 'To Do', isFixed: true, items: [
     { id: 4, text: '책 반납하기', isAllDay: true, notified: false, done: false },
-    { id: 5, text: '편의점 택배 보내고 오기', time: new Date(new Date(today).setHours(16, 0, 0, 0)), isAllDay: false, notified: false, done: false },
+    { id: 5, text: '편의점 택배 보내고 오기', time: new Date(new Date(today).setHours(16, 0, 0, 0)).toISOString(), isAllDay: false, notified: false, done: false },
   ]},
   { id: Category.WORK, title: 'Work', isFixed: false, items: [] },
 ];

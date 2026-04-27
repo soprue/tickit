@@ -46,7 +46,14 @@ export const useReminderStore = create<ReminderState>()(
       addReminder: (sectionId: string, text: string, time?: Date, isAllDay: boolean = false) => set((state) => ({
         sections: state.sections.map(s => s.id === sectionId ? {
           ...s,
-          items: [...s.items, { id: Date.now(), text, time, isAllDay, notified: false, done: false }]
+          items: [...s.items, { 
+            id: Date.now(), 
+            text, 
+            time: time?.toISOString(), // Date를 ISO String으로 변환하여 저장
+            isAllDay, 
+            notified: false, 
+            done: false 
+          }]
         } : s)
       })),
 
@@ -60,7 +67,13 @@ export const useReminderStore = create<ReminderState>()(
       updateReminder: (sectionId: string, reminderId: number, text: string, time?: Date, isAllDay: boolean = false) => set((state) => ({
         sections: state.sections.map(s => s.id === sectionId ? {
           ...s,
-          items: s.items.map(item => item.id === reminderId ? { ...item, text, time, isAllDay, notified: false } : item)
+          items: s.items.map(item => item.id === reminderId ? { 
+            ...item, 
+            text, 
+            time: time?.toISOString(), // Date를 ISO String으로 변환하여 저장
+            isAllDay, 
+            notified: false 
+          } : item)
         } : s)
       })),
 

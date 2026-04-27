@@ -58,9 +58,12 @@ export const useTimePickerState = () => {
     });
   };
 
-  const setInitialTime = (time: Date | undefined, isAllDay: boolean) => {
-    const pickerState = time instanceof Date 
-      ? parseDateToPickerState(time)
+  const setInitialTime = (time: Date | string | undefined, isAllDay: boolean) => {
+    const timeDate = time ? (time instanceof Date ? time : new Date(time)) : undefined;
+    const isValidDate = timeDate && !isNaN(timeDate.getTime());
+
+    const pickerState = isValidDate 
+      ? parseDateToPickerState(timeDate)
       : { 
           ampm: REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM', 
           hour: REMINDER_CONFIG.DEFAULT_HOUR, 
@@ -68,7 +71,7 @@ export const useTimePickerState = () => {
         };
 
     state.setUIState({
-      selectedTime: time,
+      selectedTime: timeDate,
       isAllDay,
       pickerAMPM: pickerState.ampm,
       pickerHour: pickerState.hour,
