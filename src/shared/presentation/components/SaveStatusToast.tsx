@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useActionContext } from '@src/shared/context/ActionContext';
 
 /**
- * 전역 저장 상태를 표시하는 선언적 토스트 컴포넌트 (Tailwind CSS)
+ * 전역 저장 상태를 표시하는 선언적 토스트 컴포넌트
  */
-export const SaveStatusToast: React.FC = () => {
+export function SaveStatusToast() {
   const { isPending } = useActionContext();
   const [show, setShow] = useState(false);
   const [status, setStatus] = useState<'saving' | 'saved'>('saving');
@@ -55,6 +55,6 @@ export const SaveStatusToast: React.FC = () => {
       </span>
     </div>
   );
-};
+}
 
 export default SaveStatusToast;

@@ -3,10 +3,10 @@ import { useModalStore } from '@src/shared/domain/ModalStore';
 import { Button } from './ui/Button';
 
 /**
- * 전역 모달 컴포넌트 (Tailwind 마이그레이션 완료)
+ * 전역 모달 컴포넌트
  * useModalStore의 상태에 따라 브라우저 내장 confirm()을 대신하여 화면에 표시됩니다.
  */
-export const GlobalModal: React.FC = () => {
+export function GlobalModal() {
   const { isOpen, title, message, onConfirm, onCancel, closeModal } = useModalStore();
 
   if (!isOpen) return null;
@@ -47,4 +47,4 @@ export const GlobalModal: React.FC = () => {
       </div>
     </div>
   );
-};
+}
