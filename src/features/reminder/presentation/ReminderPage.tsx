@@ -5,17 +5,13 @@ import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { SaveStatusToast } from '@src/shared/presentation/components/SaveStatusToast';
 import { useReminderUI } from './hooks/useReminderUI';
-import { useNotificationMonitor } from './hooks/useNotificationMonitor';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 
 function ReminderPage() {
   // 1. 통합 훅
   const ui = useReminderUI();
 
-  // 2. 알림 모니터링
-  useNotificationMonitor();
-
-  // 3. 글로벌 설정
+  // 2. 글로벌 설정
   const { isDarkMode, toggleDarkMode } = useThemeStore();
 
   const containerRef = useRef<HTMLDivElement>(null);

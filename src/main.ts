@@ -2,9 +2,13 @@ import { BrowserWindow, app, ipcMain, nativeImage } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { NotificationService } from './services/NotificationService';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// 알림 서비스 초기화
+const notificationService = new NotificationService();
 
 // 1. 데이터 저장 디렉토리 설정 (사용자 로컬 데이터 폴더)
 const DATA_DIR = path.join(app.getPath('userData'), 'data');
@@ -107,10 +111,16 @@ function createWindow() {
 // 앱 준비 완료 시 창 생성
 app.whenReady().then(() => {
   createWindow();
+  notificationService.start();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+});
+
+// 앱 종료 시 알림 서비스 정지
+app.on('will-quit', () => {
+  notificationService.stop();
 });
 
 // 모든 창이 닫히면 앱 종료 (macOS 제외)
