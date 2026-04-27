@@ -32,7 +32,7 @@ export class NotificationService {
    */
   start() {
     this.check();
-    
+
     // 시스템 절전 모드 해제 시 즉시 체크 (Catch-up 로직)
     powerMonitor.on('resume', this.resumeHandler);
   }
@@ -56,10 +56,12 @@ export class NotificationService {
         return;
       }
 
-      const allItems = sections.flatMap((s: any) => s.items.map((item: any) => ({ ...item, sectionId: s.id })));
+      const allItems = sections.flatMap((s: any) =>
+        s.items.map((item: any) => ({ ...item, sectionId: s.id }))
+      );
       const now = new Date();
       const nowMs = now.getTime();
-      
+
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
@@ -73,22 +75,22 @@ export class NotificationService {
         const count = unfinishedItems.length;
 
         if (count > 0) {
-          const displayItems = unfinishedItems.slice(0, 3).map((it: any) => it.text).join(', ');
+          const displayItems = unfinishedItems
+            .slice(0, 3)
+            .map((it: any) => it.text)
+            .join(', ');
           const itemsText = count > 3 ? `${displayItems} 외 ${count - 3}개` : displayItems;
           const body = `아직 ${count}개의 할 일이 남았어요: ${itemsText}`;
 
-          this.send(
-            NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE,
-            body
-          );
+          this.send(NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE, body);
         }
         state.lastNightCheckDate = todayDateStr;
         hasChanges = true;
       }
 
       // 2. 개별 리마인더 알림
-      const oneHourAgo = nowMs - (60 * 60 * 1000);
-      
+      const oneHourAgo = nowMs - 60 * 60 * 1000;
+
       sections.forEach((section: any) => {
         section.items.forEach((item: any) => {
           if (!item.time || item.done || item.notified) return;
@@ -107,7 +109,7 @@ export class NotificationService {
                 NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text)
               );
             }
-            
+
             item.notified = true;
             hasChanges = true;
           }
@@ -118,7 +120,6 @@ export class NotificationService {
       if (hasChanges) {
         await fs.promises.writeFile(FILE_PATH, JSON.stringify(state, null, 2));
       }
-
     } catch (err) {
       console.error('[NotificationService] Check failed:', err);
     }
@@ -131,7 +132,7 @@ export class NotificationService {
    */
   private scheduleNext() {
     if (this.timer) clearTimeout(this.timer);
-    
+
     const now = new Date();
     const delay = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 500;
     this.timer = setTimeout(() => this.check(), Math.max(1000, delay));

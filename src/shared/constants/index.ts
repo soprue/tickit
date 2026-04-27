@@ -8,10 +8,10 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const DELAYS = {
-  SAVE_DEBOUNCE: 300,       // 데이터 저장 디바운싱 지연 시간 (ms)
-  FOCUS_RESTORE: 250,      // 리렌더링 시 포커스 복구 대기 시간 (ms)
-  UI_TRANSITION: 150,      // 일반적인 UI 전환/닫힘 대기 시간 (ms)
-  AUTO_CLOSE: 2500,        // 토스트/알림 자동 닫힘 시간 (ms)
+  SAVE_DEBOUNCE: 300, // 데이터 저장 디바운싱 지연 시간 (ms)
+  FOCUS_RESTORE: 250, // 리렌더링 시 포커스 복구 대기 시간 (ms)
+  UI_TRANSITION: 150, // 일반적인 UI 전환/닫힘 대기 시간 (ms)
+  AUTO_CLOSE: 2500, // 토스트/알림 자동 닫힘 시간 (ms)
 } as const;
 
 export const REMINDER_CONFIG = {

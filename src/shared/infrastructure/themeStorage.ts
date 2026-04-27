@@ -19,7 +19,7 @@ export const themeStorage: StateStorage = {
       const data = JSON.parse(value);
       await ipc.invoke('reminder:save', {
         key: name,
-        data: data.state
+        data: data.state,
       });
     } catch (e) {
       console.error(`[ThemeStore] Save error:`, e);

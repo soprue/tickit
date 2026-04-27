@@ -26,30 +26,22 @@ export function SaveStatusToast() {
   if (!show) return null;
 
   return (
-    <div 
-      className={`
-        fixed bottom-6 right-6 flex items-center gap-2 px-4 py-2 
-        bg-white/90 backdrop-blur-md rounded-full border-[1.5px] 
-        shadow-lg z-[2000] pointer-events-none transition-all duration-500
-        ${status === 'saving' 
-          ? 'border-primary/20 translate-y-0 opacity-100' 
-          : 'border-green-500/30 translate-y-0 opacity-100'}
-        ${!isPending && status === 'saved' ? 'animate-pulse' : ''}
-        dark:bg-black/60 dark:border-white/10 dark:shadow-2xl
-      `}
+    <div
+      className={`pointer-events-none fixed right-6 bottom-6 z-[2000] flex items-center gap-2 rounded-full border-[1.5px] bg-white/90 px-4 py-2 shadow-lg backdrop-blur-md transition-all duration-500 ${
+        status === 'saving'
+          ? 'border-primary/20 translate-y-0 opacity-100'
+          : 'translate-y-0 border-green-500/30 opacity-100'
+      } ${!isPending && status === 'saved' ? 'animate-pulse' : ''} dark:border-white/10 dark:bg-black/60 dark:shadow-2xl`}
     >
-      <div className="flex items-center justify-center w-4 h-4">
+      <div className="flex h-4 w-4 items-center justify-center">
         {status === 'saving' ? (
-          <div className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse" />
+          <div className="bg-primary h-2.5 w-2.5 animate-pulse rounded-full" />
         ) : (
-          <span className="text-green-500 text-[14px] font-black leading-none">✓</span>
+          <span className="text-[14px] leading-none font-black text-green-500">✓</span>
         )}
       </div>
-      <span 
-        className={`
-          text-[12px] font-bold tracking-tight select-none
-          ${status === 'saving' ? 'text-primary' : 'text-green-600 dark:text-green-400'}
-        `}
+      <span
+        className={`text-[12px] font-bold tracking-tight select-none ${status === 'saving' ? 'text-primary' : 'text-green-600 dark:text-green-400'} `}
       >
         {status === 'saving' ? '저장 중...' : '저장 완료'}
       </span>

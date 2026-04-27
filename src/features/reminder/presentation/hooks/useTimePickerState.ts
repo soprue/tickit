@@ -12,22 +12,28 @@ export const useTimePickerState = () => {
     const isOpening = !state.showTimePopover;
 
     if (isOpening) {
-      const timeDate = currentTime instanceof Date ? currentTime : (state.selectedTime ? new Date(state.selectedTime) : null);
-      
-      // 유틸리티를 활용한 선언적 상태 변환
-      const pickerState = timeDate && !isNaN(timeDate.getTime()) && !state.isAllDay
-        ? parseDateToPickerState(timeDate)
-        : { 
-            ampm: REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM', 
-            hour: REMINDER_CONFIG.DEFAULT_HOUR, 
-            minute: REMINDER_CONFIG.DEFAULT_MINUTE 
-          };
+      const timeDate =
+        currentTime instanceof Date
+          ? currentTime
+          : state.selectedTime
+            ? new Date(state.selectedTime)
+            : null;
 
-      state.setUIState({ 
+      // 유틸리티를 활용한 선언적 상태 변환
+      const pickerState =
+        timeDate && !isNaN(timeDate.getTime()) && !state.isAllDay
+          ? parseDateToPickerState(timeDate)
+          : {
+              ampm: REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM',
+              hour: REMINDER_CONFIG.DEFAULT_HOUR,
+              minute: REMINDER_CONFIG.DEFAULT_MINUTE,
+            };
+
+      state.setUIState({
         showTimePopover: true,
         pickerAMPM: pickerState.ampm,
         pickerHour: pickerState.hour,
-        pickerMinute: pickerState.minute
+        pickerMinute: pickerState.minute,
       });
     } else {
       state.setUIState({ showTimePopover: false });
@@ -36,25 +42,25 @@ export const useTimePickerState = () => {
 
   const updatePickerTime = (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => {
     // 입력값을 기반으로 실제 Date 객체 생성 (유틸리티 활용)
-    const ampm = key === 'pickerAMPM' ? value as 'AM' | 'PM' : state.pickerAMPM;
+    const ampm = key === 'pickerAMPM' ? (value as 'AM' | 'PM') : state.pickerAMPM;
     const hour = key === 'pickerHour' ? value : state.pickerHour;
     const minute = key === 'pickerMinute' ? value : state.pickerMinute;
 
     const date = createDateFromPickerState(ampm, hour, minute);
 
-    state.setUIState({ 
+    state.setUIState({
       [key]: value,
       selectedTime: date,
       isAllDay: false,
-      showTimePopover: false
+      showTimePopover: false,
     });
   };
 
   const setAllDay = () => {
-    state.setUIState({ 
+    state.setUIState({
       selectedTime: undefined,
       isAllDay: true,
-      showTimePopover: false 
+      showTimePopover: false,
     });
   };
 
@@ -62,12 +68,12 @@ export const useTimePickerState = () => {
     const timeDate = time ? (time instanceof Date ? time : new Date(time)) : undefined;
     const isValidDate = timeDate && !isNaN(timeDate.getTime());
 
-    const pickerState = isValidDate 
+    const pickerState = isValidDate
       ? parseDateToPickerState(timeDate)
-      : { 
-          ampm: REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM', 
-          hour: REMINDER_CONFIG.DEFAULT_HOUR, 
-          minute: REMINDER_CONFIG.DEFAULT_MINUTE 
+      : {
+          ampm: REMINDER_CONFIG.DEFAULT_AMPM as 'AM' | 'PM',
+          hour: REMINDER_CONFIG.DEFAULT_HOUR,
+          minute: REMINDER_CONFIG.DEFAULT_MINUTE,
         };
 
     state.setUIState({
@@ -76,7 +82,7 @@ export const useTimePickerState = () => {
       pickerAMPM: pickerState.ampm,
       pickerHour: pickerState.hour,
       pickerMinute: pickerState.minute,
-      showTimePopover: false
+      showTimePopover: false,
     });
   };
 
@@ -93,6 +99,6 @@ export const useTimePickerState = () => {
     updatePickerTime,
     setAllDay,
     setInitialTime,
-    resetTimeState: state.resetEditState
+    resetTimeState: state.resetEditState,
   };
 };

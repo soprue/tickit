@@ -35,20 +35,20 @@ export class GlobalErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="w-screen h-screen flex items-center justify-center bg-bg text-text-primary p-5 box-border scroll-none select-none">
-          <div className="max-w-[500px] text-center animate-in fade-in zoom-in duration-300">
-            <h1 className="text-[2rem] mb-4 font-black tracking-tight">앗! 오류가 발생했습니다.</h1>
-            <p className="mb-8 leading-relaxed text-text-secondary">
+        <div className="bg-bg text-text-primary scroll-none box-border flex h-screen w-screen items-center justify-center p-5 select-none">
+          <div className="animate-in fade-in zoom-in max-w-[500px] text-center duration-300">
+            <h1 className="mb-4 text-[2rem] font-black tracking-tight">앗! 오류가 발생했습니다.</h1>
+            <p className="text-text-secondary mb-8 leading-relaxed">
               죄송합니다. 예상치 못한 문제가 발생하여 화면을 표시할 수 없습니다.
             </p>
             {this.state.error && (
-              <pre className="bg-white/50 dark:bg-black/50 p-4 rounded-xl text-[0.8rem] text-left mb-8 overflow-auto max-h-[200px] whitespace-pre-wrap break-words text-red-500 border border-red-500/20 backdrop-blur-sm">
+              <pre className="mb-8 max-h-[200px] overflow-auto rounded-xl border border-red-500/20 bg-white/50 p-4 text-left text-[0.8rem] break-words whitespace-pre-wrap text-red-500 backdrop-blur-sm dark:bg-black/50">
                 {this.state.error.message}
               </pre>
             )}
-            <button 
-              onClick={this.handleReset} 
-              className="px-6 py-3 text-[1rem] bg-primary text-white border-none rounded-xl cursor-pointer hover:brightness-110 active:scale-95 transition-all font-bold shadow-lg shadow-primary/20"
+            <button
+              onClick={this.handleReset}
+              className="bg-primary shadow-primary/20 cursor-pointer rounded-xl border-none px-6 py-3 text-[1rem] font-bold text-white shadow-lg transition-all hover:brightness-110 active:scale-95"
             >
               앱 새로고침
             </button>

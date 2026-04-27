@@ -21,28 +21,18 @@ function EditMode({ sectionId, item }: ReminderItemProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const {
-    selectedTime,
-    isAllDay,
-    pickerAMPM,
-    pickerHour,
-    pickerMinute,
-    showTimePopover,
-  } = ui.state;
+  const { selectedTime, isAllDay, pickerAMPM, pickerHour, pickerMinute, showTimePopover } =
+    ui.state;
 
   const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter')
-      ui.updateReminder(sectionId, item.id, e.currentTarget.value);
+    if (e.key === 'Enter') ui.updateReminder(sectionId, item.id, e.currentTarget.value);
     else if (e.key === 'Escape') ui.setEditingItemId(null);
   };
 
   // 영역 외 클릭 시 자동 저장 로직
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         const value = inputRef.current?.value || item.text;
         ui.updateReminder(sectionId, item.id, value);
       }
@@ -52,54 +42,46 @@ function EditMode({ sectionId, item }: ReminderItemProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [ui, sectionId, item.id, item.text]);
 
-  const displayTime = isAllDay
-    ? 'All Day'
-    : selectedTime
-      ? formatKoreanTime(selectedTime)
-      : '';
+  const displayTime = isAllDay ? 'All Day' : selectedTime ? formatKoreanTime(selectedTime) : '';
 
   return (
     <div
       ref={containerRef}
-      className='relative flex items-start gap-sm no-drag p-2 -mx-2 -my-1 bg-gray-soft/40 dark:bg-white/5 rounded-lg transition-all duration-200 w-[calc(100%+1rem)] box-border'
+      className="gap-sm no-drag bg-gray-soft/40 relative -mx-2 -my-1 box-border flex w-[calc(100%+1rem)] items-start rounded-lg p-2 transition-all duration-200 dark:bg-white/5"
     >
       <Checkbox
         checked={item.done}
         onChange={() => ui.toggleReminder(sectionId, item.id)}
-        className='mt-[3px]'
+        className="mt-[3px]"
       />
 
-      <div className='relative flex-1 flex items-center min-w-0 pr-20'>
+      <div className="relative flex min-w-0 flex-1 items-center pr-20">
         <Input
           ref={inputRef}
-          variant='underline'
-          className='!text-[15px] !font-medium !p-0 !pb-[2px] leading-[1.2] pr-[85px] !text-text-primary'
+          variant="underline"
+          className="!text-text-primary !p-0 pr-[85px] !pb-[2px] !text-[15px] leading-[1.2] !font-medium"
           defaultValue={item.text}
           onKeyDown={onEnter}
           autoFocus
         />
 
-        <div className='absolute right-0 top-[-1px]'>
+        <div className="absolute top-[-1px] right-0">
           <Button
             variant={!isAllDay && selectedTime ? 'primary' : 'secondary'}
-            className={`!px-2.5 !py-1 !text-[10px] shrink-0 ${!isAllDay && selectedTime ? '' : '!bg-white dark:!bg-white/10'}`}
+            className={`shrink-0 !px-2.5 !py-1 !text-[10px] ${!isAllDay && selectedTime ? '' : '!bg-white dark:!bg-white/10'}`}
             onClick={() => ui.toggleTimePopover()}
           >
             <Icon
-              name='clock'
+              name="clock"
               size={10}
               color={!isAllDay && selectedTime ? 'white' : 'currentColor'}
-              className={
-                !isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'
-              }
+              className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
             />
-            <span className='ml-1.5 leading-none tracking-tight'>
-              {displayTime || '시간 추가'}
-            </span>
+            <span className="ml-1.5 leading-none tracking-tight">{displayTime || '시간 추가'}</span>
           </Button>
 
           {showTimePopover && (
-            <div className='absolute top-[calc(100%+6px)] right-0 z-[5000] animate-in fade-in slide-in-from-top-1 zoom-in-95 duration-200 ease-out origin-top-right'>
+            <div className="animate-in fade-in slide-in-from-top-1 zoom-in-95 absolute top-[calc(100%+6px)] right-0 z-[5000] origin-top-right duration-200 ease-out">
               <TimePicker
                 pickerState={{
                   ampm: pickerAMPM,
@@ -133,56 +115,48 @@ function ViewMode({ sectionId, item }: ReminderItemProps) {
     ui.deleteReminder(sectionId, item.id);
   };
 
-  const displayTime = item.isAllDay
-    ? 'All Day'
-    : item.time
-      ? formatKoreanTime(item.time)
-      : '';
+  const displayTime = item.isAllDay ? 'All Day' : item.time ? formatKoreanTime(item.time) : '';
 
   return (
     <div
-      className='flex items-start gap-sm group no-drag select-none p-2 -mx-2 -my-1 rounded-lg bg-transparent hover:bg-gray-soft transition-colors duration-200 cursor-pointer relative w-[calc(100%+1rem)] box-border'
+      className="gap-sm group no-drag hover:bg-gray-soft relative -mx-2 -my-1 box-border flex w-[calc(100%+1rem)] cursor-pointer items-start rounded-lg bg-transparent p-2 transition-colors duration-200 select-none"
       onDoubleClick={startEdit}
       onClick={toggleDone}
     >
-      <Checkbox
-        checked={item.done}
-        onChange={toggleDone}
-        className='mt-[3px]'
-      />
+      <Checkbox checked={item.done} onChange={toggleDone} className="mt-[3px]" />
 
-      <div className='flex flex-col flex-1 min-w-0 pr-20'>
+      <div className="flex min-w-0 flex-1 flex-col pr-20">
         <p
-          className={`font-medium text-[15px] m-0 leading-[1.2] transition-colors ${item.done ? 'text-gray-light/60 line-through decoration-gray-light/50' : 'text-text-primary'}`}
+          className={`m-0 text-[15px] leading-[1.2] font-medium transition-colors ${item.done ? 'text-gray-light/60 decoration-gray-light/50 line-through' : 'text-text-primary'}`}
         >
           {item.text}
         </p>
         {displayTime && (
           <span
-            className={`font-normal text-[13px] mt-1.5 transition-colors ${item.done ? 'text-gray-light/50' : 'text-text-secondary/80'}`}
+            className={`mt-1.5 text-[13px] font-normal transition-colors ${item.done ? 'text-gray-light/50' : 'text-text-secondary/80'}`}
           >
             {displayTime}
           </span>
         )}
       </div>
 
-      <div className='absolute right-2 top-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 bg-white/90 dark:bg-black/60 rounded-lg px-1 py-0.5'>
+      <div className="absolute top-2 right-2 flex shrink-0 items-center gap-0.5 rounded-lg bg-white/90 px-1 py-0.5 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-black/60">
         <button
-          className='w-6 h-8 bg-none border-none text-gray-medium/60 cursor-pointer text-[14px] flex items-center justify-center hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/20 rounded-md transition-all'
+          className="text-gray-medium/60 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/20 flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none text-[14px] transition-all"
           onClick={(e) => {
             e.stopPropagation();
             startEdit();
           }}
-          title='수정'
+          title="수정"
         >
           ✎
         </button>
         <button
-          className='w-6 h-8 bg-none border-none text-gray-medium/60 cursor-pointer flex items-center justify-center hover:text-red-500 hover:bg-red-500/5 dark:hover:bg-red-500/20 rounded-md transition-all'
+          className="text-gray-medium/60 flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none transition-all hover:bg-red-500/5 hover:text-red-500 dark:hover:bg-red-500/20"
           onClick={deleteItemAction}
-          title='삭제'
+          title="삭제"
         >
-          <Icon name='cancel' size={14} />
+          <Icon name="cancel" size={14} />
         </button>
       </div>
     </div>

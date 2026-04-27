@@ -19,16 +19,16 @@ const hydrateState = (data: any) => {
       return {
         ...item,
         time: hydratedTime,
-        isAllDay: item.isAllDay ?? (item.time === 'All Day'),
+        isAllDay: item.isAllDay ?? item.time === 'All Day',
         notified: item.notified ?? false,
-        done: item.done ?? false
+        done: item.done ?? false,
       };
-    })
+    }),
   }));
 
   return {
     sections,
-    lastNightCheckDate: data.lastNightCheckDate || null
+    lastNightCheckDate: data.lastNightCheckDate || null,
   };
 };
 
@@ -55,7 +55,7 @@ export const reminderStorage: StateStorage = {
       // data.state에는 sections와 lastNightCheckDate가 포함되어 있음
       await ipc.invoke('reminder:save', {
         key: name,
-        data: data.state
+        data: data.state,
       });
     } catch (e) {
       console.error('Failed to save reminder data:', e);

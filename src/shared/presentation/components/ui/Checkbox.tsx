@@ -26,13 +26,11 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   return (
     <div
       onClick={toggle}
-      className={`
-        w-4 h-4 border-[1.5px] rounded-sm shrink-0 flex justify-center items-center transition-all cursor-pointer
-        ${checked 
-          ? 'border-gray-light text-gray-light bg-transparent' 
-          : 'border-icon-brown dark:border-white/40 bg-transparent hover:border-primary/50'}
-        ${className}
-      `}
+      className={`flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-sm border-[1.5px] transition-all ${
+        checked
+          ? 'border-gray-light text-gray-light bg-transparent'
+          : 'border-icon-brown hover:border-primary/50 bg-transparent dark:border-white/40'
+      } ${className} `}
       style={{ width: size, height: size }}
     >
       {checked && <Icon name="cancel" size={size * 0.45} />}
