@@ -49,7 +49,7 @@ function ReminderPage() {
                 w-[38px] h-[38px] rounded-lg border flex justify-center items-center cursor-pointer transition-all shrink-0
                 ${ui.hideCompleted 
                   ? 'bg-primary border-primary text-white shadow-md shadow-primary/30 hover:brightness-105 active:scale-95' 
-                  : 'bg-white border-black/5 text-text-primary hover:bg-gray-50 active:bg-gray-100 dark:bg-black dark:border-white/10 dark:text-white dark:hover:bg-gray-dark'
+                  : 'bg-white border-black/5 text-text-primary hover:bg-gray-soft active:bg-gray-light/30 dark:bg-black dark:border-white/5 dark:text-white'
                 }
               `}
               onClick={ui.toggleHideCompleted}

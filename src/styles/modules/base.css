@@ -11,7 +11,7 @@
   --color-gray-dark: #2c2c2c;
   --color-gray-medium: #888888;
   --color-gray-light: #dadada;
-  --color-gray-soft: #f5f5f5;
+  --color-gray-soft: #f5f5f5; /* 라이트 모드 호버용 */
   
   /* Semantic Colors (Text & UI) */
   --color-text-primary: #1a1a1a;
@@ -63,7 +63,7 @@
   --color-gray-dark: #1f1f1f;
   --color-gray-medium: #888888;
   --color-gray-light: #333333;
-  --color-gray-soft: rgba(255, 255, 255, 0.05);
+  --color-gray-soft: #141414; /* 다크 모드 호버용 (살짝 밝아짐) */
   
   /* Semantic Colors - Dark mode switching */
   --color-text-primary: #ffffff;
