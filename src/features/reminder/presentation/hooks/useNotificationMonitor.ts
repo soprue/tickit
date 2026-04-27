@@ -41,7 +41,12 @@ export function useNotificationMonitor() {
       const { sections, lastNightCheckDate } = reminderStore.getState();
       const allItems = sections.flatMap(s => s.items.map(item => ({ ...item, sectionId: s.id })));
       const now = new Date();
-      const todayDateStr = now.toISOString().split('T')[0];
+      
+      // 로컬 날짜 기준 YYYY-MM-DD
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayDateStr = `${year}-${month}-${day}`;
 
       // (1) 밤 9시 할 일 체크 알림 (21:00 이상이고 오늘 아직 안 보냈을 때)
       if (now.getHours() >= 21 && lastNightCheckDate !== todayDateStr) {
@@ -53,7 +58,7 @@ export function useNotificationMonitor() {
             NOTIFICATION_MESSAGES.NIGHT_CHECK_BODY(itemNames)
           );
         }
-        // 알림 발송 여부와 상관없이 오늘 체크는 완료로 표시 (중복 발송 방지)
+        // 알림 발송 여부와 상관없이 오늘 체크 완료 표시 (중복 발송 방지)
         reminderStore.setLastNightCheckDate(todayDateStr);
       }
 
