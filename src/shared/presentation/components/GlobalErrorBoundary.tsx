@@ -42,7 +42,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
               죄송합니다. 예상치 못한 문제가 발생하여 화면을 표시할 수 없습니다.
             </p>
             {this.state.error && (
-              <pre className="bg-white/50 dark:bg-black/50 p-4 rounded-xl text-[0.8rem] text-left mb-8 overflow-x-auto text-red-500 border border-red-500/20 backdrop-blur-sm">
+              <pre className="bg-white/50 dark:bg-black/50 p-4 rounded-xl text-[0.8rem] text-left mb-8 overflow-auto max-h-[200px] whitespace-pre-wrap break-words text-red-500 border border-red-500/20 backdrop-blur-sm">
                 {this.state.error.message}
               </pre>
             )}
