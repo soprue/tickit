@@ -47,25 +47,31 @@ function ReminderPage() {
 
       <div className="p-lg px-md gap-md box-border flex h-full flex-1 flex-col overflow-x-hidden overflow-y-auto scroll-smooth">
         <div className="px-md mb-sm">
-          <div className="group flex w-full items-center gap-2">
-            <Input
+          <div className="relative flex w-full items-center">
+            <input
               type="text"
-              className="flex-1 border border-black/5 bg-white !px-4 !py-[10px] focus:shadow-sm dark:border-white/5 dark:bg-black"
+              className="bg-black/[0.03] border-black/[0.06] text-text-primary placeholder:text-gray-medium/40 w-full rounded-xl border py-[10px] pr-[120px] pl-4 text-[14px] outline-none transition-all focus:bg-black/[0.05] focus:border-primary/20 dark:border-white/10 dark:bg-white/[0.03] dark:focus:bg-white/[0.06]"
               placeholder="검색어를 입력하세요..."
               value={ui.searchQuery}
               onChange={(e) => ui.setSearchQuery(e.target.value)}
             />
-            <button
-              className={`flex h-[38px] w-[38px] shrink-0 cursor-pointer items-center justify-center rounded-lg border transition-all ${
-                ui.hideCompleted
-                  ? 'bg-primary border-primary shadow-primary/30 text-white shadow-md hover:brightness-105 active:scale-95'
-                  : 'text-text-primary hover:bg-gray-soft active:bg-gray-light/30 border-black/5 bg-white dark:border-white/5 dark:bg-black dark:text-white'
-              } `}
-              onClick={ui.toggleHideCompleted}
-              title="완료된 항목 숨기기"
-            >
-              <span className="text-[16px] font-extrabold">✓</span>
-            </button>
+            
+            <div className="absolute right-2 flex items-center gap-2">
+              <div className="bg-gray-light/30 h-3.5 w-[1px]" />
+              <button
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 transition-all active:scale-95 ${
+                  ui.hideCompleted 
+                    ? 'text-primary font-bold' 
+                    : 'text-gray-medium/60 hover:text-gray-medium font-medium'
+                }`}
+                onClick={ui.toggleHideCompleted}
+              >
+                <div className={`h-1 w-1 rounded-full ${ui.hideCompleted ? 'bg-primary animate-pulse' : 'bg-gray-light/50'}`} />
+                <span className="text-[10px] tracking-tight uppercase">
+                  {ui.hideCompleted ? 'Hide Done' : 'Show All'}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
 
