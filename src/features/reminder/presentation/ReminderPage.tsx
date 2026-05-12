@@ -20,11 +20,8 @@ function ReminderPage() {
 
   return (
     <div ref={containerRef} className="bg-bg duration-normal flex h-full w-full transition-colors">
-      {/* 전역 Action 기반 선언적 토스트 */}
-      <SaveStatusToast />
-
       <Sidebar isDarkMode={isDarkMode} onToggleTheme={toggleDarkMode} onLogout={logout} />
-...
+
       <div className="p-lg px-md gap-md box-border flex h-full flex-1 flex-col overflow-x-hidden overflow-y-auto scroll-smooth">
         <div className="px-md mb-sm">
           <div className="group flex w-full items-center gap-2">
