@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuthControllerLogout } from '../infrastructure/api/인증-auth/인증-auth';
+import { useAuthControllerLogout } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import { useAuthStore } from '../../domain/AuthStore';
+import { useToastStore } from '@src/shared/domain/ToastStore';
 
 /**
  * 인증 관련 액션(로그인, 로그아웃 등)을 관리하는 공통 훅
@@ -9,13 +10,16 @@ export const useAuthActions = () => {
   const navigate = useNavigate();
   const logoutMutation = useAuthControllerLogout();
   const { clearAuth } = useAuthStore();
+  const { showToast } = useToastStore();
 
   const logout = async () => {
     try {
       // 서버 로그아웃 호출 (실패하더라도 클라이언트 로그아웃은 진행)
       await logoutMutation.mutateAsync();
+      showToast('성공적으로 로그아웃 되었습니다.', 'success');
     } catch (error) {
       console.error('[Logout] Server logout failed:', error);
+      showToast('로그아웃 중 오류가 발생했지만, 세션을 종료합니다.', 'info');
     } finally {
       // 클라이언트 상태 초기화 및 이동
       clearAuth();
