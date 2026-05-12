@@ -15,9 +15,9 @@ export const useThemeStore = create<ThemeState>()(
       toggleDarkMode: () =>
         set((state) => {
           const next = !state.isDarkMode;
-          console.log('[ThemeStore] Toggling dark mode:', next);
           return { isDarkMode: next };
         }),
+
     }),
     {
       name: STORAGE_KEYS.THEME,

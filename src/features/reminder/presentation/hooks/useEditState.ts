@@ -5,7 +5,7 @@ import { useTimePickerState } from './useTimePickerState';
 /**
  * 전역 UI 스토어를 활용하여 리마인더 편집/추가 관련 아이디 상태를 관리하는 커스텀 훅.
  */
-export const useEditState = () => {
+export function useEditState() {
   const ui = useReminderUIStore();
   const sections = useReminderStore((state) => state.sections);
   const timePicker = useTimePickerState();
@@ -52,4 +52,5 @@ export const useEditState = () => {
     setAllDay: timePicker.setAllDay,
     clearEditState,
   };
-};
+}
+

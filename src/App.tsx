@@ -9,6 +9,7 @@ import { ActionProvider } from './shared/context/ActionContext';
 import GlobalErrorBoundary from './shared/presentation/components/GlobalErrorBoundary';
 import { useThemeStore } from './shared/domain/ThemeStore';
 import { useAuthStore } from './features/auth/domain/AuthStore';
+import { ROUTES } from './shared/constants';
 
 /**
  * 로그인 여부를 확인하여 비로그인 사용자를 로그인 페이지로 리다이렉트하는 컴포넌트
@@ -17,7 +18,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuthStore();
   
   if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={ROUTES.LOGIN} replace />;
   }
   
   return <>{children}</>;
@@ -30,7 +31,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuthStore();
 
   if (isLoggedIn) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={ROUTES.HOME} replace />;
   }
 
   return <>{children}</>;
@@ -41,15 +42,13 @@ export default function App() {
 
   // 다크모드 상태 동기화
   useEffect(() => {
-    console.log('App: isDarkMode changed to:', isDarkMode);
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
-      console.log('App: Added .dark class to html');
     } else {
       document.documentElement.classList.remove('dark');
-      console.log('App: Removed .dark class from html');
     }
   }, [isDarkMode]);
+
 
   return (
     <GlobalErrorBoundary>
@@ -57,7 +56,7 @@ export default function App() {
         <Router>
           <Routes>
             <Route 
-              path="/" 
+              path={ROUTES.HOME} 
               element={
                 <ProtectedRoute>
                   <ReminderPage />
@@ -65,7 +64,7 @@ export default function App() {
               } 
             />
             <Route 
-              path="/login" 
+              path={ROUTES.LOGIN} 
               element={
                 <PublicRoute>
                   <LoginPage />
@@ -73,7 +72,7 @@ export default function App() {
               } 
             />
             <Route 
-              path="/register" 
+              path={ROUTES.REGISTER} 
               element={
                 <PublicRoute>
                   <RegisterPage />

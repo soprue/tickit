@@ -5,7 +5,7 @@ import type { ReminderSectionData } from '@src/features/reminder/domain/reminder
 /**
  * 전역 UI 스토어를 활용하여 리마인더 검색 및 필터링 로직을 관리하는 커스텀 훅
  */
-export const useSearchFilter = (sections: ReminderSectionData[], isEditingAny: boolean) => {
+export function useSearchFilter(sections: ReminderSectionData[], isEditingAny: boolean) {
   const { searchQuery, filterMode, setSearchQuery, toggleFilterMode } = useReminderUIStore();
 
   // 검색어 및 필터 모드에 따른 필터링 결과 계산
@@ -48,4 +48,5 @@ export const useSearchFilter = (sections: ReminderSectionData[], isEditingAny: b
     setSearchQuery,
     toggleFilterMode,
   };
-};
+}
+

@@ -25,11 +25,11 @@ export function Sidebar({ isDarkMode, onToggleTheme, onLogout }: SidebarProps) {
         <button
           className="bg-icon-bg duration-fast group relative flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all hover:opacity-80 active:scale-90 dark:hover:bg-white/10"
           onClick={() => {
-            console.log('[Sidebar] Toggling theme, current isDarkMode:', isDarkMode);
             onToggleTheme();
           }}
           title="테마 변경"
         >
+
           {/* Sunlight Icon (Light Mode) */}
           <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isDarkMode ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
             <Icon

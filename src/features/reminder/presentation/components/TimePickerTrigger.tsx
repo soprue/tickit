@@ -14,8 +14,8 @@ interface TimePickerTriggerProps {
     minute: string;
   };
   onTogglePopover: () => void;
-  onUpdatePickerTime: (field: 'ampm' | 'hour' | 'minute', value: string) => void;
-  onSetAllDay: (isAllDay: boolean) => void;
+  onUpdatePickerTime: (field: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => void;
+  onSetAllDay: () => void;
   buttonClassName?: string;
   popoverClassName?: string;
 }

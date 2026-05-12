@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthControllerLogout } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import { useAuthStore } from '../../domain/AuthStore';
 import { useToastStore } from '@src/shared/domain/ToastStore';
+import { ROUTES } from '@src/shared/constants';
 
 /**
  * 인증 관련 액션(로그인, 로그아웃 등)을 관리하는 공통 훅
@@ -23,7 +24,7 @@ export const useAuthActions = () => {
     } finally {
       // 클라이언트 상태 초기화 및 이동
       clearAuth();
-      navigate('/login');
+      navigate(ROUTES.LOGIN);
     }
   };
 
@@ -32,3 +33,4 @@ export const useAuthActions = () => {
     isLoggingOut: logoutMutation.isPending,
   };
 };
+

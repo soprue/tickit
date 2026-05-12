@@ -9,7 +9,7 @@ import { useActionContext } from '@src/shared/context/ActionContext';
  * 리마인더 페이지의 모든 상태와 액션을 통합 관리하는 "지휘관(Facade)" 훅.
  * 리마인더 도메인 로직과 UI 상태 필터링을 연결합니다.
  */
-export const useReminderUI = () => {
+export function useReminderUI() {
   const { showConfirm } = useModalStore();
   const { runAction } = useActionContext(); // 전역 액션 실행 도구
 
@@ -140,4 +140,5 @@ export const useReminderUI = () => {
     updateReminder,
     addReminder,
   };
-};
+}
+
