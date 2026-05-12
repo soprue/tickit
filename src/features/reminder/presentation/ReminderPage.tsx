@@ -1,22 +1,45 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
-import { SaveStatusToast } from '@src/shared/presentation/components/SaveStatusToast';
 import { useReminderUI } from './hooks/useReminderUI';
 import { useAuthActions } from '@src/features/auth/presentation/hooks/useAuthActions';
 import { Input } from '@src/shared/presentation/components/ui/Input';
+import { useToastStore } from '@src/shared/domain/ToastStore';
+import { useModalStore } from '@src/shared/domain/ModalStore';
 
 function ReminderPage() {
   // 1. 통합 훅
   const ui = useReminderUI();
   const { logout } = useAuthActions();
+  const { hideToast, isOpen: isToastOpen } = useToastStore();
+  const { closeModal, isOpen: isModalOpen } = useModalStore();
 
   // 2. 글로벌 설정
   const { isDarkMode, toggleDarkMode } = useThemeStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 단축키 핸들러 추가
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 1. Esc: 토스트나 모달 닫기
+      if (e.key === 'Escape') {
+        if (isModalOpen) closeModal();
+        if (isToastOpen) hideToast();
+      }
+
+      // 2. Cmd/Ctrl + N: 새 섹션 추가
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault();
+        ui.addSection();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, isToastOpen, closeModal, hideToast, ui]);
 
   return (
     <div ref={containerRef} className="bg-bg duration-normal flex h-full w-full transition-colors">
