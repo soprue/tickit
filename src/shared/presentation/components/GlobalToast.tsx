@@ -4,7 +4,6 @@ import { useActionContext } from '@src/shared/context/ActionContext';
 
 /**
  * 1. StatusToast: "저장 중...", "저장 완료" 등 시스템 상태를 나타냄
- * NotificationToast와 디자인 언어를 통일하여 일관된 경험 제공
  */
 function StatusToast() {
   const { isPending } = useActionContext();
@@ -29,36 +28,34 @@ function StatusToast() {
 
   const config = {
     saving: {
-      color: 'bg-primary',
-      glow: 'shadow-primary/20',
+      borderColor: 'border-primary/20',
+      textColor: 'text-primary',
       label: '저장 중...',
     },
     saved: {
-      color: 'bg-green-500',
-      glow: 'shadow-green-500/20',
+      borderColor: 'border-green-500/30',
+      textColor: 'text-green-600 dark:text-green-400',
       label: '저장 완료',
     },
   }[displayState];
 
   return (
     <div
-      className={`fixed right-8 bottom-8 z-[2500] transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
-        show ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-12 opacity-0 scale-95'
+      className={`fixed right-6 bottom-6 z-[2500] transition-all duration-500 ease-out ${
+        show ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
     >
-      <div className="relative flex min-w-[140px] items-center justify-start gap-3 rounded-2xl border border-black/[0.03] bg-white/80 px-5 py-3 shadow-[0_8px_30px_rgb(0,0,0,0.04),0_20px_40px_rgba(0,0,0,0.04)] backdrop-blur-3xl dark:border-white/[0.05] dark:bg-black/80 dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
-        {/* Subtle Inner Glow Border */}
-        <div className="absolute inset-0 rounded-2xl border border-white/40 pointer-events-none dark:border-white/5" />
-
-        {/* Dynamic Indicator Dot */}
-        <div className="relative flex h-2 w-2 items-center justify-center shrink-0">
-          {displayState === 'saving' && (
-            <div className={`absolute h-full w-full animate-ping rounded-full opacity-20 ${config.color}`} />
+      <div
+        className={`flex items-center gap-2.5 rounded-full border-[1.5px] bg-white/90 px-4 py-2 shadow-lg backdrop-blur-md dark:bg-black/60 ${config.borderColor}`}
+      >
+        <div className="flex h-3 w-3 items-center justify-center">
+          {displayState === 'saving' ? (
+            <div className="bg-primary h-2 w-2 animate-pulse rounded-full" />
+          ) : (
+            <span className="text-[14px] font-black leading-none text-green-500">✓</span>
           )}
-          <div className={`h-2 w-2 rounded-full shadow-[0_0_8px] transition-all duration-500 ${config.color} ${config.glow}`} />
         </div>
-        
-        <span className="text-text-primary text-[13px] font-semibold tracking-[-0.01em] transition-colors duration-300 leading-tight">
+        <span className={`text-[12px] font-bold tracking-tight select-none ${config.textColor}`}>
           {config.label}
         </span>
       </div>
@@ -68,7 +65,7 @@ function StatusToast() {
 
 /**
  * 2. NotificationToast: 로그인 성공, 에러 메시지 등 명시적인 알림
- * 우측 상단에 배치하여 화면 프레임과 연결된 느낌(Anchored)을 줌
+ * StatusToast의 가볍고 심플한 느낌을 그대로 가져와 일관성 유지
  */
 function NotificationToast() {
   const { isOpen, message, type, hideToast } = useToastStore();
@@ -87,19 +84,19 @@ function NotificationToast() {
 
   const typeConfig = {
     success: {
-      color: 'bg-green-500',
-      glow: 'shadow-green-500/20',
-      text: 'text-text-primary',
+      borderColor: 'border-green-500/30',
+      textColor: 'text-green-600 dark:text-green-400',
+      icon: <span className="text-green-500">✓</span>,
     },
     error: {
-      color: 'bg-red-500',
-      glow: 'shadow-red-500/20',
-      text: 'text-text-primary',
+      borderColor: 'border-red-500/20',
+      textColor: 'text-red-500',
+      icon: <span className="text-red-500 font-black">!</span>,
     },
     info: {
-      color: 'bg-primary',
-      glow: 'shadow-primary/20',
-      text: 'text-text-primary',
+      borderColor: 'border-primary/20',
+      textColor: 'text-text-primary',
+      icon: <div className="bg-primary h-2 w-2 rounded-full" />,
     },
   };
 
@@ -107,24 +104,19 @@ function NotificationToast() {
 
   return (
     <div
-      className={`fixed top-8 right-8 z-[3000] transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
-        isOpen ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-12 opacity-0 scale-95'
+      className={`fixed top-8 right-8 z-[3000] transition-all duration-500 ease-out ${
+        isOpen ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0'
       }`}
     >
       <div
         onClick={hideToast}
-        className="group relative flex min-w-[200px] max-w-[360px] cursor-pointer items-center justify-start gap-3.5 rounded-2xl border border-black/[0.03] bg-white/80 px-6 py-3 shadow-[0_8px_30px_rgb(0,0,0,0.04),0_20px_40px_rgba(0,0,0,0.04)] backdrop-blur-3xl transition-all hover:bg-white/90 active:scale-[0.97] dark:border-white/[0.05] dark:bg-black/80 dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+        className={`flex cursor-pointer items-center gap-3 rounded-full border-[1.5px] bg-white/90 px-5 py-2.5 shadow-xl backdrop-blur-md dark:bg-black/60 ${config.borderColor}`}
       >
-        {/* Subtle Inner Glow Border */}
-        <div className="absolute inset-0 rounded-2xl border border-white/40 pointer-events-none dark:border-white/5" />
-
-        {/* Dynamic Indicator Dot */}
-        <div className="relative flex h-2 w-2 items-center justify-center shrink-0">
-          <div className={`absolute h-full w-full animate-ping rounded-full opacity-20 ${config.color}`} />
-          <div className={`h-2 w-2 rounded-full shadow-[0_0_8px] transition-colors duration-500 ${config.color} ${config.glow}`} />
+        <div className="flex h-4 w-4 items-center justify-center text-[14px]">
+          {config.icon}
         </div>
-        
-        <span className={`text-[13px] font-semibold tracking-[-0.01em] transition-colors duration-300 leading-tight ${config.text}`}>
+        <div className="h-3 w-[1px] bg-black/10 dark:bg-white/10" />
+        <span className={`text-[13px] font-bold tracking-tight select-none ${config.textColor}`}>
           {message}
         </span>
       </div>
