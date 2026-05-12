@@ -2,10 +2,10 @@ export type IconType =
   | 'google'
   | 'cancel'
   | 'clock'
-  | 'eye'
-  | 'eyeOff'
   | 'halfmoon'
+  | 'lock'
   | 'logout'
   | 'minusSquare'
   | 'plus'
-  | 'sunlight';
+  | 'sunlight'
+  | 'unlock';

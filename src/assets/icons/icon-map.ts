@@ -6,8 +6,8 @@ import Logout from '@assets/icons/monochrome/logout.svg?react';
 import MinusSquare from '@assets/icons/monochrome/minusSquare.svg?react';
 import Plus from '@assets/icons/monochrome/plus.svg?react';
 import Sunlight from '@assets/icons/monochrome/sunlight.svg?react';
-import Eye from '@assets/icons/monochrome/eye.svg?react';
-import EyeOff from '@assets/icons/monochrome/eyeOff.svg?react';
+import Lock from '@assets/icons/monochrome/lock.svg?react';
+import Unlock from '@assets/icons/monochrome/unlock.svg?react';
 
 export const iconMap = {
   cancel: Cancel,
@@ -18,6 +18,6 @@ export const iconMap = {
   minusSquare: MinusSquare,
   plus: Plus,
   sunlight: Sunlight,
-  eye: Eye,
-  eyeOff: EyeOff,
+  lock: Lock,
+  unlock: Unlock,
 };

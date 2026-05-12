@@ -61,7 +61,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
             onClick={() => setShowPassword(!showPassword)}
             tabIndex={-1}
           >
-            <Icon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
+            <Icon name={showPassword ? 'unlock' : 'lock'} size={18} />
           </button>
         )}
       </div>
