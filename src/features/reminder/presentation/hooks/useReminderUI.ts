@@ -1,7 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import { useReminderStore } from '@src/features/reminder/domain/ReminderStore';
 import { useModalStore } from '@src/shared/domain/ModalStore';
-import { authStore } from '@src/features/auth/domain/AuthStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
 import { useEditState } from './useEditState';
 import { useSearchFilter } from './useSearchFilter';
@@ -9,9 +7,9 @@ import { useActionContext } from '@src/shared/context/ActionContext';
 
 /**
  * 리마인더 페이지의 모든 상태와 액션을 통합 관리하는 "지휘관(Facade)" 훅.
+ * 리마인더 도메인 로직과 UI 상태 필터링을 연결합니다.
  */
 export const useReminderUI = () => {
-  const navigate = useNavigate();
   const { showConfirm } = useModalStore();
   const { runAction } = useActionContext(); // 전역 액션 실행 도구
 
@@ -119,15 +117,6 @@ export const useReminderUI = () => {
     edit.setAddingSection(null);
   };
 
-  /* -------------------------------------------------------------------------- */
-  /* 기타 액션                                                                    */
-  /* -------------------------------------------------------------------------- */
-
-  const logout = () => {
-    authStore.logout();
-    navigate('/login');
-  };
-
   return {
     state: edit.editState,
     isEditingAny,
@@ -150,6 +139,5 @@ export const useReminderUI = () => {
     deleteReminder,
     updateReminder,
     addReminder,
-    logout,
   };
 };

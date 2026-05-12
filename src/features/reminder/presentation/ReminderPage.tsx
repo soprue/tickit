@@ -5,11 +5,13 @@ import { ReminderSection } from './components/ReminderSection';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { SaveStatusToast } from '@src/shared/presentation/components/SaveStatusToast';
 import { useReminderUI } from './hooks/useReminderUI';
+import { useAuthActions } from '@src/features/auth/presentation/hooks/useAuthActions';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 
 function ReminderPage() {
   // 1. 통합 훅
   const ui = useReminderUI();
+  const { logout } = useAuthActions();
 
   // 2. 글로벌 설정
   const { isDarkMode, toggleDarkMode } = useThemeStore();
@@ -21,8 +23,8 @@ function ReminderPage() {
       {/* 전역 Action 기반 선언적 토스트 */}
       <SaveStatusToast />
 
-      <Sidebar isDarkMode={isDarkMode} onToggleTheme={toggleDarkMode} onLogout={ui.logout} />
-
+      <Sidebar isDarkMode={isDarkMode} onToggleTheme={toggleDarkMode} onLogout={logout} />
+...
       <div className="p-lg px-md gap-md box-border flex h-full flex-1 flex-col overflow-x-hidden overflow-y-auto scroll-smooth">
         <div className="px-md mb-sm">
           <div className="group flex w-full items-center gap-2">

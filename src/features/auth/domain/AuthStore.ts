@@ -9,6 +9,7 @@ interface AuthState {
   user: UserEntity | null;
   accessToken: string | null;
   setAuth: (user: UserEntity, accessToken: string) => void;
+  setAccessToken: (accessToken: string) => void;
   clearAuth: () => void;
 }
 
@@ -20,6 +21,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       setAuth: (user: UserEntity, accessToken: string) =>
         set({ isLoggedIn: true, user, accessToken }),
+      setAccessToken: (accessToken: string) => set({ accessToken }),
       clearAuth: () => set({ isLoggedIn: false, user: null, accessToken: null }),
     }),
     {
@@ -39,5 +41,6 @@ export const authStore = {
   getState: () => useAuthStore.getState(),
   subscribe: (listener: (state: AuthState) => void) => useAuthStore.subscribe(listener),
   setAuth: (user: UserEntity, accessToken: string) => useAuthStore.getState().setAuth(user, accessToken),
+  setAccessToken: (accessToken: string) => useAuthStore.getState().setAccessToken(accessToken),
   logout: () => useAuthStore.getState().clearAuth(),
 };
