@@ -1,20 +1,14 @@
 import { BrowserWindow, app, ipcMain, nativeImage } from 'electron';
 import path from 'node:path';
-import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { NotificationService } from './services/NotificationService';
+import { mainStorage } from './infrastructure/MainStorage';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 알림 서비스 초기화
 const notificationService = new NotificationService();
-
-// 1. 데이터 저장 디렉토리 설정 (사용자 로컬 데이터 폴더)
-const DATA_DIR = path.join(app.getPath('userData'), 'data');
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
 
 let pendingSaves = 0;
 
@@ -23,13 +17,9 @@ let pendingSaves = 0;
  */
 ipcMain.handle('reminder:save', async (_event, { key, data }) => {
   pendingSaves++;
-  const filePath = path.join(DATA_DIR, `${key}.json`);
   try {
-    await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+    await mainStorage.write(key, data);
     return { success: true };
-  } catch (err) {
-    console.error('[Main] Save failed:', err);
-    throw err;
   } finally {
     pendingSaves--;
   }
@@ -39,18 +29,9 @@ ipcMain.handle('reminder:save', async (_event, { key, data }) => {
  * IPC 핸들러: 모든 리마인더 데이터 불러오기
  */
 ipcMain.handle('reminder:get-all', async (_event, key) => {
-  const filePath = path.join(DATA_DIR, `${key}.json`);
-  try {
-    if (fs.existsSync(filePath)) {
-      const content = await fs.promises.readFile(filePath, 'utf-8');
-      return JSON.parse(content);
-    }
-    return null;
-  } catch (err) {
-    console.error('[Main] Read failed:', err);
-    return null;
-  }
+  return await mainStorage.read(key);
 });
+
 
 /**
  * 브라우저 창 생성 및 초기화
