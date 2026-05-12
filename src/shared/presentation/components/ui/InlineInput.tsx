@@ -27,13 +27,28 @@ export const InlineInput: React.FC<InlineInputProps> = ({
   wrapperClassName = '',
 }) => {
   const [value, setValue] = useState(defaultValue);
+  const [isSaved, setIsSaved] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isSaving = useRef(false);
 
   const handleSave = () => {
     if (isSaving.current) return;
+
+    // 1. 값이 변하지 않았거나 비어있으면 저장 대신 취소 처리
+    if (value === defaultValue || value.trim() === '') {
+      onCancel?.();
+      return;
+    }
+
     isSaving.current = true;
-    onSave(value);
+    
+    // 2. 시각적 피드백 (저장 애니메이션 시작)
+    setIsSaved(true);
+    
+    // 애니메이션을 위해 약간의 지연 후 실제 저장 액션 실행
+    setTimeout(() => {
+      onSave(value);
+    }, 150);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -45,13 +60,11 @@ export const InlineInput: React.FC<InlineInputProps> = ({
   };
 
   const handleBlur = (e: React.FocusEvent) => {
-    // 팝오버나 내부 버튼을 클릭하는 경우 저장을 유예하거나 무시
     const relatedTarget = e.relatedTarget as HTMLElement;
     if (containerRef.current?.contains(relatedTarget)) {
       return;
     }
     
-    // 약간의 지연을 주어 팝오버 내부의 포커스 이동을 감지할 시간을 줌
     setTimeout(() => {
       const activeEl = document.activeElement;
       if (containerRef.current?.contains(activeEl) || activeEl?.closest('.time-popover-box')) {
@@ -62,10 +75,17 @@ export const InlineInput: React.FC<InlineInputProps> = ({
   };
 
   return (
-    <div ref={containerRef} className={`relative flex items-center min-w-0 ${wrapperClassName}`}>
+    <div 
+      ref={containerRef} 
+      className={`relative flex items-center min-w-0 transition-all duration-300 ${
+        isSaved ? 'scale-[0.99] opacity-70' : ''
+      } ${wrapperClassName}`}
+    >
       <Input
         variant="underline"
-        className={`!p-0 !pb-[2px] leading-tight flex-1 ${className}`}
+        className={`!p-0 !pb-[2px] leading-tight flex-1 transition-colors duration-300 ${
+          isSaved ? '!text-primary' : ''
+        } ${className}`}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -74,7 +94,7 @@ export const InlineInput: React.FC<InlineInputProps> = ({
         autoFocus={autoFocus}
       />
       {renderRight && (
-        <div className="shrink-0 ml-2" onMouseDown={(e) => e.preventDefault()}>
+        <div className={`shrink-0 ml-2 transition-opacity duration-300 ${isSaved ? 'opacity-0' : 'opacity-100'}`} onMouseDown={(e) => e.preventDefault()}>
           {renderRight}
         </div>
       )}
