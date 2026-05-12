@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 import { ReminderSectionData, initialSections } from './reminder';
 import { STORAGE_KEYS } from '@src/shared/constants';
 import { reminderStorage } from '../infrastructure/reminderStorage';
@@ -28,72 +29,57 @@ interface ReminderState {
 }
 
 /**
- * 리마인더 할 일 목록과 섹션 데이터를 관리하는 메인 스토어
+ * 리마인더 할 일 목록과 섹션 데이터를 관리하는 메인 스토어.
+ * immer 미들웨어를 사용하여 중첩된 객체의 불변성 업데이트 로직을 간소화했습니다.
  */
 export const useReminderStore = create<ReminderState>()(
   persist(
-    (set) => ({
+    immer((set) => ({
       sections: initialSections,
       lastNightCheckDate: null,
 
       addSection: (title: string) =>
-        set((state) => ({
-          sections: [
-            ...state.sections,
-            {
-              id: `SECTION_${Date.now()}`,
-              title,
-              isFixed: false,
-              items: [],
-            },
-          ],
-        })),
+        set((state) => {
+          state.sections.push({
+            id: `SECTION_${Date.now()}`,
+            title,
+            isFixed: false,
+            items: [],
+          });
+        }),
 
       updateSectionTitle: (sectionId: string, title: string) =>
-        set((state) => ({
-          sections: state.sections.map((s) => (s.id === sectionId ? { ...s, title } : s)),
-        })),
+        set((state) => {
+          const section = state.sections.find((s) => s.id === sectionId);
+          if (section) section.title = title;
+        }),
 
       deleteSection: (sectionId: string) =>
-        set((state) => ({
-          sections: state.sections.filter((s) => s.isFixed || s.id !== sectionId),
-        })),
+        set((state) => {
+          state.sections = state.sections.filter((s) => s.isFixed || s.id !== sectionId);
+        }),
 
       addReminder: (sectionId: string, text: string, time?: Date, isAllDay: boolean = false) =>
-        set((state) => ({
-          sections: state.sections.map((s) =>
-            s.id === sectionId
-              ? {
-                  ...s,
-                  items: [
-                    ...s.items,
-                    {
-                      id: Date.now(),
-                      text,
-                      time: time?.toISOString(),
-                      isAllDay,
-                      notified: false,
-                      done: false,
-                    },
-                  ],
-                }
-              : s
-          ),
-        })),
+        set((state) => {
+          const section = state.sections.find((s) => s.id === sectionId);
+          if (section) {
+            section.items.push({
+              id: Date.now(),
+              text,
+              time: time?.toISOString(),
+              isAllDay,
+              notified: false,
+              done: false,
+            });
+          }
+        }),
 
       toggleReminder: (sectionId: string, reminderId: number) =>
-        set((state) => ({
-          sections: state.sections.map((s) =>
-            s.id === sectionId
-              ? {
-                  ...s,
-                  items: s.items.map((item) =>
-                    item.id === reminderId ? { ...item, done: !item.done } : item
-                  ),
-                }
-              : s
-          ),
-        })),
+        set((state) => {
+          const section = state.sections.find((s) => s.id === sectionId);
+          const item = section?.items.find((it) => it.id === reminderId);
+          if (item) item.done = !item.done;
+        }),
 
       updateReminder: (
         sectionId: string,
@@ -102,59 +88,40 @@ export const useReminderStore = create<ReminderState>()(
         time?: Date,
         isAllDay: boolean = false
       ) =>
-        set((state) => ({
-          sections: state.sections.map((s) =>
-            s.id === sectionId
-              ? {
-                  ...s,
-                  items: s.items.map((item) =>
-                    item.id === reminderId
-                      ? {
-                          ...item,
-                          text,
-                          time: time?.toISOString(),
-                          isAllDay,
-                          notified: false,
-                        }
-                      : item
-                  ),
-                }
-              : s
-          ),
-        })),
+        set((state) => {
+          const section = state.sections.find((s) => s.id === sectionId);
+          const item = section?.items.find((it) => it.id === reminderId);
+          if (item) {
+            item.text = text;
+            item.time = time?.toISOString();
+            item.isAllDay = isAllDay;
+            item.notified = false;
+          }
+        }),
 
       deleteReminder: (sectionId: string, reminderId: number) =>
-        set((state) => ({
-          sections: state.sections.map((s) =>
-            s.id === sectionId
-              ? {
-                  ...s,
-                  items: s.items.filter((item) => item.id !== reminderId),
-                }
-              : s
-          ),
-        })),
+        set((state) => {
+          const section = state.sections.find((s) => s.id === sectionId);
+          if (section) {
+            section.items = section.items.filter((item) => item.id !== reminderId);
+          }
+        }),
 
       markAsNotified: (sectionId: string, reminderId: number) =>
-        set((state) => ({
-          sections: state.sections.map((s) =>
-            s.id === sectionId
-              ? {
-                  ...s,
-                  items: s.items.map((item) =>
-                    item.id === reminderId ? { ...item, notified: true } : item
-                  ),
-                }
-              : s
-          ),
-        })),
+        set((state) => {
+          const section = state.sections.find((s) => s.id === sectionId);
+          const item = section?.items.find((it) => it.id === reminderId);
+          if (item) item.notified = true;
+        }),
 
-      setLastNightCheckDate: (date: string) => set({ lastNightCheckDate: date }),
-    }),
+      setLastNightCheckDate: (date: string) =>
+        set((state) => {
+          state.lastNightCheckDate = date;
+        }),
+    })),
     {
       name: STORAGE_KEYS.REMINDER,
       storage: createJSONStorage(() => reminderStorage),
-      // partialize 시 sections와 lastNightCheckDate 모두 저장
       partialize: (state) => ({
         sections: state.sections,
         lastNightCheckDate: state.lastNightCheckDate,
