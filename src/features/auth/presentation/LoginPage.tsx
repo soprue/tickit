@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@src/features/auth/domain/AuthStore';
+import { useToastStore } from '@src/shared/domain/ToastStore';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { Button } from '@src/shared/presentation/components/ui/Button';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 import { Card } from '@src/shared/presentation/components/ui/Card';
-import { useAuthControllerLogin } from '../infrastructure/api/인증-auth/인증-auth';
-import { useUsersControllerGetProfile } from '../infrastructure/api/사용자-users/사용자-users';
+import { useAuthControllerLogin } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
+import { useUsersControllerGetProfile } from '@features/auth/infrastructure/api/사용자-users/사용자-users';
 import logoIcon from '@assets/logo.webp';
 
 function LoginPage() {
@@ -16,6 +17,7 @@ function LoginPage() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const { isLoggedIn, user, setAuth, clearAuth } = useAuthStore();
+  const { showToast } = useToastStore();
   
   const loginMutation = useAuthControllerLogin();
   const { refetch: fetchProfile } = useUsersControllerGetProfile({
@@ -34,38 +36,26 @@ function LoginPage() {
       { data: { email, password } },
       {
         onSuccess: async (response) => {
-          // response.data가 { accessToken: string } 형태라고 가정
-          // 만약 응답 구조가 다르면 백엔드 명세에 맞춰 수정 필요
-          const authData = response.data as { accessToken: string };
+          console.log('[Login] Response Data:', response);
           
-          if (authData?.accessToken) {
-            // 1. 토큰 먼저 임시 저장 (인터셉터에서 사용하기 위함)
-            // 실제로는 setAuth에서 한꺼번에 처리하지만, 프로필 조회를 위해 accessToken이 필요함
-            // 여기서는 단순화를 위해 fetchProfile 호출 시 헤더를 직접 넘기거나,
-            // Zustand의 토큰을 먼저 업데이트합니다.
-            
-            // 임시로 유저 정보 없이 토큰만 먼저 저장하거나, 프로필을 먼저 가져옵니다.
-            // 여기서는 프로필을 가져온 후 최종적으로 setAuth를 호출하는 방식을 선택합니다.
-            
-            // 토큰을 스토어에 세팅 (유저는 아직 null)
-            useAuthStore.setState({ accessToken: authData.accessToken });
-            
-            try {
-              const profileResponse = await fetchProfile();
-              if (profileResponse.data?.data) {
-                setAuth(profileResponse.data.data, authData.accessToken);
-                navigate('/');
-              } else {
-                setErrorMsg('사용자 정보를 가져오는데 실패했습니다.');
-              }
-            } catch (err) {
-              setErrorMsg('로그인 세션 생성 중 오류가 발생했습니다.');
-            }
-          } else {
-            setErrorMsg('로그인 정보가 올바르지 않습니다.');
+          // Orval/Axios를 거쳐온 데이터가 response 또는 response.data에 들어있을 수 있습니다.
+          const data = (response as any).data || response;
+          
+          const { access_token, user: userData } = data;
+
+          if (access_token && userData) {
+            console.log('[Login] Success! Token and User found.');
+            setAuth(userData, access_token);
+            showToast('로그인에 성공했습니다.', 'success');
+            navigate('/');
+            return;
           }
+          
+          setErrorMsg('로그인 응답 형식이 올바르지 않습니다.');
+          console.error('[Login] Format Error. Expected { access_token, user }, but got:', data);
         },
-        onError: () => {
+        onError: (error) => {
+          console.error('[Login] API Error:', error);
           setErrorMsg('이메일 또는 비밀번호가 일치하지 않습니다.');
         },
       }
@@ -79,6 +69,7 @@ function LoginPage() {
 
   const handleLogout = () => {
     clearAuth();
+    showToast('로그아웃 되었습니다.', 'info');
   };
 
   const handleGoMain = () => {
