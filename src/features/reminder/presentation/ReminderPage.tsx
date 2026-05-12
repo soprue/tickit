@@ -60,15 +60,22 @@ function ReminderPage() {
               <div className="bg-gray-light/30 h-3.5 w-[1px]" />
               <button
                 className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 transition-all active:scale-95 ${
-                  ui.hideCompleted 
-                    ? 'text-primary font-bold' 
+                  ui.filterMode !== 'all' 
+                    ? ui.filterMode === 'completed' 
+                      ? 'bg-blue-500/10 text-blue-500 font-bold' 
+                      : 'bg-primary/10 text-primary font-bold'
                     : 'text-gray-medium/60 hover:text-gray-medium font-medium'
                 }`}
-                onClick={ui.toggleHideCompleted}
+                onClick={ui.toggleFilterMode}
               >
-                <div className={`h-1 w-1 rounded-full ${ui.hideCompleted ? 'bg-primary animate-pulse' : 'bg-gray-light/50'}`} />
+                <div className={`h-1 w-1 rounded-full transition-all ${
+                  ui.filterMode === 'all' ? 'bg-gray-light/50' : 
+                  ui.filterMode === 'completed' ? 'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.5)]' : 
+                  'bg-primary animate-pulse'
+                }`} />
                 <span className="text-[10px] tracking-tight uppercase">
-                  {ui.hideCompleted ? 'Hide Done' : 'Show All'}
+                  {ui.filterMode === 'all' ? 'Show All' : 
+                   ui.filterMode === 'completed' ? 'Done Only' : 'Hide Done'}
                 </span>
               </button>
             </div>

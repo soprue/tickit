@@ -6,9 +6,9 @@ import type { ReminderSectionData } from '@src/features/reminder/domain/reminder
  * 전역 UI 스토어를 활용하여 리마인더 검색 및 필터링 로직을 관리하는 커스텀 훅
  */
 export const useSearchFilter = (sections: ReminderSectionData[], isEditingAny: boolean) => {
-  const { searchQuery, hideCompleted, setSearchQuery, toggleHideCompleted } = useReminderUIStore();
+  const { searchQuery, filterMode, setSearchQuery, toggleFilterMode } = useReminderUIStore();
 
-  // 검색어 및 완료 여부에 따른 필터링 결과 계산
+  // 검색어 및 필터 모드에 따른 필터링 결과 계산
   const filteredSections = useMemo(() => {
     const isSearching = searchQuery.trim().length > 0;
 
@@ -17,16 +17,23 @@ export const useSearchFilter = (sections: ReminderSectionData[], isEditingAny: b
         ...section,
         items: section.items.filter((item) => {
           const matchSearch = item.text.toLowerCase().includes(searchQuery.toLowerCase());
-          const matchStatus = !hideCompleted || !item.done;
+          
+          let matchStatus = true;
+          if (filterMode === 'pending') {
+            matchStatus = !item.done;
+          } else if (filterMode === 'completed') {
+            matchStatus = item.done;
+          }
+          
           return matchSearch && matchStatus;
         }),
       }))
       .filter((section) => {
         if (isEditingAny) return true;
-        if (isSearching) return section.items.length > 0;
+        if (isSearching || filterMode !== 'all') return section.items.length > 0;
         return true;
       });
-  }, [sections, searchQuery, hideCompleted, isEditingAny]);
+  }, [sections, searchQuery, filterMode, isEditingAny]);
 
   const hasAnyMatches = useMemo(
     () => filteredSections.some((s) => s.items.length > 0),
@@ -35,10 +42,10 @@ export const useSearchFilter = (sections: ReminderSectionData[], isEditingAny: b
 
   return {
     searchQuery,
-    hideCompleted,
+    filterMode,
     filteredSections,
     hasAnyMatches,
     setSearchQuery,
-    toggleHideCompleted,
+    toggleFilterMode,
   };
 };

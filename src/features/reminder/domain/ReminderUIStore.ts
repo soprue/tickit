@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { REMINDER_CONFIG } from '@src/shared/constants';
 
+export type FilterMode = 'all' | 'pending' | 'completed';
+
 interface ReminderUIState {
   // 검색 및 필터 상태
   searchQuery: string;
-  hideCompleted: boolean;
+  filterMode: FilterMode;
 
   // 편집 및 추가 상태
   addingSectionId: string | null;
@@ -21,7 +23,7 @@ interface ReminderUIState {
 
   // Actions
   setSearchQuery: (query: string) => void;
-  toggleHideCompleted: () => void;
+  toggleFilterMode: () => void;
   setAddingSectionId: (id: string | null) => void;
   setEditingItemId: (id: number | null) => void;
   setEditingSectionId: (id: string | null) => void;
@@ -31,7 +33,7 @@ interface ReminderUIState {
 
 export const useReminderUIStore = create<ReminderUIState>((set) => ({
   searchQuery: '',
-  hideCompleted: false,
+  filterMode: 'all',
   addingSectionId: null,
   editingItemId: null,
   editingSectionId: null,
@@ -43,7 +45,14 @@ export const useReminderUIStore = create<ReminderUIState>((set) => ({
   pickerMinute: REMINDER_CONFIG.DEFAULT_MINUTE,
 
   setSearchQuery: (query) => set({ searchQuery: query }),
-  toggleHideCompleted: () => set((state) => ({ hideCompleted: !state.hideCompleted })),
+  toggleFilterMode: () => set((state) => {
+    const nextMode: Record<FilterMode, FilterMode> = {
+      all: 'pending',
+      pending: 'completed',
+      completed: 'all',
+    };
+    return { filterMode: nextMode[state.filterMode] };
+  }),
   setAddingSectionId: (id) =>
     set({ addingSectionId: id, editingItemId: null, editingSectionId: null }),
   setEditingItemId: (id) =>
