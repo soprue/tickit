@@ -2,12 +2,14 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { STORAGE_KEYS } from '@src/shared/constants';
 import { authStorage } from '../infrastructure/authStorage';
+import { UserEntity } from '../infrastructure/api/model';
 
 interface AuthState {
   isLoggedIn: boolean;
-  user: { name: string; email: string } | null;
-  login: (name: string, email: string) => void;
-  logout: () => void;
+  user: UserEntity | null;
+  accessToken: string | null;
+  setAuth: (user: UserEntity, accessToken: string) => void;
+  clearAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -15,13 +17,19 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       isLoggedIn: false,
       user: null,
-      login: (name: string, email: string) => set({ isLoggedIn: true, user: { name, email } }),
-      logout: () => set({ isLoggedIn: false, user: null }),
+      accessToken: null,
+      setAuth: (user: UserEntity, accessToken: string) =>
+        set({ isLoggedIn: true, user, accessToken }),
+      clearAuth: () => set({ isLoggedIn: false, user: null, accessToken: null }),
     }),
     {
       name: STORAGE_KEYS.AUTH,
       storage: createJSONStorage(() => authStorage),
-      partialize: (state) => ({ isLoggedIn: state.isLoggedIn, user: state.user }),
+      partialize: (state) => ({
+        isLoggedIn: state.isLoggedIn,
+        user: state.user,
+        accessToken: state.accessToken,
+      }),
     }
   )
 );
@@ -30,6 +38,6 @@ export const useAuthStore = create<AuthState>()(
 export const authStore = {
   getState: () => useAuthStore.getState(),
   subscribe: (listener: (state: AuthState) => void) => useAuthStore.subscribe(listener),
-  login: (name: string, email: string) => useAuthStore.getState().login(name, email),
-  logout: () => useAuthStore.getState().logout(),
+  setAuth: (user: UserEntity, accessToken: string) => useAuthStore.getState().setAuth(user, accessToken),
+  logout: () => useAuthStore.getState().clearAuth(),
 };
