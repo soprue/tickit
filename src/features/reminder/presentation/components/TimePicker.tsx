@@ -10,12 +10,12 @@ interface TimePickerProps {
 /**
  * 독립된 시간 선택 피커 컴포넌트 (Tailwind 마이그레이션 완료)
  */
-export const TimePicker: React.FC<TimePickerProps> = ({
+export function TimePicker({
   pickerState,
   style,
   onUpdatePickerTime,
   onSetAllDay,
-}) => {
+}: TimePickerProps) {
   const ampmOptions = ['AM', 'PM'];
   const hourOptions = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const minuteOptions = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
@@ -81,6 +81,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       </div>
     </div>
   );
-};
+}
+
 
 export default TimePicker;

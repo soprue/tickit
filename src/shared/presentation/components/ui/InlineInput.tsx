@@ -16,7 +16,7 @@ interface InlineInputProps {
  * 섹션 제목이나 리마인더 내용 수정 등에 공통으로 사용되는 인라인 편집 인풋 컴포넌트.
  * Enter/Blur 시 저장, Escape 시 취소 로직을 캡슐화합니다.
  */
-export const InlineInput: React.FC<InlineInputProps> = ({
+export function InlineInput({
   defaultValue,
   onSave,
   onCancel,
@@ -25,7 +25,7 @@ export const InlineInput: React.FC<InlineInputProps> = ({
   autoFocus = true,
   renderRight,
   wrapperClassName = '',
-}) => {
+}: InlineInputProps) {
   const [value, setValue] = useState(defaultValue);
   const [isSaved, setIsSaved] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -100,4 +100,5 @@ export const InlineInput: React.FC<InlineInputProps> = ({
       )}
     </div>
   );
-};
+}
+

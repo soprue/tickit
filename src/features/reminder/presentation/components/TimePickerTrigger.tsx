@@ -24,7 +24,7 @@ interface TimePickerTriggerProps {
  * 리마인더 시간 선택을 위한 공통 트리거 컴포넌트.
  * 시간 표시 버튼과 클릭 시 나타나는 TimePicker 팝오버를 관리합니다.
  */
-export const TimePickerTrigger: React.FC<TimePickerTriggerProps> = ({
+export function TimePickerTrigger({
   selectedTime,
   isAllDay,
   showTimePopover,
@@ -34,7 +34,7 @@ export const TimePickerTrigger: React.FC<TimePickerTriggerProps> = ({
   onSetAllDay,
   buttonClassName = '',
   popoverClassName = '',
-}) => {
+}: TimePickerTriggerProps) {
   const displayTime = isAllDay ? 'All Day' : selectedTime ? formatKoreanTime(selectedTime) : '';
   const hasTime = !isAllDay && selectedTime;
 
@@ -75,4 +75,5 @@ export const TimePickerTrigger: React.FC<TimePickerTriggerProps> = ({
       )}
     </div>
   );
-};
+}
+

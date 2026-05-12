@@ -38,7 +38,7 @@ const hydrateState = (data: any) => {
 export const reminderStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
     try {
-      const data = await ipc.invoke<any>('reminder:get-all', name);
+      const data = await ipc.invoke('reminder:get-all', name);
       if (data) {
         const hydrated = hydrateState(data);
         return JSON.stringify({ state: hydrated });

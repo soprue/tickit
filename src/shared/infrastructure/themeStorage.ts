@@ -7,7 +7,7 @@ import { ipc } from '@src/shared/utils/ipc';
 export const themeStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
     try {
-      const data = await ipc.invoke<any>('reminder:get-all', name);
+      const data = await ipc.invoke('reminder:get-all', name);
       if (data) return JSON.stringify({ state: data });
       return null;
     } catch (e) {

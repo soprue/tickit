@@ -11,12 +11,12 @@ interface CheckboxProps {
 /**
  * 공통 체크박스 컴포넌트 (UI Primitive)
  */
-export const Checkbox: React.FC<CheckboxProps> = ({
+export function Checkbox({
   checked,
   onChange,
   size = 16,
   className = '',
-}) => {
+}: CheckboxProps) {
   const toggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -36,4 +36,5 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       {checked && <Icon name="cancel" size={size * 0.45} />}
     </div>
   );
-};
+}
+

@@ -13,7 +13,7 @@ import { useAuthStore } from './features/auth/domain/AuthStore';
 /**
  * 로그인 여부를 확인하여 비로그인 사용자를 로그인 페이지로 리다이렉트하는 컴포넌트
  */
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuthStore();
   
   if (!isLoggedIn) {
@@ -21,12 +21,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   return <>{children}</>;
-};
+}
 
 /**
  * 로그인한 사용자가 로그인/회원가입 페이지에 접근하는 것을 방지하는 컴포넌트
  */
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuthStore();
 
   if (isLoggedIn) {
@@ -34,9 +34,9 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>;
-};
+}
 
-const App: React.FC = () => {
+export default function App() {
   const { isDarkMode } = useThemeStore();
 
   // 다크모드 상태 동기화
@@ -87,6 +87,5 @@ const App: React.FC = () => {
       </ActionProvider>
     </GlobalErrorBoundary>
   );
-};
+}
 
-export default App;
