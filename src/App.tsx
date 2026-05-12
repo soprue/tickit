@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import ReminderPage from './features/reminder/presentation/ReminderPage';
 import LoginPage from './features/auth/presentation/LoginPage';
 import { GlobalModal } from './shared/presentation/components/GlobalModal';
+import { GlobalToast } from './shared/presentation/components/GlobalToast';
 import { ActionProvider } from './shared/context/ActionContext';
 import GlobalErrorBoundary from './shared/presentation/components/GlobalErrorBoundary';
 import { useThemeStore } from './shared/domain/ThemeStore';
@@ -31,6 +32,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginPage />} />
           </Routes>
           <GlobalModal />
+          <GlobalToast />
         </Router>
       </ActionProvider>
     </GlobalErrorBoundary>
