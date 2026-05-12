@@ -34,7 +34,7 @@ export class MainStorage {
       }
       return null;
     } catch (err) {
-      console.error(`[MainStorage] Read failed (${key}):`, err);
+      console.error(`[Infrastructure] [MainStorage] Read failed (${key}):`, err);
       return null;
     }
   }
@@ -47,7 +47,7 @@ export class MainStorage {
     try {
       await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
     } catch (err) {
-      console.error(`[MainStorage] Write failed (${key}):`, err);
+      console.error(`[Infrastructure] [MainStorage] Write failed (${key}):`, err);
       throw err;
     }
   }

@@ -20,7 +20,7 @@ export const ipc = {
     try {
       return await window.api.invoke(channel, data);
     } catch (error) {
-      console.error(`[IPC] Invoke error on channel "${channel}":`, error);
+      console.error(`[Infrastructure] [IPC] Invoke error on channel "${channel}":`, error);
       throw error;
     }
   },

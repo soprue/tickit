@@ -23,7 +23,7 @@ export const authStorage: StateStorage = {
         data: data.state,
       });
     } catch (e) {
-      console.error(`[AuthStore] Save error:`, e);
+      console.error(`[Infrastructure] [AuthStorage] Save error:`, e);
     }
   },
   removeItem: (name: string) => {},

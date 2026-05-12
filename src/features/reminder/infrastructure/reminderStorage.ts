@@ -46,7 +46,7 @@ export const reminderStorage: StateStorage = {
       }
       return null;
     } catch (e) {
-      console.error('Failed to load reminder data:', e);
+      console.error('[Infrastructure] Failed to load reminder data:', e);
       return null;
     }
   },
@@ -59,7 +59,7 @@ export const reminderStorage: StateStorage = {
         data: data.state,
       });
     } catch (e) {
-      console.error('Failed to save reminder data:', e);
+      console.error('[Infrastructure] Failed to save reminder data:', e);
       throw e;
     }
   },

@@ -23,7 +23,7 @@ export const themeStorage: StateStorage = {
         data: data.state,
       });
     } catch (e) {
-      console.error(`[ThemeStore] Save error:`, e);
+      console.error(`[Infrastructure] [ThemeStorage] Save error:`, e);
     }
   },
   removeItem: (name: string) => {},
