@@ -29,7 +29,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
 
   // 변체(Variant)별 스타일
   const variants: Record<InputVariant, string> = {
-    default: `p-[14px] border rounded-lg text-[14px] bg-bg text-text-primary focus:bg-white dark:bg-[#2c2c2c] ${
+    default: `p-[14px] border rounded-lg text-[14px] bg-bg text-text-primary focus:bg-white focus:shadow-[0_0_0_3px_rgba(231,76,50,0.1)] dark:bg-[#2c2c2c] ${
       isError
         ? 'border-red-500 focus:border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]'
         : 'border-gray-light/30 focus:border-primary dark:border-white/5'
