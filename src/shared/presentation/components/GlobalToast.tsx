@@ -29,7 +29,7 @@ function StatusToast() {
 
   const config = {
     saving: {
-      borderColor: 'border-primary/20',
+      borderColor: 'border-border-alpha',
       textColor: 'text-primary',
       label: '저장 중...',
     },
@@ -95,7 +95,7 @@ function NotificationToast() {
       icon: <span className="text-red-500 font-black">!</span>,
     },
     info: {
-      borderColor: 'border-primary/20',
+      borderColor: 'border-border-alpha',
       textColor: 'text-text-primary',
       icon: <div className="bg-primary h-2 w-2 rounded-full" />,
     },

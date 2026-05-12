@@ -30,7 +30,7 @@ export function ViewMode({ sectionId, item }: ViewModeProps) {
 
   return (
     <div
-      className="gap-sm group no-drag hover:bg-gray-soft relative -mx-2 -my-1 box-border flex w-[calc(100%+1rem)] cursor-pointer items-start rounded-lg bg-transparent p-2 transition-colors duration-200 select-none"
+      className="gap-sm group no-drag hover:bg-surface-soft relative -mx-2 -my-1 box-border flex w-[calc(100%+1rem)] cursor-pointer items-start rounded-lg bg-transparent p-2 transition-colors duration-200 select-none"
       onDoubleClick={startEdit}
       onClick={toggleDone}
     >
@@ -38,22 +38,22 @@ export function ViewMode({ sectionId, item }: ViewModeProps) {
 
       <div className="flex min-w-0 flex-1 flex-col pr-20">
         <p
-          className={`m-0 text-[15px] leading-[1.2] font-medium transition-colors ${item.done ? 'text-gray-light/60 decoration-gray-light/50 line-through' : 'text-text-primary'}`}
+          className={`m-0 text-[15px] leading-[1.2] font-medium transition-colors ${item.done ? 'text-text-muted line-through' : 'text-text-primary'}`}
         >
           {item.text}
         </p>
         {displayTime && (
           <span
-            className={`mt-1.5 text-[13px] font-normal transition-colors ${item.done ? 'text-gray-light/50' : 'text-text-secondary/80'}`}
+            className={`mt-1.5 text-[13px] font-normal transition-colors ${item.done ? 'text-text-muted' : 'text-text-secondary'}`}
           >
             {displayTime}
           </span>
         )}
       </div>
 
-      <div className="absolute top-2 right-2 flex shrink-0 items-center gap-0.5 rounded-lg bg-white/90 px-1 py-0.5 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-black/60">
+      <div className="bg-surface-alpha absolute top-2 right-2 flex shrink-0 items-center gap-0.5 rounded-lg px-1 py-0.5 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
         <button
-          className="text-gray-medium/60 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/20 flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none text-[14px] transition-all"
+          className="text-text-muted hover:text-primary hover:bg-primary/10 flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none text-[14px] transition-all"
           onClick={(e) => {
             e.stopPropagation();
             startEdit();
@@ -63,7 +63,7 @@ export function ViewMode({ sectionId, item }: ViewModeProps) {
           ✎
         </button>
         <button
-          className="text-gray-medium/60 flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none transition-all hover:bg-red-500/5 hover:text-red-500 dark:hover:bg-red-500/20"
+          className="text-text-muted hover:bg-red-500/10 hover:text-red-500 flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none transition-all"
           onClick={deleteItemAction}
           title="삭제"
         >

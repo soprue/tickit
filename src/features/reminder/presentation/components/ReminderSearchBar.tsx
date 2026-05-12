@@ -21,7 +21,7 @@ export function ReminderSearchBar({
       <div className="relative flex w-full items-center">
         <input
           type="text"
-          className="bg-black/[0.03] border-black/[0.06] text-text-primary placeholder:text-gray-medium/40 w-full rounded-xl border py-[10px] pr-[120px] pl-4 text-[14px] outline-none transition-all focus:bg-black/[0.05] focus:border-primary/20 dark:border-white/10 dark:bg-white/[0.03] dark:focus:bg-white/[0.06]"
+          className="bg-surface-alpha border-border-alpha text-text-primary placeholder:text-text-muted w-full rounded-xl border py-[10px] pr-[120px] pl-4 text-[14px] outline-none transition-all focus:shadow-focus"
           placeholder="검색어를 입력하세요..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -35,7 +35,7 @@ export function ReminderSearchBar({
                 ? filterMode === 'completed'
                   ? 'bg-blue-500/10 text-blue-500 font-bold'
                   : 'bg-primary/10 text-primary font-bold'
-                : 'text-gray-medium/60 hover:text-gray-medium font-medium'
+                : 'text-text-muted hover:text-text-secondary font-medium'
             }`}
             onClick={onToggleFilter}
           >

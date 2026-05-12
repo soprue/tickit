@@ -125,7 +125,7 @@ function LoginPage() {
               </Button>
             </div>
 
-            <div className="text-gray-medium/30 before:border-gray-light/20 after:border-gray-light/20 my-2 flex items-center gap-3 text-[11px] font-bold tracking-wider uppercase before:flex-1 before:border-b before:content-[''] after:flex-1 after:border-b after:content-['']">
+            <div className="text-text-muted before:border-border-alpha after:border-border-alpha my-2 flex items-center gap-3 text-[11px] font-bold tracking-wider uppercase before:flex-1 before:border-b before:content-[''] after:flex-1 after:border-b after:content-['']">
               또는
             </div>
 

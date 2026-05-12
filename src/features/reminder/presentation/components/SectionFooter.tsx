@@ -19,12 +19,12 @@ export function SectionFooter({ category }: SectionFooterProps) {
   if (!isAdding) {
     return (
       <div
-        className="gap-sm group no-drag hover:bg-gray-soft -mx-1 flex cursor-pointer items-start rounded-md px-1 py-1.5 transition-colors"
+        className="gap-sm group no-drag hover:bg-surface-soft -mx-1 flex cursor-pointer items-start rounded-md px-1 py-1.5 transition-colors"
         onClick={() => ui.setAddingSection(category)}
       >
-        <div className="border-gray-light group-hover:border-gray-medium mt-[3.5px] h-4 w-4 shrink-0 rounded-sm border-[1.5px] border-dashed transition-colors"></div>
+        <div className="border-border-alpha group-hover:border-gray-medium mt-[3.5px] h-4 w-4 shrink-0 rounded-sm border-[1.5px] border-dashed transition-colors"></div>
         <div className="flex-1">
-          <p className="text-gray-light group-hover:text-gray-medium dark:text-gray-medium/60 m-0 text-base leading-tight font-medium transition-colors">
+          <p className="text-text-muted group-hover:text-text-secondary m-0 text-base leading-tight font-medium transition-colors">
             눌러서 추가하기
           </p>
         </div>
