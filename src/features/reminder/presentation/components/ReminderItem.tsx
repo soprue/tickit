@@ -1,12 +1,11 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { Reminder } from '../../domain/reminder';
 import { formatKoreanTime } from '@src/shared/utils/date';
-import { TimePicker } from './TimePicker';
 import { useReminderUI } from '../hooks/useReminderUI';
 import { Checkbox } from '@src/shared/presentation/components/ui/Checkbox';
-import { Button } from '@src/shared/presentation/components/ui/Button';
-import { Input } from '@src/shared/presentation/components/ui/Input';
+import { InlineInput } from '@src/shared/presentation/components/ui/InlineInput';
+import { TimePickerTrigger } from './TimePickerTrigger';
 
 interface ReminderItemProps {
   sectionId: string;
@@ -18,83 +17,41 @@ interface ReminderItemProps {
  */
 function EditMode({ sectionId, item }: ReminderItemProps) {
   const ui = useReminderUI();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const { selectedTime, isAllDay, pickerAMPM, pickerHour, pickerMinute, showTimePopover } =
     ui.state;
 
-  const onEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') ui.updateReminder(sectionId, item.id, e.currentTarget.value);
-    else if (e.key === 'Escape') ui.setEditingItemId(null);
-  };
-
-  // 영역 외 클릭 시 자동 저장 로직
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        const value = inputRef.current?.value || item.text;
-        ui.updateReminder(sectionId, item.id, value);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [ui, sectionId, item.id, item.text]);
-
-  const displayTime = isAllDay ? 'All Day' : selectedTime ? formatKoreanTime(selectedTime) : '';
-
   return (
-    <div
-      ref={containerRef}
-      className="gap-sm no-drag bg-gray-soft/40 relative -mx-2 -my-1 box-border flex w-[calc(100%+1rem)] items-start rounded-lg p-2 transition-all duration-200 dark:bg-white/5"
-    >
+    <div className="gap-sm no-drag bg-gray-soft/40 relative -mx-2 -my-1 box-border flex w-[calc(100%+1rem)] items-start rounded-lg p-2 transition-all duration-200 dark:bg-white/5">
       <Checkbox
         checked={item.done}
         onChange={() => ui.toggleReminder(sectionId, item.id)}
         className="mt-[3px]"
       />
 
-      <div className="relative flex min-w-0 flex-1 items-center pr-20">
-        <Input
-          ref={inputRef}
-          variant="underline"
-          className="!text-text-primary !p-0 pr-[85px] !pb-[2px] !text-[15px] leading-[1.2] !font-medium"
-          defaultValue={item.text}
-          onKeyDown={onEnter}
-          autoFocus
-        />
-
-        <div className="absolute top-[-1px] right-0">
-          <Button
-            variant={!isAllDay && selectedTime ? 'primary' : 'secondary'}
-            className={`shrink-0 !px-2.5 !py-1 !text-[10px] ${!isAllDay && selectedTime ? '' : '!bg-white dark:!bg-white/10'}`}
-            onClick={() => ui.toggleTimePopover()}
-          >
-            <Icon
-              name="clock"
-              size={10}
-              color={!isAllDay && selectedTime ? 'white' : 'currentColor'}
-              className={!isAllDay && selectedTime ? 'opacity-100' : 'opacity-60'}
-            />
-            <span className="ml-1.5 leading-none tracking-tight">{displayTime || '시간 추가'}</span>
-          </Button>
-
-          {showTimePopover && (
-            <div className="animate-in fade-in slide-in-from-top-1 zoom-in-95 absolute top-[calc(100%+6px)] right-0 z-[5000] origin-top-right duration-200 ease-out">
-              <TimePicker
-                pickerState={{
-                  ampm: pickerAMPM,
-                  hour: pickerHour,
-                  minute: pickerMinute,
-                }}
-                onUpdatePickerTime={ui.updatePickerTime}
-                onSetAllDay={ui.setAllDay}
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      <InlineInput
+        defaultValue={item.text}
+        onSave={(value) => ui.updateReminder(sectionId, item.id, value)}
+        onCancel={() => ui.setEditingItemId(null)}
+        wrapperClassName="flex-1 pr-2"
+        className="!text-[15px] !font-medium"
+        renderRight={
+          <TimePickerTrigger
+            selectedTime={selectedTime}
+            isAllDay={isAllDay}
+            showTimePopover={showTimePopover}
+            pickerState={{
+              ampm: pickerAMPM,
+              hour: pickerHour,
+              minute: pickerMinute,
+            }}
+            onTogglePopover={ui.toggleTimePopover}
+            onUpdatePickerTime={ui.updatePickerTime}
+            onSetAllDay={ui.setAllDay}
+            popoverClassName="top-[calc(100%+6px)] right-0"
+          />
+        }
+      />
     </div>
   );
 }
