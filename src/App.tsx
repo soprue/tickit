@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import ReminderPage from './features/reminder/presentation/ReminderPage';
 import LoginPage from './features/auth/presentation/LoginPage';
+import RegisterPage from './features/auth/presentation/RegisterPage';
 import { GlobalModal } from './shared/presentation/components/GlobalModal';
 import { GlobalToast } from './shared/presentation/components/GlobalToast';
 import { ActionProvider } from './shared/context/ActionContext';
@@ -30,6 +31,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<ReminderPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
           <GlobalModal />
           <GlobalToast />
