@@ -122,18 +122,6 @@ function LoginPage() {
               >
                 로그인
               </Button>
-
-              {/* UI 테스트용 임시 버튼 (나중에 제거 가능) */}
-              <button 
-                className="text-gray-medium/40 hover:text-primary mt-1 cursor-pointer border-none bg-none text-[11px] font-medium transition-colors"
-                onClick={() => {
-                  const types: ('success' | 'info' | 'error')[] = ['success', 'info', 'error'];
-                  const type = types[Math.floor(Math.random() * types.length)];
-                  showToast(`${type.toUpperCase()} 알림 테스트입니다!`, type);
-                }}
-              >
-                디자인 테스트 (Toast)
-              </button>
             </div>
 
             <div className="text-gray-medium/30 before:border-gray-light/20 after:border-gray-light/20 my-2 flex items-center gap-3 text-[11px] font-bold tracking-wider uppercase before:flex-1 before:border-b before:content-[''] after:flex-1 after:border-b after:content-['']">

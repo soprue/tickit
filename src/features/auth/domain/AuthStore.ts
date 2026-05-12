@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { STORAGE_KEYS } from '@src/shared/constants';
-import { authStorage } from '../infrastructure/authStorage';
 import { UserEntity } from '../infrastructure/api/model';
 
 interface AuthState {
@@ -13,6 +12,10 @@ interface AuthState {
   clearAuth: () => void;
 }
 
+/**
+ * 인증 상태 관리 스토어
+ * sessionStorage를 사용하여 새로고침 시에는 유지되지만, 앱 종료 시에는 자동으로 로그아웃되도록 설정
+ */
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -26,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: STORAGE_KEYS.AUTH,
-      storage: createJSONStorage(() => authStorage),
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         isLoggedIn: state.isLoggedIn,
         user: state.user,

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ReminderPage from './features/reminder/presentation/ReminderPage';
 import LoginPage from './features/auth/presentation/LoginPage';
 import RegisterPage from './features/auth/presentation/RegisterPage';
@@ -8,6 +8,33 @@ import { GlobalToast } from './shared/presentation/components/GlobalToast';
 import { ActionProvider } from './shared/context/ActionContext';
 import GlobalErrorBoundary from './shared/presentation/components/GlobalErrorBoundary';
 import { useThemeStore } from './shared/domain/ThemeStore';
+import { useAuthStore } from './features/auth/domain/AuthStore';
+
+/**
+ * 로그인 여부를 확인하여 비로그인 사용자를 로그인 페이지로 리다이렉트하는 컴포넌트
+ */
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isLoggedIn } = useAuthStore();
+  
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+/**
+ * 로그인한 사용자가 로그인/회원가입 페이지에 접근하는 것을 방지하는 컴포넌트
+ */
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isLoggedIn } = useAuthStore();
+
+  if (isLoggedIn) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const App: React.FC = () => {
   const { isDarkMode } = useThemeStore();
@@ -29,9 +56,30 @@ const App: React.FC = () => {
       <ActionProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<ReminderPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <ReminderPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/register" 
+              element={
+                <PublicRoute>
+                  <RegisterPage />
+                </PublicRoute>
+              } 
+            />
           </Routes>
           <GlobalModal />
           <GlobalToast />

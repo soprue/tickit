@@ -46,6 +46,12 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().clearAuth();
+
+        // 로그아웃 요청 중에 발생한 에러라면 모달을 띄우지 않음
+        if (originalRequest.url?.includes('/api/auth/logout')) {
+          return Promise.reject(refreshError);
+        }
+
         useModalStore.getState().showConfirm({
           title: '세션 만료',
           message: '세션이 만료되었습니다. 다시 로그인해 주세요.',
