@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Icon } from '../Icon';
 
 type InputVariant = 'default' | 'underline' | 'ghost';
 
@@ -14,9 +15,11 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
  * 공통 입력창 컴포넌트 (UI Primitive)
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
-  { variant = 'default', error, helperText, className = '', ...props },
+  { variant = 'default', error, helperText, className = '', type, ...props },
   ref
 ) {
+  const [showPassword, setShowPassword] = useState(false);
+
   // 베이스 스타일
   const baseStyles =
     'w-full outline-none transition-all duration-200 placeholder:text-gray-medium/50 disabled:opacity-50 disabled:bg-gray-soft/50';
@@ -37,11 +40,31 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     ghost: 'bg-transparent border-none p-0 text-text-primary',
   };
 
+  const isPassword = type === 'password';
+  const inputType = isPassword && showPassword ? 'text' : type;
   const variantStyle = variants[variant];
 
   return (
     <div className="flex w-full flex-col gap-1.5">
-      <input ref={ref} className={`${baseStyles} ${variantStyle} ${className}`} {...props} />
+      <div className="relative w-full">
+        <input
+          ref={ref}
+          type={inputType}
+          className={`${baseStyles} ${variantStyle} ${isPassword ? 'pr-[44px]' : ''} ${className}`}
+          {...props}
+        />
+
+        {isPassword && (
+          <button
+            type="button"
+            className="text-gray-medium/40 hover:text-gray-medium absolute right-[14px] top-1/2 -translate-y-1/2 cursor-pointer border-none bg-none transition-colors"
+            onClick={() => setShowPassword(!showPassword)}
+            tabIndex={-1}
+          >
+            <Icon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
+          </button>
+        )}
+      </div>
 
       {/* 에러 메시지 또는 헬퍼 텍스트 출력 */}
       {(typeof error === 'string' || helperText) && (
