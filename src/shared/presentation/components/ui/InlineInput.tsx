@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Input } from './Input';
+import { DELAYS } from '@src/shared/constants';
 
 interface InlineInputProps {
   defaultValue: string;
@@ -48,7 +49,7 @@ export function InlineInput({
     // 애니메이션을 위해 약간의 지연 후 실제 저장 액션 실행
     setTimeout(() => {
       onSave(value);
-    }, 150);
+    }, DELAYS.UI_TRANSITION);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -71,7 +72,7 @@ export function InlineInput({
         return;
       }
       handleSave();
-    }, 150);
+    }, DELAYS.UI_TRANSITION);
   };
 
   return (

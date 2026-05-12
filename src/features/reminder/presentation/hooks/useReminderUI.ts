@@ -1,6 +1,6 @@
 import { useReminderStore } from '@src/features/reminder/domain/ReminderStore';
 import { useModalStore } from '@src/shared/domain/ModalStore';
-import { REMINDER_CONFIG } from '@src/shared/constants';
+import { REMINDER_CONFIG, DELAYS } from '@src/shared/constants';
 import { useEditState } from './useEditState';
 import { useSearchFilter } from './useSearchFilter';
 import { useActionContext } from '@src/shared/context/ActionContext';
@@ -35,7 +35,7 @@ export function useReminderUI() {
   const filter = useSearchFilter(sections, isEditingAny);
 
   // 저장 완료를 체감할 수 있도록 약간의 대기 시간을 줌
-  const waitSave = () => new Promise((resolve) => setTimeout(resolve, 300));
+  const waitSave = () => new Promise((resolve) => setTimeout(resolve, DELAYS.SAVE_DEBOUNCE));
 
   /* -------------------------------------------------------------------------- */
   /* CRUD 액션 (전역 runAction으로 래핑)                                           */

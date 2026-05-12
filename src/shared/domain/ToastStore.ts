@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { DELAYS } from '@src/shared/constants';
 
 export type ToastType = 'info' | 'success' | 'error';
 
@@ -18,10 +19,10 @@ export const useToastStore = create<ToastState>((set) => ({
   showToast: (message: string, type: ToastType = 'info') => {
     set({ isOpen: true, message, type });
     
-    // 3초 후 자동으로 닫기
+    // 자동으로 닫기
     setTimeout(() => {
       set({ isOpen: false });
-    }, 3000);
+    }, DELAYS.AUTO_CLOSE);
   },
 
   hideToast: () => set({ isOpen: false }),

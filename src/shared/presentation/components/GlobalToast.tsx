@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useToastStore } from '@src/shared/domain/ToastStore';
 import { useActionContext } from '@src/shared/context/ActionContext';
+import { DELAYS } from '@src/shared/constants';
 
 /**
  * 1. StatusToast: "저장 중...", "저장 완료" 등 시스템 상태를 나타냄
@@ -18,8 +19,8 @@ function StatusToast() {
       setDisplayState('saved');
       const timer = setTimeout(() => {
         setShow(false);
-        setTimeout(() => setDisplayState(null), 500);
-      }, 2000);
+        setTimeout(() => setDisplayState(null), DELAYS.ANIMATION_SMOOTH);
+      }, DELAYS.STATUS_DISPLAY);
       return () => clearTimeout(timer);
     }
   }, [isPending]);
@@ -75,7 +76,7 @@ function NotificationToast() {
     if (isOpen) {
       setShow(true);
     } else {
-      const timer = setTimeout(() => setShow(false), 500);
+      const timer = setTimeout(() => setShow(false), DELAYS.ANIMATION_SMOOTH);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);

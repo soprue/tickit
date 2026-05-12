@@ -8,6 +8,7 @@ import { Input } from '@src/shared/presentation/components/ui/Input';
 import { Card } from '@src/shared/presentation/components/ui/Card';
 import { useAuthControllerLogin } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import logoIcon from '@assets/logo.webp';
+import { ROUTES } from '@src/shared/constants';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function LoginPage() {
   // 이미 로그인된 사용자는 메인 페이지로 리다이렉트
   useEffect(() => {
     if (isLoggedIn) {
-      navigate('/', { replace: true });
+      navigate(ROUTES.HOME, { replace: true });
     }
   }, [isLoggedIn, navigate]);
 
@@ -46,7 +47,7 @@ function LoginPage() {
           if (access_token && userData) {
             setAuth(userData, access_token);
             showToast('로그인에 성공했습니다.', 'success');
-            navigate('/');
+            navigate(ROUTES.HOME);
             return;
           }
 
@@ -148,7 +149,7 @@ function LoginPage() {
             계정이 없으신가요?{' '}
             <button
               className="text-primary cursor-pointer border-none bg-none font-bold hover:underline"
-              onClick={() => navigate('/register')}
+              onClick={() => navigate(ROUTES.REGISTER)}
             >
               회원가입
             </button>

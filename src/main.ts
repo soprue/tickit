@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NotificationService } from './services/NotificationService';
 import { mainStorage } from './infrastructure/MainStorage';
+import { IPC_CHANNELS } from './shared/constants';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +16,7 @@ let pendingSaves = 0;
 /**
  * IPC 핸들러: 리마인더 데이터 저장
  */
-ipcMain.handle('reminder:save', async (_event, { key, data }) => {
+ipcMain.handle(IPC_CHANNELS.SAVE, async (_event, { key, data }) => {
   pendingSaves++;
   try {
     await mainStorage.write(key, data);
@@ -28,7 +29,7 @@ ipcMain.handle('reminder:save', async (_event, { key, data }) => {
 /**
  * IPC 핸들러: 모든 리마인더 데이터 불러오기
  */
-ipcMain.handle('reminder:get-all', async (_event, key) => {
+ipcMain.handle(IPC_CHANNELS.GET_ALL, async (_event, key) => {
   return await mainStorage.read(key);
 });
 

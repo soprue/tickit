@@ -1,5 +1,6 @@
 import { StateStorage } from 'zustand/middleware';
 import { ipc } from '@src/shared/utils/ipc';
+import { IPC_CHANNELS } from '@src/shared/constants';
 
 /**
  * Electron IPC 기반 인증 정보 저장소
@@ -7,7 +8,7 @@ import { ipc } from '@src/shared/utils/ipc';
 export const authStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
     try {
-      const data = await ipc.invoke('reminder:get-all', name);
+      const data = await ipc.invoke(IPC_CHANNELS.GET_ALL, name);
       if (data) return JSON.stringify({ state: data });
       return null;
     } catch (e) {
@@ -17,7 +18,7 @@ export const authStorage: StateStorage = {
   setItem: async (name: string, value: string): Promise<void> => {
     try {
       const data = JSON.parse(value);
-      await ipc.invoke('reminder:save', {
+      await ipc.invoke(IPC_CHANNELS.SAVE, {
         key: name,
         data: data.state,
       });

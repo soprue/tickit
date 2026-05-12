@@ -7,11 +7,25 @@ export const STORAGE_KEYS = {
   AUTH: 'tickit_auth',
 } as const;
 
+export const IPC_CHANNELS = {
+  GET_ALL: 'reminder:get-all',
+  SAVE: 'reminder:save',
+  NOTIFY: 'reminder:notify',
+} as const;
+
+export const ROUTES = {
+  HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+} as const;
+
 export const DELAYS = {
   SAVE_DEBOUNCE: 300, // 데이터 저장 디바운싱 지연 시간 (ms)
   FOCUS_RESTORE: 250, // 리렌더링 시 포커스 복구 대기 시간 (ms)
   UI_TRANSITION: 150, // 일반적인 UI 전환/닫힘 대기 시간 (ms)
-  AUTO_CLOSE: 2500, // 토스트/알림 자동 닫힘 시간 (ms)
+  ANIMATION_SMOOTH: 500, // 부드러운 애니메이션/트랜지션 시간 (ms)
+  AUTO_CLOSE: 3000, // 토스트/알림 자동 닫힘 시간 (ms)
+  STATUS_DISPLAY: 2000, // "저장 완료" 등 상태 메시지 유지 시간 (ms)
 } as const;
 
 export const REMINDER_CONFIG = {

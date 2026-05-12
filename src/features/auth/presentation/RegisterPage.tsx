@@ -6,6 +6,7 @@ import { Input } from '@src/shared/presentation/components/ui/Input';
 import { Card } from '@src/shared/presentation/components/ui/Card';
 import { useAuthControllerRegister } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import logoIcon from '@assets/logo.webp';
+import { ROUTES } from '@src/shared/constants';
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ function RegisterPage() {
       {
         onSuccess: () => {
           showToast('회원가입에 성공했습니다. 로그인 해 주세요.', 'success');
-          navigate('/login');
+          navigate(ROUTES.LOGIN);
         },
         onError: (error: any) => {
           console.error('[Register] API Error:', error);
@@ -72,7 +73,7 @@ function RegisterPage() {
   };
 
   const handleGoLogin = () => {
-    navigate('/login');
+    navigate(ROUTES.LOGIN);
   };
 
   return (

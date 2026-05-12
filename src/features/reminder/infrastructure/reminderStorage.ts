@@ -1,6 +1,7 @@
 import { StateStorage } from 'zustand/middleware';
 import { Reminder, ReminderSectionData, initialSections } from '../domain/reminder';
 import { ipc } from '@src/shared/utils/ipc';
+import { IPC_CHANNELS } from '@src/shared/constants';
 
 /**
  * 불러온 데이터의 형식을 복원함 (날짜 객체 변환 및 유실된 필드 보구)
@@ -38,7 +39,7 @@ const hydrateState = (data: any) => {
 export const reminderStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
     try {
-      const data = await ipc.invoke('reminder:get-all', name);
+      const data = await ipc.invoke(IPC_CHANNELS.GET_ALL, name);
       if (data) {
         const hydrated = hydrateState(data);
         return JSON.stringify({ state: hydrated });
@@ -53,7 +54,7 @@ export const reminderStorage: StateStorage = {
     try {
       const data = JSON.parse(value);
       // data.state에는 sections와 lastNightCheckDate가 포함되어 있음
-      await ipc.invoke('reminder:save', {
+      await ipc.invoke(IPC_CHANNELS.SAVE, {
         key: name,
         data: data.state,
       });
