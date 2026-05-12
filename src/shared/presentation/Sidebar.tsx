@@ -23,18 +23,28 @@ export function Sidebar({ isDarkMode, onToggleTheme, onLogout }: SidebarProps) {
 
       <div className="flex flex-col items-center gap-6">
         <button
-          className="bg-icon-bg duration-fast group flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all hover:opacity-80 active:scale-90 dark:hover:bg-white/10"
+          className="bg-icon-bg duration-fast group relative flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all hover:opacity-80 active:scale-90 dark:hover:bg-white/10"
           onClick={() => {
             console.log('[Sidebar] Toggling theme, current isDarkMode:', isDarkMode);
             onToggleTheme();
           }}
           title="테마 변경"
         >
-          <div className={`transition-transform duration-500 ${isDarkMode ? 'rotate-[360deg]' : 'rotate-0'}`}>
+          {/* Sunlight Icon (Light Mode) */}
+          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isDarkMode ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
             <Icon
-              name={isDarkMode ? 'sunlight' : 'halfmoon'}
+              name="sunlight"
               size={20}
-              className="text-gray-medium dark:text-gray-medium transition-colors"
+              className="text-gray-medium transition-colors"
+            />
+          </div>
+
+          {/* Halfmoon Icon (Dark Mode) */}
+          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isDarkMode ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
+            <Icon
+              name="halfmoon"
+              size={20}
+              className="text-gray-medium transition-colors"
             />
           </div>
         </button>
