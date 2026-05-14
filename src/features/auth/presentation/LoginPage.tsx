@@ -1,7 +1,7 @@
-import { Icon } from '@src/shared/presentation/components/Icon';
 import { Button } from '@src/shared/presentation/components/ui/Button';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 import { Card } from '@src/shared/presentation/components/ui/Card';
+import { SocialButton } from '@src/shared/presentation/components/ui/SocialButton';
 import logoIcon from '@assets/logo.webp';
 import { useLoginUI } from './hooks/useLoginUI';
 
@@ -76,16 +76,7 @@ export default function LoginPage() {
               또는
             </div>
 
-            <Button
-              variant="secondary"
-              className="flex w-full items-center justify-center gap-3 border border-[#dadce0] bg-white font-medium shadow-none transition-all hover:border-[#d2d4d7] hover:bg-[#f8f9fa] dark:border-[#444746] dark:bg-[#1f1f1f] dark:hover:border-[#5f6368] dark:hover:bg-[#2a2a2a]"
-              onClick={ui.handleGoogleLogin}
-            >
-              <Icon name="google" size={18} />
-              <span className="text-text-primary text-[14px] tracking-tight">
-                Google 계정으로 로그인
-              </span>
-            </Button>
+            <SocialButton provider="google" onClick={ui.handleGoogleLogin} />
           </div>
         </div>
 
