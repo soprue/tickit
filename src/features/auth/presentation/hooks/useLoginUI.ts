@@ -70,7 +70,7 @@ export function useLoginUI() {
       const result = await ipc.invoke(IPC_CHANNELS.AUTH_GOOGLE);
 
       if (result?.access_token && result?.user) {
-        setAuth(result.user, result.access_token);
+        setAuth(result.user, result.access_token, result.refresh_token);
         showToast('구글 로그인에 성공했습니다.', 'success');
         navigate(ROUTES.HOME);
       }

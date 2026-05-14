@@ -33,11 +33,29 @@
     "mac": {
       "category": "public.app-category.productivity",
       "target": "dmg",
-      "icon": "src/assets/logo.icns"
+      "icon": "src/assets/logo.icns",
+      "extendInfo": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "Tickit",
+            "CFBundleURLSchemes": [
+              "tickit"
+            ]
+          }
+        ]
+      }
     },
     "win": {
       "target": "nsis",
-      "icon": "src/assets/logo.ico"
+      "icon": "src/assets/logo.ico",
+      "protocols": [
+        {
+          "name": "tickit",
+          "schemes": [
+            "tickit"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,

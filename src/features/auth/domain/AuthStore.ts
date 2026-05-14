@@ -7,11 +7,13 @@ interface AuthData {
   isLoggedIn: boolean;
   user: UserEntity | null;
   accessToken: string | null;
+  refreshToken: string | null;
 }
 
 interface AuthActions {
-  setAuth: (user: UserEntity, accessToken: string) => void;
+  setAuth: (user: UserEntity, accessToken: string, refreshToken?: string) => void;
   setAccessToken: (accessToken: string) => void;
+  setRefreshToken: (refreshToken: string) => void;
   clearAuth: () => void;
 }
 
@@ -27,12 +29,14 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       user: null,
       accessToken: null,
+      refreshToken: null,
 
       actions: {
-        setAuth: (user: UserEntity, accessToken: string) =>
-          set({ isLoggedIn: true, user, accessToken }),
+        setAuth: (user: UserEntity, accessToken: string, refreshToken?: string) =>
+          set({ isLoggedIn: true, user, accessToken, refreshToken: refreshToken ?? null }),
         setAccessToken: (accessToken: string) => set({ accessToken }),
-        clearAuth: () => set({ isLoggedIn: false, user: null, accessToken: null }),
+        setRefreshToken: (refreshToken: string) => set({ refreshToken }),
+        clearAuth: () => set({ isLoggedIn: false, user: null, accessToken: null, refreshToken: null }),
       },
     }),
     {
@@ -42,6 +46,7 @@ export const useAuthStore = create<AuthState>()(
         isLoggedIn: state.isLoggedIn,
         user: state.user,
         accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
       }),
     }
   )

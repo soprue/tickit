@@ -21,6 +21,6 @@ export interface IpcInvokeMap {
   /** 구글 로그인 실행 및 결과 반환 */
   'auth:google': {
     args: void;
-    returns: { access_token: string; user: UserEntity } | null;
+    returns: { access_token: string; refresh_token?: string; user: UserEntity } | null;
   };
 }

@@ -1,4 +1,4 @@
-import { BrowserWindow, app, ipcMain, nativeImage } from 'electron';
+import { BrowserWindow, app, ipcMain, nativeImage, shell } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NotificationService } from './services/NotificationService';
@@ -12,6 +12,68 @@ const __dirname = path.dirname(__filename);
 const notificationService = new NotificationService();
 
 let pendingSaves = 0;
+let mainWindow: BrowserWindow | null = null;
+let googleAuthResolve: ((value: any) => void) | null = null;
+
+// 커스텀 프로토콜 등록 (Deep Linking)
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('tickit', process.execPath, [path.resolve(process.argv[1])]);
+  }
+} else {
+  app.setAsDefaultProtocolClient('tickit');
+}
+
+/**
+ * Deep Link URL 처리 및 토큰 추출
+ */
+function handleDeepLink(url: string) {
+  if (!url.startsWith('tickit://')) return;
+
+  try {
+    const parsedUrl = new URL(url.replace('tickit://', 'http://localhost/'));
+    const accessToken = parsedUrl.searchParams.get('access_token');
+    const refreshToken = parsedUrl.searchParams.get('refresh_token');
+    const userDataStr = parsedUrl.searchParams.get('user');
+
+    if (accessToken && userDataStr && googleAuthResolve) {
+      const user = JSON.parse(decodeURIComponent(userDataStr));
+      googleAuthResolve({ 
+        access_token: accessToken, 
+        refresh_token: refreshToken || undefined, 
+        user 
+      });
+      googleAuthResolve = null;
+
+      if (mainWindow) {
+        mainWindow.focus();
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse deep link data:', e);
+  }
+}
+
+// macOS에서 앱이 열려있을 때 URL 호출 처리
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  handleDeepLink(url);
+});
+
+// Windows/Linux에서 두 번째 인스턴스 실행 시 처리
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+    const url = commandLine.pop();
+    if (url) handleDeepLink(url);
+  });
+}
 
 /**
  * IPC 핸들러: 리마인더 데이터 저장
@@ -34,89 +96,25 @@ ipcMain.handle(IPC_CHANNELS.GET_ALL, async (_event, key) => {
 });
 
 /**
- * IPC 핸들러: 구글 로그인
+ * IPC 핸들러: 구글 로그인 (시스템 브라우저 사용 방식)
  */
-ipcMain.handle(IPC_CHANNELS.AUTH_GOOGLE, async (event) => {
-  const parentWindow = BrowserWindow.fromWebContents(event.sender);
+ipcMain.handle(IPC_CHANNELS.AUTH_GOOGLE, async () => {
   const apiUrl = process.env.VITE_API_URL || 'http://localhost:3000';
   
-  const authWindow = new BrowserWindow({
-    width: 500,
-    height: 600,
-    parent: parentWindow || undefined,
-    modal: true,
-    show: false,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
-  });
-
-  authWindow.loadURL(`${apiUrl}/api/auth/google`);
-  authWindow.once('ready-to-show', () => authWindow.show());
+  // 브라우저로 열기 (서버는 인증 후 tickit://auth?access_token=... 로 리다이렉트해야 함)
+  shell.openExternal(`${apiUrl}/api/auth/google`);
 
   return new Promise((resolve) => {
-    // 공통 파싱 로직
-    const extractAndResolve = (data: any) => {
-      // 서버 응답 구조: { success: true, data: { access_token, user, ... } }
-      // 또는 { access_token, user } 형태 모두 대응
-      const token = data.access_token || data.data?.access_token;
-      const user = data.user || data.data?.user;
-
-      if (token && user) {
-        resolve({ access_token: token, user });
-        authWindow.destroy();
-        return true;
+    googleAuthResolve = resolve;
+    // 30초 후 타임아웃 처리 (선택 사항)
+    setTimeout(() => {
+      if (googleAuthResolve === resolve) {
+        googleAuthResolve = null;
+        resolve(null);
       }
-      return false;
-    };
-
-    const handleContentCheck = async () => {
-      try {
-        // 화면의 텍스트를 읽어 JSON으로 파싱 시도
-        const content = await authWindow.webContents.executeJavaScript('document.body.innerText');
-        const data = JSON.parse(content);
-        extractAndResolve(data);
-      } catch (e) {
-        // JSON 형식이 아니면 아직 로그인 진행 중이거나 다른 페이지임
-      }
-    };
-
-    const handleUrlCheck = (url: string) => {
-      if (url.includes('access_token=')) {
-        try {
-          const parsedUrl = new URL(url);
-          const params = new URLSearchParams(parsedUrl.search || parsedUrl.hash.substring(1));
-          const accessToken = params.get('access_token');
-          const userDataStr = params.get('user');
-          
-          if (accessToken && userDataStr) {
-            const user = JSON.parse(decodeURIComponent(userDataStr));
-            resolve({ access_token: accessToken, user });
-            authWindow.destroy();
-          }
-        } catch (e) {
-          console.error('Failed to parse URL auth data:', e);
-        }
-      }
-    };
-
-    // 1. URL 변경 감시 (리다이렉트 방식 대응)
-    authWindow.webContents.on('will-navigate', (_e, url) => handleUrlCheck(url));
-    authWindow.webContents.on('did-get-redirect-request', (_e, _oldUrl, newUrl) => handleUrlCheck(newUrl));
-
-    // 2. 페이지 로딩 완료 감시 (JSON 텍스트 출력 방식 대응)
-    authWindow.webContents.on('did-finish-load', () => {
-      const url = authWindow.webContents.getURL();
-      handleUrlCheck(url);
-      handleContentCheck();
-    });
-
-    // 창이 닫히면 취소된 것으로 간주
-    authWindow.on('closed', () => resolve(null));
+    }, 60000);
   });
 });
-
 
 /**
  * 브라우저 창 생성 및 초기화
@@ -131,7 +129,7 @@ function createWindow() {
     app.dock.setIcon(image);
   }
 
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 400,
     height: 750,
     minWidth: 400,
@@ -139,9 +137,7 @@ function createWindow() {
     minHeight: 650,
     useContentSize: true,
     icon: image,
-    // titleBarStyle: isMac ? 'hiddenInset' : 'default', // macOS에서 깔끔한 상단바
     webPreferences: {
-      // 빌드 후 경로 구조에 맞게 preload 경로 설정
       preload: path.join(__dirname, '../preload/preload.mjs'),
       contextIsolation: true,
       nodeIntegration: false,
@@ -149,16 +145,12 @@ function createWindow() {
     },
   });
 
-  // 개발 환경과 빌드 환경에 따른 로드 주소 분기
   if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-    // 필요 시 개발자 도구를 엽니다.
-    // mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'));
   }
 
-  // 앱 종료 시 데이터 유실 방지 로직
   mainWindow.on('close', (e) => {
     if (pendingSaves > 0) {
       e.preventDefault();
@@ -167,14 +159,13 @@ function createWindow() {
         attempts++;
         if (pendingSaves === 0 || attempts > 20) {
           clearInterval(interval);
-          mainWindow.destroy();
+          mainWindow?.destroy();
         }
       }, 100);
     }
   });
 }
 
-// 앱 준비 완료 시 창 생성
 app.whenReady().then(() => {
   createWindow();
   notificationService.start();
@@ -184,12 +175,10 @@ app.whenReady().then(() => {
   });
 });
 
-// 앱 종료 시 알림 서비스 정지
 app.on('will-quit', () => {
   notificationService.stop();
 });
 
-// 모든 창이 닫히면 앱 종료 (macOS 제외)
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
