@@ -1,3 +1,4 @@
+import { produce } from 'immer';
 import { NOTIFICATION_MESSAGES } from '../shared/constants';
 import type { Reminder, ReminderSectionData } from '../features/reminder/domain/reminder';
 
@@ -40,68 +41,71 @@ function formatNightCheckBody(items: Array<Reminder & { sectionId: string }>): s
 
 /**
  * 현재 상태와 시간을 기반으로 보낼 알림을 계산합니다.
- * 순수 함수로 작성되어 상태를 직접 수정하지 않고 새로운 상태를 반환합니다.
+ * immer의 produce를 사용하여 구조적 공유를 유지하며 안전하게 새로운 상태를 반환합니다.
  */
 export function calculateNotifications(
   state: NotificationPersistedState,
   now: Date
 ): NotificationCheckResult {
-  const { sections, lastNightCheckDate } = state;
-  const results: NotificationCheckResult = {
-    hasChanges: false,
-    notifications: [],
-    updatedState: JSON.parse(JSON.stringify(state)), // Deep copy to ensure immutability
-  };
+  const notifications: Array<{ title: string; body: string }> = [];
+  let hasChanges = false;
 
-  if (!sections) return results;
+  const updatedState = produce(state, (draft) => {
+    const { sections, lastNightCheckDate } = draft;
+    if (!sections) return;
 
-  // 모든 리마인더를 평탄화 (섹션 ID 포함)
-  const allItems = sections.flatMap((section) =>
-    section.items.map((item) => ({ ...item, sectionId: section.id }))
-  );
+    // 모든 리마인더를 평탄화 (섹션 ID 포함) - 알림 메시지 생성용 (읽기 전용)
+    const allItems = sections.flatMap((section) =>
+      section.items.map((item) => ({ ...item, sectionId: section.id }))
+    );
 
-  const nowMs = now.getTime();
-  const todayDateStr = getTodayDateString(now);
+    const nowMs = now.getTime();
+    const todayDateStr = getTodayDateString(now);
 
-  // 1. 밤 9시 할 일 체크 (21:00 이상)
-  if (now.getHours() >= 21 && lastNightCheckDate !== todayDateStr) {
-    const unfinishedItems = allItems.filter((item) => !item.done);
-    if (unfinishedItems.length > 0) {
-      results.notifications.push({
-        title: NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE,
-        body: formatNightCheckBody(unfinishedItems),
-      });
-    }
-    results.updatedState.lastNightCheckDate = todayDateStr;
-    results.hasChanges = true;
-  }
-
-  // 2. 개별 리마인더 알림
-  const oneHourAgo = nowMs - 60 * 60 * 1000;
-
-  results.updatedState.sections.forEach((section) => {
-    section.items.forEach((item) => {
-      if (!item.time || item.done || item.notified) return;
-
-      const itemTime = new Date(item.time);
-      const itemMs = itemTime.getTime();
-
-      if (nowMs >= itemMs) {
-        const isToday = itemTime.toDateString() === now.toDateString();
-        const isRecent = itemMs > oneHourAgo;
-
-        if (isToday && isRecent) {
-          results.notifications.push({
-            title: NOTIFICATION_MESSAGES.INDIVIDUAL_TITLE,
-            body: NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text),
-          });
-        }
-
-        item.notified = true;
-        results.hasChanges = true;
+    // 1. 밤 9시 할 일 체크 (21:00 이상)
+    if (now.getHours() >= 21 && lastNightCheckDate !== todayDateStr) {
+      const unfinishedItems = allItems.filter((item) => !item.done);
+      if (unfinishedItems.length > 0) {
+        notifications.push({
+          title: NOTIFICATION_MESSAGES.NIGHT_CHECK_TITLE,
+          body: formatNightCheckBody(unfinishedItems),
+        });
       }
+      draft.lastNightCheckDate = todayDateStr;
+      hasChanges = true;
+    }
+
+    // 2. 개별 리마인더 알림
+    const oneHourAgo = nowMs - 60 * 60 * 1000;
+
+    sections.forEach((section) => {
+      section.items.forEach((item) => {
+        if (!item.time || item.done || item.notified) return;
+
+        const itemTime = new Date(item.time);
+        const itemMs = itemTime.getTime();
+
+        if (nowMs >= itemMs) {
+          const isToday = itemTime.toDateString() === now.toDateString();
+          const isRecent = itemMs > oneHourAgo;
+
+          if (isToday && isRecent) {
+            notifications.push({
+              title: NOTIFICATION_MESSAGES.INDIVIDUAL_TITLE,
+              body: NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text),
+            });
+          }
+
+          item.notified = true;
+          hasChanges = true;
+        }
+      });
     });
   });
 
-  return results;
+  return {
+    hasChanges,
+    notifications,
+    updatedState,
+  };
 }
