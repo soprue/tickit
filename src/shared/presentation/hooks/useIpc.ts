@@ -6,7 +6,7 @@ import { ipc } from '../../utils/ipc';
  * 컴포넌트 언마운트 시 자동으로 리스너를 정리할 준비를 합니다.
  * (현재 preload.cjs 구조상 명시적 off 기능이 없다면 메모리 누수에 주의해야 함)
  */
-export function useIpc(channel: string, callback: (...args: any[]) => void) {
+export function useIpc(channel: string, callback: (...args: unknown[]) => void) {
   useEffect(() => {
     ipc.on(channel, callback);
 

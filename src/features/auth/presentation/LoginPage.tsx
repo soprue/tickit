@@ -1,69 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@src/features/auth/domain/AuthStore';
-import { useToastStore } from '@src/shared/domain/ToastStore';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { Button } from '@src/shared/presentation/components/ui/Button';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 import { Card } from '@src/shared/presentation/components/ui/Card';
-import { useAuthControllerLogin } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import logoIcon from '@assets/logo.webp';
-import { ROUTES } from '@src/shared/constants';
+import { useLoginUI } from './hooks/useLoginUI';
 
-function LoginPage() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
-  const { isLoggedIn, setAuth, clearAuth } = useAuthStore();
-  const { showToast } = useToastStore();
-
-  const loginMutation = useAuthControllerLogin();
-
-  // 이미 로그인된 사용자는 메인 페이지로 리다이렉트
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate(ROUTES.HOME, { replace: true });
-    }
-  }, [isLoggedIn, navigate]);
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setErrorMsg('이메일과 비밀번호를 입력해 주세요.');
-      return;
-    }
-
-    setErrorMsg('');
-
-    loginMutation.mutate(
-      { data: { email, password } },
-      {
-        onSuccess: async (response) => {
-          // Orval/Axios를 거쳐온 데이터 처리
-          const data = (response as any).data || response;
-          const { access_token, user: userData } = data;
-
-          if (access_token && userData) {
-            setAuth(userData, access_token);
-            showToast('로그인에 성공했습니다.', 'success');
-            navigate(ROUTES.HOME);
-            return;
-          }
-
-          setErrorMsg('로그인 응답 형식이 올바르지 않습니다.');
-        },
-        onError: (error) => {
-          console.error('[Login] API Error:', error);
-          setErrorMsg('이메일 또는 비밀번호가 일치하지 않습니다.');
-        },
-      }
-    );
-  };
-
-  const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
-  };
+/**
+ * 로그인 페이지 컴포넌트
+ * UI 렌더링에만 집중하며, 로직은 useLoginUI 훅에서 관리합니다.
+ */
+export default function LoginPage() {
+  const ui = useLoginUI();
 
   return (
     <div className="bg-bg p-lg box-border flex h-full items-center justify-center select-none">
@@ -93,23 +40,23 @@ function LoginPage() {
               <Input
                 type="text"
                 placeholder="이메일"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={errorMsg.includes('이메일') || (errorMsg && !email)}
+                value={ui.email}
+                onChange={(e) => ui.setEmail(e.target.value)}
+                error={ui.errorMsg.includes('이메일') || (ui.errorMsg && !ui.email)}
               />
               <Input
                 type="password"
                 placeholder="비밀번호"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                error={errorMsg.includes('비밀번호') || (errorMsg && !password)}
+                value={ui.password}
+                onChange={(e) => ui.setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && ui.handleLogin()}
+                error={ui.errorMsg.includes('비밀번호') || (ui.errorMsg && !ui.password)}
               />
             </div>
 
-            {errorMsg && (
+            {ui.errorMsg && (
               <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3 text-center">
-                <p className="text-red-500 text-[12px] font-medium leading-relaxed">{errorMsg}</p>
+                <p className="text-red-500 text-[12px] font-medium leading-relaxed">{ui.errorMsg}</p>
               </div>
             )}
 
@@ -118,8 +65,8 @@ function LoginPage() {
                 variant="primary"
                 size="lg"
                 className="w-full shadow-lg"
-                onClick={handleLogin}
-                isLoading={loginMutation.isPending}
+                onClick={ui.handleLogin}
+                isLoading={ui.isLoading}
               >
                 로그인
               </Button>
@@ -129,11 +76,10 @@ function LoginPage() {
               또는
             </div>
 
-
             <Button
               variant="secondary"
               className="flex w-full items-center justify-center gap-3 border border-[#dadce0] bg-white font-medium shadow-none transition-all hover:border-[#d2d4d7] hover:bg-[#f8f9fa] dark:border-[#444746] dark:bg-[#1f1f1f] dark:hover:border-[#5f6368] dark:hover:bg-[#2a2a2a]"
-              onClick={handleGoogleLogin}
+              onClick={ui.handleGoogleLogin}
             >
               <Icon name="google" size={18} />
               <span className="text-text-primary text-[14px] tracking-tight">
@@ -149,7 +95,7 @@ function LoginPage() {
             계정이 없으신가요?{' '}
             <button
               className="text-primary cursor-pointer border-none bg-none font-bold hover:underline"
-              onClick={() => navigate(ROUTES.REGISTER)}
+              onClick={ui.goToRegister}
             >
               회원가입
             </button>
@@ -159,5 +105,3 @@ function LoginPage() {
     </div>
   );
 }
-
-export default LoginPage;

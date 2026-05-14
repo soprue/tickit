@@ -1,7 +1,7 @@
 import { Notification, powerMonitor } from 'electron';
 import { STORAGE_KEYS } from '../shared/constants';
 import { mainStorage } from '../infrastructure/MainStorage';
-import { notificationLogic } from './NotificationLogic';
+import { notificationLogic, type NotificationPersistedState } from './NotificationLogic';
 
 /**
  * 메인 프로세스 전용 알림 서비스 (SRP: 알림 발송 및 생명주기 관리)
@@ -27,7 +27,7 @@ export class NotificationService {
    */
   private async check() {
     try {
-      const state = await mainStorage.read(STORAGE_KEYS.REMINDER);
+      const state = await mainStorage.read<NotificationPersistedState>(STORAGE_KEYS.REMINDER);
       if (!state) {
         this.scheduleNext();
         return;

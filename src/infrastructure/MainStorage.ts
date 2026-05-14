@@ -25,12 +25,12 @@ export class MainStorage {
   /**
    * 데이터 읽기
    */
-  async read(key: string): Promise<any | null> {
+  async read<T>(key: string): Promise<T | null> {
     const filePath = this.getFilePath(key);
     try {
       if (fs.existsSync(filePath)) {
         const content = await fs.promises.readFile(filePath, 'utf-8');
-        return JSON.parse(content);
+        return JSON.parse(content) as T;
       }
       return null;
     } catch (err) {
@@ -42,7 +42,7 @@ export class MainStorage {
   /**
    * 데이터 쓰기
    */
-  async write(key: string, data: any): Promise<void> {
+  async write<T>(key: string, data: T): Promise<void> {
     const filePath = this.getFilePath(key);
     try {
       await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));

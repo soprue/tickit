@@ -7,7 +7,7 @@ import { axiosInstance } from './axiosInstance';
  */
 export function customInstance<T>(
   url: string,
-  config: AxiosRequestConfig & { body?: any } // fetch 방식의 body 대응
+  config: AxiosRequestConfig & { body?: unknown } // fetch 방식의 body 대응
 ): Promise<T> {
   const source = axios.CancelToken.source();
 

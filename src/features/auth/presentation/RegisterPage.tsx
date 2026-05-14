@@ -1,80 +1,15 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useToastStore } from '@src/shared/domain/ToastStore';
 import { Button } from '@src/shared/presentation/components/ui/Button';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 import { Card } from '@src/shared/presentation/components/ui/Card';
-import { useAuthControllerRegister } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import logoIcon from '@assets/logo.webp';
-import { ROUTES } from '@src/shared/constants';
+import { useRegisterUI } from './hooks/useRegisterUI';
 
-function RegisterPage() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
-  const { showToast } = useToastStore();
-
-  const registerMutation = useAuthControllerRegister();
-
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  const validatePassword = (password: string) => {
-    // 영문, 숫자, 특수문자 포함 최소 8자 (RegisterDto 패턴 참고)
-    const pattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-    return pattern.test(password);
-  };
-
-  const handleRegister = async () => {
-    if (!email || !password || !confirmPassword) {
-      setErrorMsg('모든 필드를 입력해 주세요.');
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setErrorMsg('유효한 이메일 형식이 아닙니다.');
-      return;
-    }
-
-    if (!validatePassword(password)) {
-      setErrorMsg('비밀번호는 영문, 숫자, 특수문자를 포함하여 8자 이상이어야 합니다.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setErrorMsg('비밀번호가 일치하지 않습니다.');
-      return;
-    }
-
-    setErrorMsg('');
-
-    registerMutation.mutate(
-      { data: { email, password } },
-      {
-        onSuccess: () => {
-          showToast('회원가입에 성공했습니다. 로그인 해 주세요.', 'success');
-          navigate(ROUTES.LOGIN);
-        },
-        onError: (error: any) => {
-          console.error('[Register] API Error:', error);
-          // 409 Conflict 등 에러 처리
-          if (error.status === 409) {
-            setErrorMsg('이미 존재하는 이메일입니다.');
-          } else {
-            setErrorMsg('회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.');
-          }
-        },
-      }
-    );
-  };
-
-  const handleGoLogin = () => {
-    navigate(ROUTES.LOGIN);
-  };
+/**
+ * 회원가입 페이지 컴포넌트
+ * UI 렌더링에만 집중하며, 로직은 useRegisterUI 훅에서 관리합니다.
+ */
+export default function RegisterPage() {
+  const ui = useRegisterUI();
 
   return (
     <div className="bg-bg p-lg box-border flex h-full items-center justify-center select-none">
@@ -103,33 +38,33 @@ function RegisterPage() {
             <Input
               type="text"
               placeholder="이메일 주소"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={errorMsg.includes('이메일')}
+              value={ui.email}
+              onChange={(e) => ui.setEmail(e.target.value)}
+              error={ui.errorMsg.includes('이메일')}
               autoFocus
             />
             <Input
               type="password"
               placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={errorMsg.includes('비밀번호') && !errorMsg.includes('일치')}
+              value={ui.password}
+              onChange={(e) => ui.setPassword(e.target.value)}
+              error={ui.errorMsg.includes('비밀번호') && !ui.errorMsg.includes('일치')}
               helperText="영문, 숫자, 특수문자 포함 8자 이상"
             />
             <Input
               type="password"
               placeholder="비밀번호 확인"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
-              error={errorMsg.includes('일치')}
+              value={ui.confirmPassword}
+              onChange={(e) => ui.setConfirmPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && ui.handleRegister()}
+              error={ui.errorMsg.includes('일치')}
             />
           </div>
 
-          {errorMsg && (
+          {ui.errorMsg && (
             <div className="rounded-lg bg-red-50 p-3 dark:bg-red-500/10">
               <p className="text-center text-[12px] leading-relaxed font-medium text-red-500">
-                {errorMsg}
+                {ui.errorMsg}
               </p>
             </div>
           )}
@@ -138,8 +73,8 @@ function RegisterPage() {
             variant="primary"
             size="lg"
             className="w-full shadow-lg"
-            onClick={handleRegister}
-            isLoading={registerMutation.isPending}
+            onClick={ui.handleRegister}
+            isLoading={ui.isLoading}
           >
             시작하기
           </Button>
@@ -151,7 +86,7 @@ function RegisterPage() {
             이미 계정이 있으신가요?{' '}
             <button
               className="text-primary cursor-pointer border-none bg-none font-bold hover:underline"
-              onClick={handleGoLogin}
+              onClick={ui.handleGoLogin}
             >
               로그인
             </button>
@@ -161,5 +96,3 @@ function RegisterPage() {
     </div>
   );
 }
-
-export default RegisterPage;
