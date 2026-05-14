@@ -122,6 +122,12 @@ export const useReminderStore = create<ReminderState>()(
           set((state) => {
             state.lastNightCheckDate = date;
           }),
+
+        reset: () =>
+          set((state) => {
+            state.sections = initialSections;
+            state.lastNightCheckDate = null;
+          }),
       },
     })),
     {
