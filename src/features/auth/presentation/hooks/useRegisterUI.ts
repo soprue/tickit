@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToastStore } from '@src/shared/domain/ToastStore';
 import { useAuthControllerRegister } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import { ROUTES } from '@src/shared/constants';
+import { isApiError } from '@src/shared/utils/error';
 
 /**
  * 회원가입 페이지의 상태와 비즈니스 로직을 관리하는 Facade Hook
@@ -56,8 +57,8 @@ export function useRegisterUI() {
           showToast('회원가입에 성공했습니다. 로그인 해 주세요.', 'success');
           navigate(ROUTES.LOGIN);
         },
-        onError: (error: unknown) => {
-          if (error && typeof error === 'object' && 'status' in error && error.status === 409) {
+        onError: (error) => {
+          if (isApiError(error) && error.status === 409) {
             setErrorMsg('이미 존재하는 이메일입니다.');
           } else {
             setErrorMsg('회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.');
