@@ -1,4 +1,5 @@
 import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
+import type { UserEntity } from '@features/auth/infrastructure/api/model';
 
 /**
  * IPC 채널별 요청(Payload) 및 응답(Result) 타입을 정의하는 계약 파일
@@ -16,5 +17,10 @@ export interface IpcInvokeMap {
       data: { state: { sections: ReminderSectionData[] } };
     };
     returns: void;
+  };
+  /** 구글 로그인 실행 및 결과 반환 */
+  'auth:google': {
+    args: void;
+    returns: { access_token: string; user: UserEntity } | null;
   };
 }

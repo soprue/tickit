@@ -11,6 +11,7 @@ export const IPC_CHANNELS = {
   GET_ALL: 'reminder:get-all',
   SAVE: 'reminder:save',
   NOTIFY: 'reminder:notify',
+  AUTH_GOOGLE: 'auth:google',
 } as const;
 
 export const ROUTES = {

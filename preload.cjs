@@ -7,13 +7,14 @@ const IPC_CHANNELS = {
   GET_ALL: 'reminder:get-all',
   SAVE: 'reminder:save',
   NOTIFY: 'reminder:notify',
+  AUTH_GOOGLE: 'auth:google',
 };
 
 contextBridge.exposeInMainWorld('api', {
   // 메인 프로세스에 데이터를 보내고 결과를 기다리는 (invoke) 래퍼
   invoke: (channel, data) => {
     // 허용된 채널 목록 (보안 검사)
-    const validChannels = [IPC_CHANNELS.GET_ALL, IPC_CHANNELS.SAVE];
+    const validChannels = [IPC_CHANNELS.GET_ALL, IPC_CHANNELS.SAVE, IPC_CHANNELS.AUTH_GOOGLE];
     if (validChannels.includes(channel)) {
       return ipcRenderer.invoke(channel, data);
     }

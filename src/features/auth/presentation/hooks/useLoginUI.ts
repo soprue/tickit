@@ -4,7 +4,8 @@ import { useAuthStore } from '@src/features/auth/domain/AuthStore';
 import { useToastStore } from '@src/shared/domain/ToastStore';
 import { useAuthControllerLogin } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
 import type { UserEntity } from '@features/auth/infrastructure/api/model';
-import { ROUTES } from '@src/shared/constants';
+import { ROUTES, IPC_CHANNELS } from '@src/shared/constants';
+import { ipc } from '@src/shared/utils/ipc';
 
 interface LoginResponse {
   access_token: string;
@@ -64,8 +65,19 @@ export function useLoginUI() {
     );
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await ipc.invoke(IPC_CHANNELS.AUTH_GOOGLE);
+
+      if (result?.access_token && result?.user) {
+        setAuth(result.user, result.access_token);
+        showToast('구글 로그인에 성공했습니다.', 'success');
+        navigate(ROUTES.HOME);
+      }
+    } catch (error) {
+      console.error('Google login failed:', error);
+      setErrorMsg('구글 로그인에 실패했습니다.');
+    }
   };
 
   const goToRegister = () => {

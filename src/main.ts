@@ -33,6 +33,90 @@ ipcMain.handle(IPC_CHANNELS.GET_ALL, async (_event, key) => {
   return await mainStorage.read(key);
 });
 
+/**
+ * IPC 핸들러: 구글 로그인
+ */
+ipcMain.handle(IPC_CHANNELS.AUTH_GOOGLE, async (event) => {
+  const parentWindow = BrowserWindow.fromWebContents(event.sender);
+  const apiUrl = process.env.VITE_API_URL || 'http://localhost:3000';
+  
+  const authWindow = new BrowserWindow({
+    width: 500,
+    height: 600,
+    parent: parentWindow || undefined,
+    modal: true,
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  authWindow.loadURL(`${apiUrl}/api/auth/google`);
+  authWindow.once('ready-to-show', () => authWindow.show());
+
+  return new Promise((resolve) => {
+    // 공통 파싱 로직
+    const extractAndResolve = (data: any) => {
+      // 서버 응답 구조: { success: true, data: { access_token, user, ... } }
+      // 또는 { access_token, user } 형태 모두 대응
+      const token = data.access_token || data.data?.access_token;
+      const user = data.user || data.data?.user;
+
+      if (token && user) {
+        resolve({ access_token: token, user });
+        authWindow.destroy();
+        return true;
+      }
+      return false;
+    };
+
+    const handleContentCheck = async () => {
+      try {
+        // 화면의 텍스트를 읽어 JSON으로 파싱 시도
+        const content = await authWindow.webContents.executeJavaScript('document.body.innerText');
+        const data = JSON.parse(content);
+        extractAndResolve(data);
+      } catch (e) {
+        // JSON 형식이 아니면 아직 로그인 진행 중이거나 다른 페이지임
+      }
+    };
+
+    const handleUrlCheck = (url: string) => {
+      if (url.includes('access_token=')) {
+        try {
+          const parsedUrl = new URL(url);
+          const params = new URLSearchParams(parsedUrl.search || parsedUrl.hash.substring(1));
+          const accessToken = params.get('access_token');
+          const userDataStr = params.get('user');
+          
+          if (accessToken && userDataStr) {
+            const user = JSON.parse(decodeURIComponent(userDataStr));
+            resolve({ access_token: accessToken, user });
+            authWindow.destroy();
+          }
+        } catch (e) {
+          console.error('Failed to parse URL auth data:', e);
+        }
+      }
+    };
+
+    // 1. URL 변경 감시 (리다이렉트 방식 대응)
+    authWindow.webContents.on('will-navigate', (_e, url) => handleUrlCheck(url));
+    authWindow.webContents.on('did-get-redirect-request', (_e, _oldUrl, newUrl) => handleUrlCheck(newUrl));
+
+    // 2. 페이지 로딩 완료 감시 (JSON 텍스트 출력 방식 대응)
+    authWindow.webContents.on('did-finish-load', () => {
+      const url = authWindow.webContents.getURL();
+      handleUrlCheck(url);
+      handleContentCheck();
+    });
+
+    // 창이 닫히면 취소된 것으로 간주
+    authWindow.on('closed', () => resolve(null));
+  });
+});
+
 
 /**
  * 브라우저 창 생성 및 초기화
