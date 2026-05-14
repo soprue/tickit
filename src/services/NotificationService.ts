@@ -1,7 +1,7 @@
 import { Notification, powerMonitor } from 'electron';
 import { STORAGE_KEYS } from '../shared/constants';
 import { mainStorage } from '../infrastructure/MainStorage';
-import { notificationLogic, type NotificationPersistedState } from './NotificationLogic';
+import { calculateNotifications, type NotificationPersistedState } from './NotificationLogic';
 
 /**
  * 메인 프로세스 전용 알림 서비스 (SRP: 알림 발송 및 생명주기 관리)
@@ -33,7 +33,7 @@ export class NotificationService {
         return;
       }
 
-      const { hasChanges, notifications, updatedState } = notificationLogic.calculateNotifications(
+      const { hasChanges, notifications, updatedState } = calculateNotifications(
         state,
         new Date()
       );
