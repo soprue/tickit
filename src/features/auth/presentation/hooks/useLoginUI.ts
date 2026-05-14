@@ -20,8 +20,9 @@ export function useLoginUI() {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const { isLoggedIn, setAuth } = useAuthStore();
-  const { showToast } = useToastStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const { setAuth } = useAuthStore((state) => state.actions);
+  const { showToast } = useToastStore((state) => state.actions);
 
   const loginMutation = useAuthControllerLogin();
 

@@ -14,7 +14,7 @@ export function useRegisterUI() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const { showToast } = useToastStore();
+  const { showToast } = useToastStore((state) => state.actions);
   const registerMutation = useAuthControllerRegister();
 
   const validateEmail = (val: string) => {

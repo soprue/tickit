@@ -69,7 +69,10 @@ function StatusToast() {
  * StatusToast의 가볍고 심플한 느낌을 그대로 가져와 일관성 유지
  */
 function NotificationToast() {
-  const { isOpen, message, type, hideToast } = useToastStore();
+  const isOpen = useToastStore((state) => state.isOpen);
+  const message = useToastStore((state) => state.message);
+  const type = useToastStore((state) => state.type);
+  const { hideToast } = useToastStore((state) => state.actions);
   const [show, setShow] = useState(false);
 
   useEffect(() => {

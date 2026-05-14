@@ -17,7 +17,8 @@ export default function ReminderPage() {
   useReminderShortcuts({ addSection: ui.addSection });
 
   // 3. 글로벌 설정
-  const { isDarkMode, toggleDarkMode } = useThemeStore();
+  const isDarkMode = useThemeStore((state) => state.isDarkMode);
+  const { toggleDarkMode } = useThemeStore((state) => state.actions);
 
   const containerRef = useRef<HTMLDivElement>(null);
 

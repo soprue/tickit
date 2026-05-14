@@ -10,8 +10,8 @@ import { ROUTES } from '@src/shared/constants';
 export const useAuthActions = () => {
   const navigate = useNavigate();
   const logoutMutation = useAuthControllerLogout();
-  const { clearAuth } = useAuthStore();
-  const { showToast } = useToastStore();
+  const { clearAuth } = useAuthStore((state) => state.actions);
+  const { showToast } = useToastStore((state) => state.actions);
 
   const logout = async () => {
     try {

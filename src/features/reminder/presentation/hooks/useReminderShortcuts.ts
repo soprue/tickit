@@ -10,8 +10,10 @@ interface ReminderShortcutsProps {
  * 리마인더 페이지에서 사용하는 전역 단축키를 관리하는 훅
  */
 export function useReminderShortcuts({ addSection }: ReminderShortcutsProps) {
-  const { hideToast, isOpen: isToastOpen } = useToastStore();
-  const { closeModal, isOpen: isModalOpen } = useModalStore();
+  const { hideToast } = useToastStore((state) => state.actions);
+  const isToastOpen = useToastStore((state) => state.isOpen);
+  const isModalOpen = useModalStore((state) => state.isOpen);
+  const { closeModal } = useModalStore((state) => state.actions);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

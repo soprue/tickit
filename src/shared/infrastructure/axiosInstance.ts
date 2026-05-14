@@ -28,7 +28,7 @@ axiosInstance.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/refresh')) {
-        useAuthStore.getState().clearAuth();
+        useAuthStore.getState().actions.clearAuth();
         return Promise.reject(error);
       }
 
@@ -38,21 +38,21 @@ axiosInstance.interceptors.response.use(
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/refresh`, {}, { withCredentials: true });
         const { accessToken } = response.data as { accessToken: string };
 
-        useAuthStore.getState().setAccessToken(accessToken);
+        useAuthStore.getState().actions.setAccessToken(accessToken);
 
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         }
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        useAuthStore.getState().clearAuth();
+        useAuthStore.getState().actions.clearAuth();
 
         // 로그아웃 요청 중에 발생한 에러라면 모달을 띄우지 않음
         if (originalRequest.url?.includes('/api/auth/logout')) {
           return Promise.reject(refreshError);
         }
 
-        useModalStore.getState().showConfirm({
+        useModalStore.getState().actions.showConfirm({
           title: '세션 만료',
           message: '세션이 만료되었습니다. 다시 로그인해 주세요.',
           onConfirm: () => {

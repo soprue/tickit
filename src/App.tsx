@@ -15,7 +15,7 @@ import { ROUTES } from './shared/constants';
  * 로그인 여부를 확인하여 비로그인 사용자를 로그인 페이지로 리다이렉트하는 컴포넌트
  */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isLoggedIn } = useAuthStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   
   if (!isLoggedIn) {
     return <Navigate to={ROUTES.LOGIN} replace />;
@@ -28,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
  * 로그인한 사용자가 로그인/회원가입 페이지에 접근하는 것을 방지하는 컴포넌트
  */
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isLoggedIn } = useAuthStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   if (isLoggedIn) {
     return <Navigate to={ROUTES.HOME} replace />;
@@ -38,7 +38,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { isDarkMode } = useThemeStore();
+  const isDarkMode = useThemeStore((state) => state.isDarkMode);
 
   // 다크모드 상태 동기화
   useEffect(() => {

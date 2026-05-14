@@ -5,19 +5,19 @@ import { themeStorage } from '../infrastructure/themeStorage';
 
 interface ThemeState {
   isDarkMode: boolean;
-  toggleDarkMode: () => void;
+  actions: {
+    toggleDarkMode: () => void;
+  };
 }
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
       isDarkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
-      toggleDarkMode: () =>
-        set((state) => {
-          const next = !state.isDarkMode;
-          return { isDarkMode: next };
-        }),
-
+      actions: {
+        toggleDarkMode: () =>
+          set((state) => ({ isDarkMode: !state.isDarkMode })),
+      },
     }),
     {
       name: STORAGE_KEYS.THEME,
@@ -32,5 +32,5 @@ export const useThemeStore = create<ThemeState>()(
 export const themeStore = {
   getState: () => useThemeStore.getState(),
   subscribe: (listener: (state: ThemeState) => void) => useThemeStore.subscribe(listener),
-  toggleDarkMode: () => useThemeStore.getState().toggleDarkMode(),
+  toggleDarkMode: () => useThemeStore.getState().actions.toggleDarkMode(),
 };

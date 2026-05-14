@@ -10,11 +10,12 @@ import { useActionContext } from '@src/shared/context/ActionContext';
  * 리마인더 도메인 로직과 UI 상태 필터링을 연결합니다.
  */
 export function useReminderUI() {
-  const { showConfirm } = useModalStore();
+  const { showConfirm } = useModalStore((state) => state.actions);
   const { runAction } = useActionContext(); // 전역 액션 실행 도구
 
+  // 상태와 액션을 분리해서 구독 (렌더링 최적화)
+  const sections = useReminderStore((state) => state.sections);
   const {
-    sections,
     addSection: _addSection,
     updateSectionTitle: _updateSectionTitle,
     deleteSection: _deleteSection,
@@ -22,7 +23,7 @@ export function useReminderUI() {
     deleteReminder: _deleteReminder,
     updateReminder: _updateReminder,
     addReminder: _addReminder,
-  } = useReminderStore();
+  } = useReminderStore((state) => state.actions);
 
   const edit = useEditState();
 

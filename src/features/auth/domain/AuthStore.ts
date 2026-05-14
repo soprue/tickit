@@ -3,14 +3,19 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { STORAGE_KEYS } from '@src/shared/constants';
 import { UserEntity } from '../infrastructure/api/model';
 
-interface AuthState {
+interface AuthData {
   isLoggedIn: boolean;
   user: UserEntity | null;
   accessToken: string | null;
+}
+
+interface AuthActions {
   setAuth: (user: UserEntity, accessToken: string) => void;
   setAccessToken: (accessToken: string) => void;
   clearAuth: () => void;
 }
+
+type AuthState = AuthData & { actions: AuthActions };
 
 /**
  * 인증 상태 관리 스토어
@@ -22,10 +27,13 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       user: null,
       accessToken: null,
-      setAuth: (user: UserEntity, accessToken: string) =>
-        set({ isLoggedIn: true, user, accessToken }),
-      setAccessToken: (accessToken: string) => set({ accessToken }),
-      clearAuth: () => set({ isLoggedIn: false, user: null, accessToken: null }),
+
+      actions: {
+        setAuth: (user: UserEntity, accessToken: string) =>
+          set({ isLoggedIn: true, user, accessToken }),
+        setAccessToken: (accessToken: string) => set({ accessToken }),
+        clearAuth: () => set({ isLoggedIn: false, user: null, accessToken: null }),
+      },
     }),
     {
       name: STORAGE_KEYS.AUTH,
@@ -43,7 +51,9 @@ export const useAuthStore = create<AuthState>()(
 export const authStore = {
   getState: () => useAuthStore.getState(),
   subscribe: (listener: (state: AuthState) => void) => useAuthStore.subscribe(listener),
-  setAuth: (user: UserEntity, accessToken: string) => useAuthStore.getState().setAuth(user, accessToken),
-  setAccessToken: (accessToken: string) => useAuthStore.getState().setAccessToken(accessToken),
-  logout: () => useAuthStore.getState().clearAuth(),
+  setAuth: (user: UserEntity, accessToken: string) =>
+    useAuthStore.getState().actions.setAuth(user, accessToken),
+  setAccessToken: (accessToken: string) =>
+    useAuthStore.getState().actions.setAccessToken(accessToken),
+  logout: () => useAuthStore.getState().actions.clearAuth(),
 };
