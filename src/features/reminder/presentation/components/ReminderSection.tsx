@@ -1,22 +1,20 @@
 import React from 'react';
 import { ReminderItem } from './ReminderItem';
 import { Reminder } from '../../domain/reminder';
-import { Category } from '@src/shared/constants';
 import { SectionHeader } from './SectionHeader';
 import { SectionFooter } from './SectionFooter';
 
 interface ReminderSectionProps {
   title: string;
   category: string;
+  isFixed: boolean;
   items: Reminder[];
 }
 
 /**
  * 카테고리별 섹션 카드 컴포넌트
  */
-export function ReminderSection({ title, category, items }: ReminderSectionProps) {
-  const isFixed = category === Category.EVERYDAY || category === Category.TODO;
-
+export function ReminderSection({ title, category, isFixed, items }: ReminderSectionProps) {
   return (
     <section className="p-lg mb-md duration-normal gap-md box-border flex w-full min-w-[303px] flex-col rounded-lg bg-white shadow-sm transition-colors dark:bg-[#151515]">
       <SectionHeader title={title} category={category} isFixed={isFixed} />

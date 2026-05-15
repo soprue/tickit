@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useThemeStore } from '@src/shared/domain/ThemeStore';
 import { Sidebar } from '@src/shared/presentation/Sidebar';
 import { ReminderSection } from './components/ReminderSection';
+import { ReminderSkeleton } from './components/ReminderSkeleton';
 import { ReminderSearchBar } from './components/ReminderSearchBar';
 import { AddSectionButton } from './components/AddSectionButton';
 import { useReminderUI } from './hooks/useReminderUI';
@@ -36,7 +37,9 @@ export default function ReminderPage() {
         />
 
         <div className="gap-md flex flex-col">
-          {ui.searchQuery.trim() && !ui.hasAnyMatches && !ui.isEditingAny ? (
+          {ui.isLoading ? (
+            <ReminderSkeleton />
+          ) : ui.searchQuery.trim() && !ui.hasAnyMatches && !ui.isEditingAny ? (
             <div className="py-2xl flex flex-col items-center justify-center opacity-50">
               <p className="text-text-primary text-[15px] font-medium">
                 해당하는 리마인더가 없습니다.
@@ -48,6 +51,7 @@ export default function ReminderPage() {
                 key={section.id}
                 title={section.title}
                 category={section.id}
+                isFixed={section.isFixed}
                 items={section.items}
               />
             ))
