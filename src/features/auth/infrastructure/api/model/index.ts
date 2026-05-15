@@ -6,6 +6,13 @@
  * OpenAPI spec version: 1.0
  */
 
+export * from './createReminderDto';
+export * from './createSectionDto';
 export * from './loginDto';
 export * from './registerDto';
+export * from './reminderEntity';
+export * from './remindersControllerFindAllParams';
+export * from './sectionEntity';
+export * from './updateReminderDto';
+export * from './updateSectionDto';
 export * from './userEntity';
