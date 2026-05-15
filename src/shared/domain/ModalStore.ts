@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 
-interface ModalState {
+interface ModalData {
   isOpen: boolean;
   title: string;
   message: string;
   onConfirm: (() => void) | null;
   onCancel: (() => void) | null;
+}
 
-  // Actions
+interface ModalActions {
   showConfirm: (params: {
     title: string;
     message: string;
@@ -17,6 +18,8 @@ interface ModalState {
   closeModal: () => void;
 }
 
+type ModalState = ModalData & { actions: ModalActions };
+
 export const useModalStore = create<ModalState>((set) => ({
   isOpen: false,
   title: '',
@@ -24,21 +27,23 @@ export const useModalStore = create<ModalState>((set) => ({
   onConfirm: null,
   onCancel: null,
 
-  showConfirm: ({ title, message, onConfirm, onCancel }) =>
-    set({
-      isOpen: true,
-      title,
-      message,
-      onConfirm,
-      onCancel: onCancel || null,
-    }),
+  actions: {
+    showConfirm: ({ title, message, onConfirm, onCancel }) =>
+      set({
+        isOpen: true,
+        title,
+        message,
+        onConfirm,
+        onCancel: onCancel || null,
+      }),
 
-  closeModal: () =>
-    set({
-      isOpen: false,
-      title: '',
-      message: '',
-      onConfirm: null,
-      onCancel: null,
-    }),
+    closeModal: () =>
+      set({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        onCancel: null,
+      }),
+  },
 }));

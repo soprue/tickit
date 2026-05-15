@@ -1,92 +1,98 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@src/features/auth/domain/AuthStore';
-import { Icon } from '@src/shared/presentation/components/Icon';
 import { Button } from '@src/shared/presentation/components/ui/Button';
 import { Input } from '@src/shared/presentation/components/ui/Input';
 import { Card } from '@src/shared/presentation/components/ui/Card';
+import { SocialButton } from '@src/shared/presentation/components/ui/SocialButton';
 import logoIcon from '@assets/logo.webp';
+import { useLoginUI } from './hooks/useLoginUI';
 
-function LoginPage() {
-  const navigate = useNavigate();
-
-  const { isLoggedIn, user, login, logout } = useAuthStore();
-
-  const handleLogin = () => {
-    login('사용자', 'user@example.com');
-    navigate('/');
-  };
-
-  const handleGoogleLogin = () => {
-    // 구글 로그인 연동 시 구현 예정
-  };
-
-  const handleLogout = () => {
-    logout();
-  };
-
-  const handleGoMain = () => {
-    navigate('/');
-  };
+/**
+ * 로그인 페이지 컴포넌트
+ * UI 렌더링에만 집중하며, 로직은 useLoginUI 훅에서 관리합니다.
+ */
+export default function LoginPage() {
+  const ui = useLoginUI();
 
   return (
     <div className="bg-bg p-lg box-border flex h-full items-center justify-center select-none">
-      <Card className="py-2xl! flex min-h-[500px] w-full max-w-[320px] flex-col items-center justify-center text-center">
-        <img
-          src={logoIcon}
-          alt="logo"
-          className="mb-sm h-[60px] w-[60px] rounded-lg object-contain shadow-sm"
-        />
-        <h1 className="mb-xl text-text-primary m-0 text-[30px] leading-none font-black tracking-tighter">
-          Tickit
-        </h1>
-
-        {isLoggedIn ? (
-          <div className="animate-in fade-in zoom-in flex w-full flex-col gap-3 duration-300">
-            <p className="text-gray-medium py-md text-sm">
-              <strong className="text-text-primary font-bold">{user?.name}</strong>
-              님, 환영합니다! 🎉
-            </p>
-            <Button variant="primary" size="lg" className="w-full" onClick={handleLogout}>
-              로그아웃
-            </Button>
+      <Card
+        padded={false}
+        className="animate-in fade-in zoom-in-95 flex w-full max-w-[360px] flex-col duration-500"
+      >
+        {/* Header Section */}
+        <div className="px-xl pt-2xl pb-lg flex flex-col items-center text-center">
+          <div className="flex items-center gap-2">
+            <img
+              src={logoIcon}
+              alt="logo"
+              className="h-[32px] w-[32px] rounded-lg object-contain"
+            />
+            <h1 className="text-text-primary m-0 text-[24px] font-black tracking-tighter">
+              Tickit
+            </h1>
           </div>
-        ) : (
-          <div className="animate-in fade-in slide-in-from-bottom-4 flex w-full flex-col gap-3 duration-500">
-            <div className="flex w-full flex-col gap-2">
-              <Input type="text" placeholder="아이디" />
-              <Input type="password" placeholder="비밀번호" />
+          <p className="text-gray-medium mt-2 text-[14px]">반가워요! 다시 만나서 기뻐요</p>
+        </div>
+
+        {/* Content Section */}
+        <div className="px-xl pb-xl flex flex-col gap-5">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-3">
+              <Input
+                type="text"
+                placeholder="이메일"
+                value={ui.email}
+                onChange={(e) => ui.setEmail(e.target.value)}
+                error={ui.errorMsg.includes('이메일') || (ui.errorMsg && !ui.email)}
+              />
+              <Input
+                type="password"
+                placeholder="비밀번호"
+                value={ui.password}
+                onChange={(e) => ui.setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && ui.handleLogin()}
+                error={ui.errorMsg.includes('비밀번호') || (ui.errorMsg && !ui.password)}
+              />
             </div>
 
-            <Button variant="primary" size="lg" className="w-full" onClick={handleLogin}>
-              로그인
-            </Button>
+            {ui.errorMsg && (
+              <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3 text-center">
+                <p className="text-red-500 text-[12px] font-medium leading-relaxed">{ui.errorMsg}</p>
+              </div>
+            )}
 
-            <div className="text-gray-medium/40 before:border-gray-light/20 after:border-gray-light/20 my-6 flex items-center gap-3 text-[11px] font-bold tracking-wider uppercase before:flex-1 before:border-b before:content-[''] after:flex-1 after:border-b after:content-['']">
-              OR
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="primary"
+                size="lg"
+                className="w-full shadow-lg"
+                onClick={ui.handleLogin}
+                isLoading={ui.isLoading}
+              >
+                로그인
+              </Button>
             </div>
 
-            <Button
-              variant="secondary"
-              className="flex w-full items-center justify-center gap-3 border border-[#dadce0] bg-white font-medium shadow-none transition-all hover:border-[#d2d4d7] hover:bg-[#f8f9fa] dark:border-[#444746] dark:bg-[#1f1f1f] dark:hover:border-[#5f6368] dark:hover:bg-[#2a2a2a]"
-              onClick={handleGoogleLogin}
+            <div className="text-text-muted before:border-border-alpha after:border-border-alpha my-2 flex items-center gap-3 text-[11px] font-bold tracking-wider uppercase before:flex-1 before:border-b before:content-[''] after:flex-1 after:border-b after:content-['']">
+              또는
+            </div>
+
+            <SocialButton provider="google" onClick={ui.handleGoogleLogin} />
+          </div>
+        </div>
+
+        {/* Footer Section */}
+        <div className="bg-gray-soft/50 px-xl py-lg flex flex-col items-center gap-3 text-center dark:bg-white/5">
+          <p className="text-gray-medium text-[13px]">
+            계정이 없으신가요?{' '}
+            <button
+              className="text-primary cursor-pointer border-none bg-none font-bold hover:underline"
+              onClick={ui.goToRegister}
             >
-              <Icon name="google" size={20} />
-              <span className="text-text-primary text-[14px] tracking-tight">
-                Google 계정으로 로그인
-              </span>
-            </Button>
-          </div>
-        )}
-
-        <button
-          className="mt-xl text-gray-medium/60 hover:text-text-primary cursor-pointer border-none bg-none text-[12px] underline-offset-4 transition-colors hover:underline"
-          onClick={handleGoMain}
-        >
-          메인 페이지로 돌아가기
-        </button>
+              회원가입
+            </button>
+          </p>
+        </div>
       </Card>
     </div>
   );
 }
-
-export default LoginPage;

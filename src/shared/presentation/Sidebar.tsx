@@ -12,7 +12,7 @@ interface SidebarProps {
  */
 export function Sidebar({ isDarkMode, onToggleTheme, onLogout }: SidebarProps) {
   return (
-    <aside className="duration-normal relative z-100 box-border flex h-full w-(--sidebar-width) shrink-0 flex-col justify-between border-r border-black/5 bg-white py-8 shadow-[2px_0_10px_rgba(0,0,0,0.03)] transition-colors dark:border-white/5 dark:bg-[#151515]">
+    <aside className="duration-normal border-border-alpha relative z-100 box-border flex h-full w-(--sidebar-width) shrink-0 flex-col justify-between border-r bg-white py-8 shadow-[2px_0_10px_rgba(0,0,0,0.03)] transition-colors dark:bg-[#151515]">
       <div className="flex flex-col items-center">
         <img
           src={logoIcon}
@@ -23,28 +23,40 @@ export function Sidebar({ isDarkMode, onToggleTheme, onLogout }: SidebarProps) {
 
       <div className="flex flex-col items-center gap-6">
         <button
-          className="bg-icon-bg duration-fast group flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all hover:opacity-80 active:scale-90 dark:hover:bg-white/10"
+          className="bg-icon-bg duration-fast hover:bg-surface-alpha group relative flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all active:scale-90"
           onClick={() => {
-            console.log('[Sidebar] Toggling theme, current isDarkMode:', isDarkMode);
             onToggleTheme();
           }}
           title="테마 변경"
         >
-          <Icon
-            name={isDarkMode ? 'sunlight' : 'halfmoon'}
-            size={20}
-            className="text-gray-medium dark:text-gray-medium transition-colors"
-          />
+
+          {/* Sunlight Icon (Light Mode) */}
+          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isDarkMode ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
+            <Icon
+              name="sunlight"
+              size={20}
+              className="text-gray-medium transition-colors"
+            />
+          </div>
+
+          {/* Halfmoon Icon (Dark Mode) */}
+          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isDarkMode ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
+            <Icon
+              name="halfmoon"
+              size={20}
+              className="text-gray-medium transition-colors"
+            />
+          </div>
         </button>
         <button
-          className="bg-icon-bg duration-fast group flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all hover:opacity-80 active:scale-90 dark:hover:bg-white/10"
+          className="bg-icon-bg duration-fast hover:bg-surface-alpha group flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-none transition-all active:scale-90"
           onClick={onLogout}
           title="로그아웃"
         >
           <Icon
             name="logout"
             size={20}
-            className="text-gray-medium dark:text-gray-medium transition-colors"
+            className="text-gray-medium transition-colors"
           />
         </button>
       </div>

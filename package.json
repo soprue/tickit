@@ -14,6 +14,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "dist": "npm run build && electron-builder",
     "generate:icon-types": "ts-node --esm scripts/generate-icon-types.ts"
   },
@@ -32,11 +33,29 @@
     "mac": {
       "category": "public.app-category.productivity",
       "target": "dmg",
-      "icon": "src/assets/logo.icns"
+      "icon": "src/assets/logo.icns",
+      "extendInfo": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "Tickit",
+            "CFBundleURLSchemes": [
+              "tickit"
+            ]
+          }
+        ]
+      }
     },
     "win": {
       "target": "nsis",
-      "icon": "src/assets/logo.ico"
+      "icon": "src/assets/logo.ico",
+      "protocols": [
+        {
+          "name": "tickit",
+          "schemes": [
+            "tickit"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -58,10 +77,12 @@
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "concurrently": "^9.2.1",
+    "dotenv": "^17.4.2",
     "electron": "^41.0.0",
     "electron-builder": "^25.1.8",
     "electron-reload": "^2.0.0-alpha.1",
     "esbuild": "^0.28.0",
+    "orval": "^8.9.1",
     "postcss": "^8.5.10",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.3",
@@ -70,10 +91,15 @@
     "typescript": "^5.9.3",
     "vite": "^8.0.8",
     "vite-plugin-electron": "^0.29.1",
-    "vite-plugin-svgr": "^5.2.0"
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^4.1.6"
   },
   "type": "module",
   "dependencies": {
+    "@tanstack/react-query": "^5.100.10",
+    "@tanstack/react-query-devtools": "^5.100.10",
+    "axios": "^1.16.0",
+    "immer": "^11.1.8",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.1",

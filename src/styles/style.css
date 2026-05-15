@@ -5,8 +5,15 @@
   --color-white: var(--color-white);
   --color-primary: var(--color-primary);
   --color-black: var(--color-black);
+  
+  /* Semantic Colors */
+  --color-surface-soft: var(--color-surface-soft);
+  --color-surface-alpha: var(--color-surface-alpha);
+  --color-border-alpha: var(--color-border-alpha);
+  
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
   --color-border-base: var(--color-border-base);
   --color-gray-dark: var(--color-gray-dark);
   --color-gray-medium: var(--color-gray-medium);
@@ -38,6 +45,7 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+  --shadow-focus: var(--shadow-focus);
   --shadow-sidebar: var(--shadow-sidebar);
 
   --transition-fast: var(--transition-fast);

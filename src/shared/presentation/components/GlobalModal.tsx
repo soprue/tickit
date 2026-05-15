@@ -7,7 +7,12 @@ import { Button } from './ui/Button';
  * useModalStore의 상태에 따라 브라우저 내장 confirm()을 대신하여 화면에 표시됩니다.
  */
 export function GlobalModal() {
-  const { isOpen, title, message, onConfirm, onCancel, closeModal } = useModalStore();
+  const isOpen = useModalStore((state) => state.isOpen);
+  const title = useModalStore((state) => state.title);
+  const message = useModalStore((state) => state.message);
+  const onConfirm = useModalStore((state) => state.onConfirm);
+  const onCancel = useModalStore((state) => state.onCancel);
+  const { closeModal } = useModalStore((state) => state.actions);
 
   if (!isOpen) return null;
 

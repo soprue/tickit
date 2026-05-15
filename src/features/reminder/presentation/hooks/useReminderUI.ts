@@ -1,22 +1,21 @@
-import { useNavigate } from 'react-router-dom';
 import { useReminderStore } from '@src/features/reminder/domain/ReminderStore';
 import { useModalStore } from '@src/shared/domain/ModalStore';
-import { authStore } from '@src/features/auth/domain/AuthStore';
-import { REMINDER_CONFIG } from '@src/shared/constants';
+import { REMINDER_CONFIG, DELAYS } from '@src/shared/constants';
 import { useEditState } from './useEditState';
 import { useSearchFilter } from './useSearchFilter';
 import { useActionContext } from '@src/shared/context/ActionContext';
 
 /**
  * 리마인더 페이지의 모든 상태와 액션을 통합 관리하는 "지휘관(Facade)" 훅.
+ * 리마인더 도메인 로직과 UI 상태 필터링을 연결합니다.
  */
-export const useReminderUI = () => {
-  const navigate = useNavigate();
-  const { showConfirm } = useModalStore();
+export function useReminderUI() {
+  const { showConfirm } = useModalStore((state) => state.actions);
   const { runAction } = useActionContext(); // 전역 액션 실행 도구
 
+  // 상태와 액션을 분리해서 구독 (렌더링 최적화)
+  const sections = useReminderStore((state) => state.sections);
   const {
-    sections,
     addSection: _addSection,
     updateSectionTitle: _updateSectionTitle,
     deleteSection: _deleteSection,
@@ -24,7 +23,7 @@ export const useReminderUI = () => {
     deleteReminder: _deleteReminder,
     updateReminder: _updateReminder,
     addReminder: _addReminder,
-  } = useReminderStore();
+  } = useReminderStore((state) => state.actions);
 
   const edit = useEditState();
 
@@ -37,7 +36,7 @@ export const useReminderUI = () => {
   const filter = useSearchFilter(sections, isEditingAny);
 
   // 저장 완료를 체감할 수 있도록 약간의 대기 시간을 줌
-  const waitSave = () => new Promise((resolve) => setTimeout(resolve, 300));
+  const waitSave = () => new Promise((resolve) => setTimeout(resolve, DELAYS.SAVE_DEBOUNCE));
 
   /* -------------------------------------------------------------------------- */
   /* CRUD 액션 (전역 runAction으로 래핑)                                           */
@@ -119,15 +118,6 @@ export const useReminderUI = () => {
     edit.setAddingSection(null);
   };
 
-  /* -------------------------------------------------------------------------- */
-  /* 기타 액션                                                                    */
-  /* -------------------------------------------------------------------------- */
-
-  const logout = () => {
-    authStore.logout();
-    navigate('/login');
-  };
-
   return {
     state: edit.editState,
     isEditingAny,
@@ -138,11 +128,11 @@ export const useReminderUI = () => {
     updatePickerTime: edit.updatePickerTime,
     setAllDay: edit.setAllDay,
     searchQuery: filter.searchQuery,
-    hideCompleted: filter.hideCompleted,
+    filterMode: filter.filterMode,
     filteredSections: filter.filteredSections,
     hasAnyMatches: filter.hasAnyMatches,
     setSearchQuery: filter.setSearchQuery,
-    toggleHideCompleted: filter.toggleHideCompleted,
+    toggleFilterMode: filter.toggleFilterMode,
     addSection,
     updateSectionTitle,
     deleteSection,
@@ -150,6 +140,6 @@ export const useReminderUI = () => {
     deleteReminder,
     updateReminder,
     addReminder,
-    logout,
   };
-};
+}
+

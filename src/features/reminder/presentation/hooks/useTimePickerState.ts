@@ -5,7 +5,7 @@ import { parseDateToPickerState, createDateFromPickerState } from '@src/shared/u
 /**
  * 전역 UI 스토어와 공통 시간 유틸리티를 활용하여 타임 피커 상태를 관리하는 커스텀 훅
  */
-export const useTimePickerState = () => {
+export function useTimePickerState() {
   const state = useReminderUIStore();
 
   const toggleTimePopover = (currentTime?: Date) => {
@@ -101,4 +101,5 @@ export const useTimePickerState = () => {
     setInitialTime,
     resetTimeState: state.resetEditState,
   };
-};
+}
+
