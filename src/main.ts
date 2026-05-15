@@ -5,10 +5,6 @@ import { NotificationService } from './services/NotificationService';
 import { mainStorage } from './infrastructure/MainStorage';
 import { IPC_CHANNELS } from './shared/constants';
 
-console.log('================================================');
-console.log('🚀 TICKIT MAIN PROCESS STARTED');
-console.log('================================================');
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -42,8 +38,6 @@ if (process.defaultApp) {
  * URL에서 인증 데이터를 추출 및 처리
  */
 function handleDeepLink(url: string) {
-  console.log(`[DeepLink] Processing URL: ${url}`);
-  
   if (!url || !url.startsWith(`${PROTOCOL}://`)) return;
 
   try {
@@ -53,8 +47,6 @@ function handleDeepLink(url: string) {
     const userDataStr = urlObj.searchParams.get('user');
 
     if (accessToken && userDataStr && currentAuthSession) {
-      console.log('[DeepLink] Success: Extracted tokens and user info');
-      
       const user = JSON.parse(decodeURIComponent(userDataStr));
       currentAuthSession.resolve({ 
         access_token: accessToken, 
@@ -111,8 +103,6 @@ ipcMain.handle(IPC_CHANNELS.GET_ALL, async (_event, key) => {
 });
 
 ipcMain.handle(IPC_CHANNELS.AUTH_GOOGLE, async () => {
-  console.log('[IPC] auth:google -> Opening system browser');
-
   // 이전 세션이 있다면 취소 (새로운 요청 우선)
   if (currentAuthSession) {
     clearTimeout(currentAuthSession.timeout);
@@ -162,7 +152,6 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  console.log('[App] Ready');
   createWindow();
   notificationService.start();
 });
