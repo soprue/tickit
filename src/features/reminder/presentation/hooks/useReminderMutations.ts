@@ -88,24 +88,37 @@ export function useReminderMutations() {
   // 2. 리마인더 관련 Mutations
   const createReminder = useRemindersControllerCreate({
     mutation: {
-      onMutate: ({ data }) =>
-        handleOnMutate<remindersControllerFindAllResponse>(getRemindersControllerFindAllQueryKey(), (old) => ({
-          ...old!,
-          data: [...(old?.data || []), { 
-            id: Date.now(), // 임시 숫자 ID
-            ...data, 
-            done: false, 
-            notified: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          } as ReminderEntity]
-        })),
-      onSuccess: (response) => {
+      onMutate: async ({ data }) => {
+        const temporaryId = Date.now();
+        const now = new Date().toISOString();
+
+        const context = await handleOnMutate<remindersControllerFindAllResponse>(
+          getRemindersControllerFindAllQueryKey(),
+          (old) => ({
+            ...old!,
+            data: [...(old?.data || []), { 
+              id: temporaryId,
+              sectionId: data.sectionId,
+              text: data.text,
+              time: data.time ?? null,
+              isAllDay: data.isAllDay ?? false,
+              done: false, 
+              notified: false,
+              createdAt: now,
+              updatedAt: now
+            }]
+          })
+        );
+
+        return { ...context, temporaryId };
+      },
+      onSuccess: (response, _variables, context) => {
         queryClient.setQueryData<remindersControllerFindAllResponse>(getRemindersControllerFindAllQueryKey(), (old) => {
-          const newData = old?.data?.filter((item) => !String(item.id).startsWith('temp-')) || [];
           return {
             ...old!,
-            data: [...newData, response.data]
+            data: old?.data?.map((item) => 
+              item.id === context?.temporaryId ? response.data : item
+            ) || [response.data]
           };
         });
       },
