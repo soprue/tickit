@@ -19,10 +19,21 @@ import { useRemindersControllerFindAll } from '@src/features/auth/infrastructure
 function transformServerData(sectionsData: { data: SectionEntity[] } | undefined, remindersData: { data: ReminderEntity[] } | undefined): ReminderSectionData[] {
   const sections = sectionsData?.data || [];
   const reminders = remindersData?.data || [];
+  const remindersBySectionId = new Map<string, ReminderEntity[]>();
+
+  reminders.forEach((reminder) => {
+    const sectionReminders = remindersBySectionId.get(reminder.sectionId);
+
+    if (sectionReminders) {
+      sectionReminders.push(reminder);
+      return;
+    }
+
+    remindersBySectionId.set(reminder.sectionId, [reminder]);
+  });
 
   return sections.map((section) => {
-    const sectionReminders = reminders
-      .filter((item) => item.sectionId === section.id)
+    const sectionReminders = (remindersBySectionId.get(section.id) || [])
       .map((item) => ({
         id: item.id,
         text: item.text,
