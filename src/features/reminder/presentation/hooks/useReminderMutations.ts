@@ -21,9 +21,17 @@ import { SectionEntity, ReminderEntity } from '@src/features/auth/infrastructure
 export function useReminderMutations() {
   const queryClient = useQueryClient();
 
-  const invalidateAll = () => {
+  const invalidateSections = () => {
     queryClient.invalidateQueries({ queryKey: getSectionsControllerFindAllQueryKey() });
+  };
+
+  const invalidateReminders = () => {
     queryClient.invalidateQueries({ queryKey: getRemindersControllerFindAllQueryKey() });
+  };
+
+  const invalidateAll = () => {
+    invalidateSections();
+    invalidateReminders();
   };
 
   const handleOnMutate = async <T extends { data: any[] }>(
@@ -57,7 +65,7 @@ export function useReminderMutations() {
           } as SectionEntity]
         })),
       onError: (_err, _new, context) => handleOnError(getSectionsControllerFindAllQueryKey(), context),
-      onSettled: () => invalidateAll(),
+      onSettled: () => invalidateSections(),
     }
   });
 
@@ -69,7 +77,7 @@ export function useReminderMutations() {
           data: old?.data?.map((s) => s.id === id ? { ...s, title: data.title ?? s.title } : s) || []
         })),
       onError: (_err, _new, context) => handleOnError(getSectionsControllerFindAllQueryKey(), context),
-      onSettled: () => invalidateAll(),
+      onSettled: () => invalidateSections(),
     }
   });
 
@@ -123,7 +131,7 @@ export function useReminderMutations() {
         });
       },
       onError: (_err, _new, context) => handleOnError(getRemindersControllerFindAllQueryKey(), context),
-      onSettled: () => invalidateAll(),
+      onSettled: () => invalidateReminders(),
     }
   });
 
@@ -135,7 +143,7 @@ export function useReminderMutations() {
           data: old?.data?.map((r) => r.id === id ? { ...r, ...data } : r) || []
         })),
       onError: (_err, _new, context) => handleOnError(getRemindersControllerFindAllQueryKey(), context),
-      onSettled: () => invalidateAll(),
+      onSettled: () => invalidateReminders(),
     }
   });
 
@@ -147,7 +155,7 @@ export function useReminderMutations() {
           data: old?.data?.filter((r) => r.id !== id) || []
         })),
       onError: (_err, _new, context) => handleOnError(getRemindersControllerFindAllQueryKey(), context),
-      onSettled: () => invalidateAll(),
+      onSettled: () => invalidateReminders(),
     }
   });
 
