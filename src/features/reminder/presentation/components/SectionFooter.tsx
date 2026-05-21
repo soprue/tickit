@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderUI } from '../hooks/useReminderUI';
+import { useReminderUIContext } from '../context/ReminderUIContext';
 import { InlineInput } from '@src/shared/presentation/components/ui/InlineInput';
 import { TimePickerTrigger } from './TimePickerTrigger';
 
@@ -11,7 +11,7 @@ interface SectionFooterProps {
  * 섹션 푸터 컴포넌트
  */
 export function SectionFooter({ category }: SectionFooterProps) {
-  const ui = useReminderUI();
+  const ui = useReminderUIContext();
   const isAdding = ui.state.addingSectionId === category;
   const { showTimePopover, selectedTime, isAllDay, pickerAMPM, pickerHour, pickerMinute } =
     ui.state;

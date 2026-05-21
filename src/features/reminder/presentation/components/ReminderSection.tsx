@@ -29,4 +29,3 @@ export function ReminderSection({ title, category, isFixed, items }: ReminderSec
 }
 
 export default ReminderSection;
-

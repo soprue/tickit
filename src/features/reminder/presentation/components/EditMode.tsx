@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderUI } from '../hooks/useReminderUI';
+import { useReminderUIContext } from '../context/ReminderUIContext';
 import { Checkbox } from '@src/shared/presentation/components/ui/Checkbox';
 import { InlineInput } from '@src/shared/presentation/components/ui/InlineInput';
 import { TimePickerTrigger } from './TimePickerTrigger';
@@ -14,8 +14,7 @@ interface EditModeProps {
  * 리마인더 항목 수정 모드 UI
  */
 export function EditMode({ sectionId, item }: EditModeProps) {
-  const ui = useReminderUI();
-
+  const ui = useReminderUIContext();
   const { selectedTime, isAllDay, pickerAMPM, pickerHour, pickerMinute, showTimePopover } =
     ui.state;
 

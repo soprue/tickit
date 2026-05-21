@@ -246,3 +246,5 @@ export function useReminderUI() {
     addReminder,
   };
 }
+
+export type ReminderUI = ReturnType<typeof useReminderUI>;

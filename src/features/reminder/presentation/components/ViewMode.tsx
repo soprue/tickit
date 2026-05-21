@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderUI } from '../hooks/useReminderUI';
+import { useReminderUIContext } from '../context/ReminderUIContext';
 import { Checkbox } from '@src/shared/presentation/components/ui/Checkbox';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { formatKoreanTime } from '@src/shared/utils/date';
@@ -14,8 +14,7 @@ interface ViewModeProps {
  * 리마인더 항목 일반 모드 UI
  */
 export function ViewMode({ sectionId, item }: ViewModeProps) {
-  const ui = useReminderUI();
-
+  const ui = useReminderUIContext();
   const toggleDone = () => {
     ui.toggleReminder(sectionId, item.id);
   };

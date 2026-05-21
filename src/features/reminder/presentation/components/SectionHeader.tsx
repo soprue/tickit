@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderUI } from '../hooks/useReminderUI';
+import { useReminderUIContext } from '../context/ReminderUIContext';
 import { InlineInput } from '@src/shared/presentation/components/ui/InlineInput';
 import { Icon } from '@src/shared/presentation/components/Icon';
 
@@ -17,7 +17,7 @@ export function SectionHeader({
   category,
   isFixed,
 }: SectionHeaderProps) {
-  const ui = useReminderUI();
+  const ui = useReminderUIContext();
   const isEditingTitle = ui.state.editingSectionId === category;
 
   if (isEditingTitle && !isFixed) {
