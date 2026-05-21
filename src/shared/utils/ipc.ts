@@ -18,7 +18,7 @@ export const ipc = {
     }
 
     try {
-      return await window.api.invoke(channel, data);
+      return (await window.api.invoke(channel, data)) as IpcInvokeMap[K]['returns'];
     } catch (error) {
       console.error(`[Infrastructure] [IPC] Invoke error on channel "${channel}":`, error);
       throw error;

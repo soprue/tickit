@@ -1,6 +1,6 @@
 import { useReminderUIStore } from '@src/features/reminder/domain/ReminderUIStore';
 import { useTimePickerState } from './useTimePickerState';
-import { ReminderSectionData } from '../domain/reminder';
+import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
 
 /**
  * 전역 UI 스토어를 활용하여 리마인더 편집/추가 관련 아이디 상태를 관리하는 커스텀 훅.
@@ -52,4 +52,3 @@ export function useEditState(sections: ReminderSectionData[]) {
     clearEditState,
   };
 }
-

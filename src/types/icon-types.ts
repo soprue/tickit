@@ -9,3 +9,5 @@ export type IconType =
   | 'plus'
   | 'sunlight'
   | 'unlock';
+
+export type IconName = IconType;
