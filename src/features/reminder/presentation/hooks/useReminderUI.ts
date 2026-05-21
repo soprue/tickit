@@ -1,36 +1,77 @@
-import { useMemo } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMemo, useEffect } from 'react';
 import { useModalStore } from '@src/shared/domain/ModalStore';
-import { REMINDER_CONFIG, DELAYS } from '@src/shared/constants';
+import { REMINDER_CONFIG, IPC_CHANNELS, DELAYS } from '@src/shared/constants';
 import { useEditState } from './useEditState';
 import { useSearchFilter } from './useSearchFilter';
 import { useActionContext } from '@src/shared/context/ActionContext';
+import { useReminderMutations } from './useReminderMutations';
+import { ipc } from '@src/shared/utils/ipc';
+import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
 
 // API Hooks
-import { 
-  useSectionsControllerFindAll, 
-  getSectionsControllerFindAllQueryKey,
-  useSectionsControllerCreate,
-  useSectionsControllerUpdate,
-  useSectionsControllerRemove
-} from '@src/features/auth/infrastructure/api/sections-섹션/sections-섹션';
-import { 
-  useRemindersControllerFindAll, 
-  getRemindersControllerFindAllQueryKey,
-  useRemindersControllerCreate,
-  useRemindersControllerUpdate,
-  useRemindersControllerRemove
-} from '@src/features/auth/infrastructure/api/reminders-리마인더/reminders-리마인더';
-import { ReminderSectionData } from '../../domain/reminder';
+import type { SectionEntity, ReminderEntity } from '@src/features/auth/infrastructure/api/model';
+import { useSectionsControllerFindAll } from '@src/features/auth/infrastructure/api/sections-섹션/sections-섹션';
+import { useRemindersControllerFindAll } from '@src/features/auth/infrastructure/api/reminders-리마인더/reminders-리마인더';
+
+/**
+ * 서버 데이터를 UI 형식으로 매핑하고 정렬 정책에 따라 정렬합니다.
+ */
+function transformServerData(sectionsData: { data: SectionEntity[] } | undefined, remindersData: { data: ReminderEntity[] } | undefined): ReminderSectionData[] {
+  const sections = sectionsData?.data || [];
+  const reminders = remindersData?.data || [];
+
+  return sections.map((section) => {
+    const sectionReminders = reminders
+      .filter((item) => item.sectionId === section.id)
+      .map((item) => ({
+        id: item.id,
+        text: item.text,
+        time: item.time || undefined,
+        isAllDay: item.isAllDay,
+        notified: item.notified,
+        done: item.done,
+      }));
+
+    // 정렬 정책:
+    // 1. 미완료 우선: 아직 안 끝낸 일이 위로.
+    // 2. 하루 종일 우선: 미완료 중에서도 시간 정해지지 않은 일이 위로.
+    // 3. 시간 오름차순: 시간이 빠른 순서대로 정렬.
+    // 4. 완료 항목은 아래로: 다 끝낸 일은 맨 밑으로.
+    const sortedItems = [...sectionReminders].sort((a, b) => {
+      // 1. 완료 여부 기준 (미완료가 위로)
+      if (a.done !== b.done) return a.done ? 1 : -1;
+
+      // 2. 미완료 중에서도 "종일(시간 없음)" 우선
+      const aIsAllDay = !a.time || a.isAllDay;
+      const bIsAllDay = !b.time || b.isAllDay;
+
+      if (aIsAllDay !== bIsAllDay) return aIsAllDay ? -1 : 1;
+
+      // 3. 둘 다 시간이 있는 경우 시간 오름차순
+      if (!aIsAllDay && !bIsAllDay && a.time && b.time) {
+        return new Date(a.time).getTime() - new Date(b.time).getTime();
+      }
+
+      return 0;
+    });
+
+    return {
+      id: section.id,
+      title: section.title,
+      isFixed: section.isFixed,
+      items: sortedItems,
+    };
+  }) as ReminderSectionData[];
+}
 
 /**
  * 리마인더 페이지의 모든 상태와 액션을 통합 관리하는 "지휘관(Facade)" 훅.
  * 리마인더 도메인 로직과 UI 상태 필터링을 연결합니다.
  */
 export function useReminderUI() {
-  const queryClient = useQueryClient();
   const { showConfirm } = useModalStore((state) => state.actions);
   const { runAction } = useActionContext();
+  const mutations = useReminderMutations();
 
   // 1. 서버 데이터 패칭
   const { data: sectionsData, isLoading: isLoadingSections, isPending: isPendingSections } = useSectionsControllerFindAll();
@@ -39,154 +80,11 @@ export function useReminderUI() {
   // 최초 로딩 여부 (데이터가 아예 없을 때만 true)
   const isInitialLoading = (isPendingSections && !sectionsData) || (isPendingReminders && !remindersData);
 
-  // 2. 서버 데이터를 UI 형식으로 매핑
-  const mappedSections = useMemo(() => {
-    // 서버 응답이 { success: boolean, data: T[] } 구조임
-    const sections = (sectionsData as any)?.data || [];
-    const reminders = (remindersData as any)?.data || [];
-
-    return sections.map((section: any) => ({
-      id: section.id,
-      title: section.title,
-      isFixed: section.isFixed,
-      items: reminders
-        .filter((item: any) => item.sectionId === section.id)
-        .map((item: any) => ({
-          id: item.id,
-          text: item.text,
-          time: item.time || undefined,
-          isAllDay: item.isAllDay,
-          notified: item.notified,
-          done: item.done,
-        })),
-    })) as ReminderSectionData[];
-  }, [sectionsData, remindersData]);
-
-  // 3. 뮤테이션 설정 (Optimistic Updates)
-  const { mutateAsync: createSectionMutation } = useSectionsControllerCreate({
-    mutation: {
-      onMutate: async ({ data }) => {
-        await queryClient.cancelQueries({ queryKey: getSectionsControllerFindAllQueryKey() });
-        const previous = queryClient.getQueryData(getSectionsControllerFindAllQueryKey());
-        queryClient.setQueryData(getSectionsControllerFindAllQueryKey(), (old: any) => ({
-          ...old,
-          data: [...(old?.data || []), { id: 'temp-' + Date.now(), title: data.title, isFixed: false }]
-        }));
-        return { previous };
-      },
-      onError: (_err, _new, context) => {
-        queryClient.setQueryData(getSectionsControllerFindAllQueryKey(), context?.previous);
-      },
-      onSettled: () => invalidateAll(),
-    }
-  });
-
-  const { mutateAsync: updateSectionMutation } = useSectionsControllerUpdate({
-    mutation: {
-      onMutate: async ({ id, data }) => {
-        await queryClient.cancelQueries({ queryKey: getSectionsControllerFindAllQueryKey() });
-        const previous = queryClient.getQueryData(getSectionsControllerFindAllQueryKey());
-        queryClient.setQueryData(getSectionsControllerFindAllQueryKey(), (old: any) => ({
-          ...old,
-          data: old?.data?.map((s: any) => s.id === id ? { ...s, title: data.title } : s)
-        }));
-        return { previous };
-      },
-      onError: (_err, _new, context) => {
-        queryClient.setQueryData(getSectionsControllerFindAllQueryKey(), context?.previous);
-      },
-      onSettled: () => invalidateAll(),
-    }
-  });
-
-  const { mutateAsync: removeSectionMutation } = useSectionsControllerRemove({
-    mutation: {
-      onMutate: async ({ id }) => {
-        await queryClient.cancelQueries({ queryKey: getSectionsControllerFindAllQueryKey() });
-        const previous = queryClient.getQueryData(getSectionsControllerFindAllQueryKey());
-        queryClient.setQueryData(getSectionsControllerFindAllQueryKey(), (old: any) => ({
-          ...old,
-          data: old?.data?.filter((s: any) => s.id !== id)
-        }));
-        return { previous };
-      },
-      onError: (_err, _new, context) => {
-        queryClient.setQueryData(getSectionsControllerFindAllQueryKey(), context?.previous);
-      },
-      onSettled: () => invalidateAll(),
-    }
-  });
-
-  const { mutateAsync: createReminderMutation } = useRemindersControllerCreate({
-    mutation: {
-      onMutate: async ({ data }) => {
-        await queryClient.cancelQueries({ queryKey: getRemindersControllerFindAllQueryKey() });
-        const previous = queryClient.getQueryData(getRemindersControllerFindAllQueryKey());
-        
-        // 낙관적 업데이트: 임시 ID 주입
-        queryClient.setQueryData(getRemindersControllerFindAllQueryKey(), (old: any) => ({
-          ...old,
-          data: [...(old?.data || []), { 
-            id: 'temp-' + Date.now(), 
-            ...data, 
-            done: false, 
-            notified: false 
-          }]
-        }));
-        return { previous };
-      },
-      onSuccess: (response) => {
-        // 성공 즉시 서버에서 준 실제 데이터로 캐시 교체 (깜빡임 방지 핵심)
-        queryClient.setQueryData(getRemindersControllerFindAllQueryKey(), (old: any) => {
-          const newData = old?.data?.filter((item: any) => typeof item.id !== 'string') || [];
-          return {
-            ...old,
-            data: [...newData, response.data]
-          };
-        });
-      },
-      onError: (_err, _new, context) => {
-        queryClient.setQueryData(getRemindersControllerFindAllQueryKey(), context?.previous);
-      },
-      onSettled: () => invalidateAll(),
-    }
-  });
-
-  const { mutateAsync: updateReminderMutation } = useRemindersControllerUpdate({
-    mutation: {
-      onMutate: async ({ id, data }) => {
-        await queryClient.cancelQueries({ queryKey: getRemindersControllerFindAllQueryKey() });
-        const previous = queryClient.getQueryData(getRemindersControllerFindAllQueryKey());
-        queryClient.setQueryData(getRemindersControllerFindAllQueryKey(), (old: any) => ({
-          ...old,
-          data: old?.data?.map((r: any) => r.id === id ? { ...r, ...data } : r)
-        }));
-        return { previous };
-      },
-      onError: (_err, _new, context) => {
-        queryClient.setQueryData(getRemindersControllerFindAllQueryKey(), context?.previous);
-      },
-      onSettled: () => invalidateAll(),
-    }
-  });
-
-  const { mutateAsync: removeReminderMutation } = useRemindersControllerRemove({
-    mutation: {
-      onMutate: async ({ id }) => {
-        await queryClient.cancelQueries({ queryKey: getRemindersControllerFindAllQueryKey() });
-        const previous = queryClient.getQueryData(getRemindersControllerFindAllQueryKey());
-        queryClient.setQueryData(getRemindersControllerFindAllQueryKey(), (old: any) => ({
-          ...old,
-          data: old?.data?.filter((r: any) => r.id !== id)
-        }));
-        return { previous };
-      },
-      onError: (_err, _new, context) => {
-        queryClient.setQueryData(getRemindersControllerFindAllQueryKey(), context?.previous);
-      },
-      onSettled: () => invalidateAll(),
-    }
-  });
+  // 2. 서버 데이터를 UI 형식으로 매핑 및 정렬
+  const mappedSections = useMemo(
+    () => transformServerData(sectionsData, remindersData),
+    [sectionsData, remindersData]
+  );
 
   const edit = useEditState(mappedSections);
   const isEditingAny = !!(
@@ -198,10 +96,21 @@ export function useReminderUI() {
   // 필터링은 매핑된 서버 데이터를 기준으로 수행
   const filter = useSearchFilter(mappedSections, isEditingAny);
 
-  const invalidateAll = () => {
-    queryClient.invalidateQueries({ queryKey: getSectionsControllerFindAllQueryKey() });
-    queryClient.invalidateQueries({ queryKey: getRemindersControllerFindAllQueryKey() });
-  };
+  // 3. 데이터 동기화 (Main 프로세스의 알림 서비스를 위해 최신 데이터 전달)
+  useEffect(() => {
+    if (isInitialLoading) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        // 메인 프로세스의 NotificationService로 데이터 직접 전달
+        await ipc.invoke(IPC_CHANNELS.SYNC_NOTIFICATIONS, mappedSections);
+      } catch (e) {
+        console.error('[useReminderUI] Sync notifications failed:', e);
+      }
+    }, DELAYS.SAVE_DEBOUNCE);
+
+    return () => clearTimeout(timer);
+  }, [mappedSections, isInitialLoading]);
 
   /* -------------------------------------------------------------------------- */
   /* CRUD 액션 (서버 API 호출 - 낙관적 업데이트 활용)                                 */
@@ -209,14 +118,14 @@ export function useReminderUI() {
 
   const addSection = () => {
     runAction(async () => {
-      await createSectionMutation({ data: { title: REMINDER_CONFIG.NEW_SECTION_TITLE } });
+      await mutations.createSection.mutateAsync({ data: { title: REMINDER_CONFIG.NEW_SECTION_TITLE } });
     });
   };
 
   const updateSectionTitle = (sectionId: string, title: string) => {
     if (title.trim()) {
       runAction(async () => {
-        await updateSectionMutation({ id: sectionId, data: { title: title } });
+        await mutations.updateSection.mutateAsync({ id: sectionId, data: { title: title } });
       });
     }
     edit.clearEditState();
@@ -228,7 +137,7 @@ export function useReminderUI() {
       message: '이 섹션을 삭제하시겠습니까? 섹션 내 모든 리마인더가 삭제됩니다.',
       onConfirm: () => {
         runAction(async () => {
-          await removeSectionMutation({ id: sectionId });
+          await mutations.removeSection.mutateAsync({ id: sectionId });
         });
       },
     });
@@ -240,7 +149,7 @@ export function useReminderUI() {
     if (!item) return;
 
     runAction(async () => {
-      await updateReminderMutation({ 
+      await mutations.updateReminder.mutateAsync({ 
         id: reminderId, 
         data: { done: !item.done } 
       });
@@ -253,7 +162,7 @@ export function useReminderUI() {
       message: '이 항목을 삭제하시겠습니까?',
       onConfirm: () => {
         runAction(async () => {
-          await removeReminderMutation({ id: reminderId });
+          await mutations.removeReminder.mutateAsync({ id: reminderId });
         });
       },
     });
@@ -277,7 +186,7 @@ export function useReminderUI() {
 
       if (hasTextChanged || hasTimeChanged || hasAllDayChanged) {
         runAction(async () => {
-          await updateReminderMutation({
+          await mutations.updateReminder.mutateAsync({
             id: reminderId,
             data: {
               text: text,
@@ -300,7 +209,7 @@ export function useReminderUI() {
     const finalIsAllDay = selectedTime ? isAllDay : true;
 
     runAction(async () => {
-      await createReminderMutation({
+      await mutations.createReminder.mutateAsync({
         data: {
           sectionId,
           text: text,
@@ -337,4 +246,3 @@ export function useReminderUI() {
     addReminder,
   };
 }
-

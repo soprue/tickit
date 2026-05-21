@@ -12,6 +12,7 @@ export const IPC_CHANNELS = {
   SAVE: 'reminder:save',
   NOTIFY: 'reminder:notify',
   AUTH_GOOGLE: 'auth:google',
+  SYNC_NOTIFICATIONS: 'reminder:sync-notifications',
 } as const;
 
 export const ROUTES = {

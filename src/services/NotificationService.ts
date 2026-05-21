@@ -2,12 +2,14 @@ import { Notification, powerMonitor } from 'electron';
 import { STORAGE_KEYS } from '../shared/constants';
 import { mainStorage } from '../infrastructure/MainStorage';
 import { calculateNotifications, type NotificationPersistedState } from './NotificationLogic';
+import type { ReminderSectionData } from '../features/reminder/domain/reminder';
 
 /**
  * 메인 프로세스 전용 알림 서비스 (SRP: 알림 발송 및 생명주기 관리)
  */
 export class NotificationService {
   private timer: NodeJS.Timeout | null = null;
+  private state: NotificationPersistedState | null = null;
   private readonly resumeHandler = () => {
     this.check();
   };
@@ -15,7 +17,14 @@ export class NotificationService {
   /**
    * 서비스 시작
    */
-  start() {
+  async start() {
+    // 앱 시작 시 로컬에 저장된 마지막 데이터를 읽어옴 (오프라인 대비)
+    try {
+      this.state = await mainStorage.read<NotificationPersistedState>(STORAGE_KEYS.REMINDER);
+    } catch (e) {
+      console.warn('[NotificationService] Failed to load initial state:', e);
+    }
+
     this.check();
 
     // 시스템 절전 모드 해제 시 즉시 체크 (Catch-up 로직)
@@ -23,27 +32,46 @@ export class NotificationService {
   }
 
   /**
+   * 렌더러 프로세스로부터 데이터를 동기화
+   */
+  async syncData(newSections: ReminderSectionData[]) {
+    console.log('[NotificationService] Data synced from renderer');
+    
+    // 기존의 lastNightCheckDate는 유지하고 섹션만 업데이트
+    this.state = {
+      sections: newSections,
+      lastNightCheckDate: this.state?.lastNightCheckDate || null
+    };
+    
+    // 동기화된 데이터를 로컬에도 저장 (앱 재시작 대비)
+    await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
+    
+    // 데이터가 오면 즉시 알림 체크
+    this.check();
+  }
+
+  /**
    * 알림 체크 및 발송 실행
    */
   private async check() {
-    try {
-      const state = await mainStorage.read<NotificationPersistedState>(STORAGE_KEYS.REMINDER);
-      if (!state) {
-        this.scheduleNext();
-        return;
-      }
+    if (!this.state) {
+      this.scheduleNext();
+      return;
+    }
 
+    try {
       const { hasChanges, notifications, updatedState } = calculateNotifications(
-        state,
+        this.state,
         new Date()
       );
 
       // 알림 발송
       notifications.forEach((note) => this.send(note.title, note.body));
 
-      // 상태 변경 시 저장
+      // 상태 변경 시(예: notified 필드 업데이트) 상태 업데이트 및 저장
       if (hasChanges) {
-        await mainStorage.write(STORAGE_KEYS.REMINDER, updatedState);
+        this.state = updatedState;
+        await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
       }
     } catch (err) {
       console.error('[NotificationService] Check failed:', err);
@@ -80,4 +108,3 @@ export class NotificationService {
     powerMonitor.removeListener('resume', this.resumeHandler);
   }
 }
-

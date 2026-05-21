@@ -102,6 +102,10 @@ ipcMain.handle(IPC_CHANNELS.GET_ALL, async (_event, key) => {
   return await mainStorage.read(key);
 });
 
+ipcMain.handle(IPC_CHANNELS.SYNC_NOTIFICATIONS, async (_event, data) => {
+  return await notificationService.syncData(data);
+});
+
 ipcMain.handle(IPC_CHANNELS.AUTH_GOOGLE, async () => {
   // 이전 세션이 있다면 취소 (새로운 요청 우선)
   if (currentAuthSession) {
