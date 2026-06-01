@@ -25,6 +25,7 @@ describe('NotificationLogic - calculateNotifications', () => {
       },
     ],
     lastNightCheckDate: '2026-05-12',
+    lastServerRefreshDate: '2026-05-13',
   };
 
   it('밤 9시 이후에 미완료 항목이 있으면 밤 9시 알림을 생성한다', () => {

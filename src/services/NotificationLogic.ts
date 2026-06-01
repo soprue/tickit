@@ -8,6 +8,7 @@ import type { Reminder, ReminderSectionData } from '../features/reminder/domain/
 export interface NotificationPersistedState {
   sections: ReminderSectionData[];
   lastNightCheckDate: string | null;
+  lastServerRefreshDate: string | null;
 }
 
 interface NotificationCheckResult {

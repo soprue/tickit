@@ -9,6 +9,28 @@ interface NotificationSyncPayload {
   accessToken: string | null;
 }
 
+interface ApiResponse<T> {
+  data: T;
+}
+
+interface ServerSection {
+  id: string;
+  title: string;
+  isFixed: boolean;
+}
+
+interface ServerReminder {
+  id: number;
+  text: string;
+  time: string | null;
+  isAllDay: boolean;
+  notified: boolean;
+  done: boolean;
+  sectionId: string;
+}
+
+const DAILY_REFRESH_TIME_ZONE = 'Asia/Seoul';
+
 /**
  * 메인 프로세스 전용 알림 서비스 (SRP: 알림 발송 및 생명주기 관리)
  */
@@ -52,6 +74,7 @@ export class NotificationService {
     this.state = {
       sections,
       lastNightCheckDate: this.state?.lastNightCheckDate || null,
+      lastServerRefreshDate: this.accessToken ? this.getTodayRefreshDate() : null,
     };
 
     // 동기화된 데이터를 로컬에도 저장 (앱 재시작 대비)
@@ -98,6 +121,8 @@ export class NotificationService {
     }
 
     try {
+      await this.refreshFromServerAfterDateChange();
+
       const { hasChanges, notifications, notifiedReminderIds, updatedState } =
         calculateNotifications(this.state, new Date());
 
@@ -153,6 +178,109 @@ export class NotificationService {
     if (!response.ok) {
       throw new Error('PATCH /api/reminders/' + reminderId + ' failed with ' + response.status);
     }
+  }
+
+  private async refreshFromServerAfterDateChange() {
+    if (!this.state || !this.accessToken) {
+      return;
+    }
+
+    const today = this.getTodayRefreshDate();
+    if (this.state.lastServerRefreshDate === today) {
+      return;
+    }
+
+    try {
+      const [sections, reminders] = await Promise.all([
+        this.fetchSectionsFromServer(),
+        this.fetchRemindersFromServer(),
+      ]);
+
+      this.state = {
+        sections: this.mapServerData(sections, reminders),
+        lastNightCheckDate: this.state.lastNightCheckDate,
+        lastServerRefreshDate: today,
+      };
+
+      await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
+    } catch (err) {
+      console.error('[NotificationService] Failed to refresh reminders after date change:', err);
+    }
+  }
+
+  private async fetchSectionsFromServer() {
+    const response = await fetch(this.apiUrl + '/api/sections', {
+      headers: {
+        Authorization: 'Bearer ' + this.accessToken,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('GET /api/sections failed with ' + response.status);
+    }
+
+    const body = (await response.json()) as ApiResponse<ServerSection[]>;
+    return body.data;
+  }
+
+  private async fetchRemindersFromServer() {
+    const response = await fetch(this.apiUrl + '/api/reminders', {
+      headers: {
+        Authorization: 'Bearer ' + this.accessToken,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('GET /api/reminders failed with ' + response.status);
+    }
+
+    const body = (await response.json()) as ApiResponse<ServerReminder[]>;
+    return body.data;
+  }
+
+  private mapServerData(
+    sections: ServerSection[],
+    reminders: ServerReminder[]
+  ): ReminderSectionData[] {
+    const remindersBySectionId = new Map<string, ServerReminder[]>();
+
+    reminders.forEach((reminder) => {
+      const sectionReminders = remindersBySectionId.get(reminder.sectionId);
+
+      if (sectionReminders) {
+        sectionReminders.push(reminder);
+        return;
+      }
+
+      remindersBySectionId.set(reminder.sectionId, [reminder]);
+    });
+
+    return sections.map((section) => ({
+      id: section.id,
+      title: section.title,
+      isFixed: section.isFixed,
+      items: (remindersBySectionId.get(section.id) || []).map((item) => ({
+        id: item.id,
+        text: item.text,
+        time: item.time || undefined,
+        isAllDay: item.isAllDay,
+        notified: item.notified,
+        done: item.done,
+      })),
+    }));
+  }
+
+  private getTodayRefreshDate(date = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: DAILY_REFRESH_TIME_ZONE,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(date);
+
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+
+    return `${values.year}-${values.month}-${values.day}`;
   }
 
   /**
