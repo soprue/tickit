@@ -148,7 +148,7 @@ export const getRemindersControllerFindAllUrl = (params?: RemindersControllerFin
 }
 
 /**
- * @summary 나의 리마인더 목록 조회
+ * @summary 나의 리마인더 목록 조회 (Cursor 기반 페이지네이션)
  */
 export const remindersControllerFindAll = async (params?: RemindersControllerFindAllParams, options?: RequestInit): Promise<remindersControllerFindAllResponse> => {
 
@@ -219,7 +219,7 @@ export function useRemindersControllerFindAll<TData = Awaited<ReturnType<typeof 
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 나의 리마인더 목록 조회
+ * @summary 나의 리마인더 목록 조회 (Cursor 기반 페이지네이션)
  */
 
 export function useRemindersControllerFindAll<TData = Awaited<ReturnType<typeof remindersControllerFindAll>>, TError = unknown>(

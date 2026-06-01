@@ -52,6 +52,7 @@ describe('NotificationLogic - calculateNotifications', () => {
       })
     );
     expect(result.updatedState.sections[0].items[0].notified).toBe(true);
+    expect(result.notifiedReminderIds).toEqual([1]);
     expect(result.hasChanges).toBe(true);
   });
 
@@ -70,6 +71,7 @@ describe('NotificationLogic - calculateNotifications', () => {
     const result = calculateNotifications(notifiedState, now);
 
     expect(result.notifications.length).toBe(0);
+    expect(result.notifiedReminderIds).toEqual([]);
     expect(result.hasChanges).toBe(false);
   });
 

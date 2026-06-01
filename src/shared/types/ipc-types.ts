@@ -20,7 +20,10 @@ export interface IpcInvokeMap {
   };
   /** 렌더러의 최신 리마인더 데이터를 메인 프로세스 알림 서비스와 동기화 */
   'reminder:sync-notifications': {
-    args: ReminderSectionData[];
+    args: {
+      sections: ReminderSectionData[];
+      accessToken: string | null;
+    };
     returns: void;
   };
   /** 구글 로그인 실행 및 결과 반환 */

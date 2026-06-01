@@ -4,6 +4,7 @@ import { REMINDER_CONFIG, IPC_CHANNELS, DELAYS } from '@src/shared/constants';
 import { useEditState } from './useEditState';
 import { useSearchFilter } from './useSearchFilter';
 import { useActionContext } from '@src/shared/context/ActionContext';
+import { useAuthStore } from '@src/features/auth/domain/AuthStore';
 import { useReminderMutations } from './useReminderMutations';
 import { ipc } from '@src/shared/utils/ipc';
 import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
@@ -83,6 +84,7 @@ export function useReminderUI() {
   const { showConfirm } = useModalStore((state) => state.actions);
   const { runAction } = useActionContext();
   const mutations = useReminderMutations();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   // 1. 서버 데이터 패칭
   const { data: sectionsData, isLoading: isLoadingSections, isPending: isPendingSections } = useSectionsControllerFindAll();
@@ -113,15 +115,18 @@ export function useReminderUI() {
 
     const timer = setTimeout(async () => {
       try {
-        // 메인 프로세스의 NotificationService로 데이터 직접 전달
-        await ipc.invoke(IPC_CHANNELS.SYNC_NOTIFICATIONS, mappedSections);
+        // 메인 프로세스의 NotificationService로 데이터와 서버 반영용 토큰 전달
+        await ipc.invoke(IPC_CHANNELS.SYNC_NOTIFICATIONS, {
+          sections: mappedSections,
+          accessToken,
+        });
       } catch (e) {
         console.error('[useReminderUI] Sync notifications failed:', e);
       }
     }, DELAYS.SAVE_DEBOUNCE);
 
     return () => clearTimeout(timer);
-  }, [mappedSections, isInitialLoading]);
+  }, [mappedSections, accessToken, isInitialLoading]);
 
   /* -------------------------------------------------------------------------- */
   /* CRUD 액션 (서버 API 호출 - 낙관적 업데이트 활용)                                 */

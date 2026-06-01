@@ -17,4 +17,6 @@ export interface UpdateReminderDto {
   sectionId?: string;
   /** 완료 여부 */
   done?: boolean;
+  /** 알림 발송 여부 */
+  notified?: boolean;
 }

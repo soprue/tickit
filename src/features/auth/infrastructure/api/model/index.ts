@@ -9,6 +9,7 @@
 export * from './createReminderDto';
 export * from './createSectionDto';
 export * from './loginDto';
+export * from './refreshTokenDto';
 export * from './registerDto';
 export * from './reminderEntity';
 export * from './remindersControllerFindAllParams';

@@ -26,6 +26,7 @@ import type {
 
 import type {
   LoginDto,
+  RefreshTokenDto,
   RegisterDto,
   UserEntity
 } from '../model';
@@ -143,14 +144,15 @@ export const getAuthControllerRefreshUrl = () => {
  * 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.
  * @summary 액세스 토큰 갱신
  */
-export const authControllerRefresh = async ( options?: RequestInit): Promise<authControllerRefreshResponse> => {
+export const authControllerRefresh = async (refreshTokenDto: RefreshTokenDto, options?: RequestInit): Promise<authControllerRefreshResponse> => {
 
   return customInstance<authControllerRefreshResponse>(getAuthControllerRefreshUrl(),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      refreshTokenDto,)
   }
 );}
 
@@ -158,8 +160,8 @@ export const authControllerRefresh = async ( options?: RequestInit): Promise<aut
 
 
 export const getAuthControllerRefreshMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,void, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,{data: RefreshTokenDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,{data: RefreshTokenDto}, TContext> => {
 
 const mutationKey = ['authControllerRefresh'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
@@ -171,10 +173,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerRefresh>>, void> = () => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerRefresh>>, {data: RefreshTokenDto}> = (props) => {
+          const {data} = props ?? {};
 
-
-          return  authControllerRefresh(requestOptions)
+          return  authControllerRefresh(data,requestOptions)
         }
 
 
@@ -185,18 +187,18 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type AuthControllerRefreshMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerRefresh>>>
-
+    export type AuthControllerRefreshMutationBody = RefreshTokenDto
     export type AuthControllerRefreshMutationError = unknown
 
     /**
  * @summary 액세스 토큰 갱신
  */
 export const useAuthControllerRefresh = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,{data: RefreshTokenDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerRefresh>>,
         TError,
-        void,
+        {data: RefreshTokenDto},
         TContext
       > => {
       return useMutation(getAuthControllerRefreshMutationOptions(options), queryClient);

@@ -8,7 +8,16 @@
 
 export type RemindersControllerFindAllParams = {
 /**
- * 섹션별 필터링
+ * 가져올 데이터의 최대 개수 (기본값: 20)
+ * @minimum 1
+ */
+take?: number;
+/**
+ * 마지막으로 조회한 데이터의 ID (Cursor)
+ */
+cursor?: number;
+/**
+ * 특정 섹션으로 필터링
  */
 sectionId?: string;
 };

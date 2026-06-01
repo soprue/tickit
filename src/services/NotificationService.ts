@@ -4,12 +4,19 @@ import { mainStorage } from '../infrastructure/MainStorage';
 import { calculateNotifications, type NotificationPersistedState } from './NotificationLogic';
 import type { ReminderSectionData } from '../features/reminder/domain/reminder';
 
+interface NotificationSyncPayload {
+  sections: ReminderSectionData[];
+  accessToken: string | null;
+}
+
 /**
  * 메인 프로세스 전용 알림 서비스 (SRP: 알림 발송 및 생명주기 관리)
  */
 export class NotificationService {
   private timer: NodeJS.Timeout | null = null;
   private state: NotificationPersistedState | null = null;
+  private accessToken: string | null = null;
+  private readonly apiUrl = process.env.VITE_API_URL || 'http://localhost:3000';
   private isChecking = false;
   private hasPendingCheck = false;
   private checkPromise: Promise<void> | null = null;
@@ -37,18 +44,19 @@ export class NotificationService {
   /**
    * 렌더러 프로세스로부터 데이터를 동기화
    */
-  async syncData(newSections: ReminderSectionData[]) {
+  async syncData({ sections, accessToken }: NotificationSyncPayload) {
     console.log('[NotificationService] Data synced from renderer');
-    
+    this.accessToken = accessToken;
+
     // 기존의 lastNightCheckDate는 유지하고 섹션만 업데이트
     this.state = {
-      sections: newSections,
-      lastNightCheckDate: this.state?.lastNightCheckDate || null
+      sections,
+      lastNightCheckDate: this.state?.lastNightCheckDate || null,
     };
-    
+
     // 동기화된 데이터를 로컬에도 저장 (앱 재시작 대비)
     await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
-    
+
     // 데이터가 오면 즉시 알림 체크
     await this.check();
   }
@@ -90,10 +98,8 @@ export class NotificationService {
     }
 
     try {
-      const { hasChanges, notifications, updatedState } = calculateNotifications(
-        this.state,
-        new Date()
-      );
+      const { hasChanges, notifications, notifiedReminderIds, updatedState } =
+        calculateNotifications(this.state, new Date());
 
       // 알림 발송
       notifications.forEach((note) => this.send(note.title, note.body));
@@ -103,8 +109,49 @@ export class NotificationService {
         this.state = updatedState;
         await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
       }
+
+      if (notifiedReminderIds.length > 0) {
+        await this.syncNotifiedReminders(notifiedReminderIds);
+      }
     } catch (err) {
       console.error('[NotificationService] Check failed:', err);
+    }
+  }
+
+  /**
+   * 알림 발송 여부를 서버에도 반영하여 다음 동기화 때 notified 상태가 되돌아가지 않게 합니다.
+   */
+  private async syncNotifiedReminders(reminderIds: number[]) {
+    if (!this.accessToken) {
+      console.warn('[NotificationService] Cannot sync notified reminders: missing access token');
+      return;
+    }
+
+    const uniqueIds = [...new Set(reminderIds)];
+    const results = await Promise.allSettled(uniqueIds.map((id) => this.markReminderNotified(id)));
+
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        console.error(
+          '[NotificationService] Failed to sync notified reminder (' + uniqueIds[index] + '):',
+          result.reason
+        );
+      }
+    });
+  }
+
+  private async markReminderNotified(reminderId: number) {
+    const response = await fetch(this.apiUrl + '/api/reminders/' + reminderId, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + this.accessToken,
+      },
+      body: JSON.stringify({ notified: true }),
+    });
+
+    if (!response.ok) {
+      throw new Error('PATCH /api/reminders/' + reminderId + ' failed with ' + response.status);
     }
   }
 

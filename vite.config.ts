@@ -9,6 +9,7 @@ import generateIconTypesPlugin from './scripts/vite-plugin-generate-icon-types';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
+  const isTest = mode === 'test';
   
   return {
     oxc: true,
@@ -37,8 +38,8 @@ export default defineConfig(({ mode }) => {
         },
       },
       react(),
-      generateIconTypesPlugin(),
-      electron({
+      !isTest && generateIconTypesPlugin(),
+      !isTest && electron({
         main: {
           entry: 'src/main.ts',
           vite: { 
@@ -55,7 +56,7 @@ export default defineConfig(({ mode }) => {
           vite: { build: { outDir: 'dist-electron/preload' } },
         },
       }),
-    ],
+    ].filter(Boolean),
     define: {
       'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL),
     },
