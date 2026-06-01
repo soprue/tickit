@@ -10,8 +10,11 @@ import type { ReminderSectionData } from '../features/reminder/domain/reminder';
 export class NotificationService {
   private timer: NodeJS.Timeout | null = null;
   private state: NotificationPersistedState | null = null;
+  private isChecking = false;
+  private hasPendingCheck = false;
+  private checkPromise: Promise<void> | null = null;
   private readonly resumeHandler = () => {
-    this.check();
+    void this.check();
   };
 
   /**
@@ -25,7 +28,7 @@ export class NotificationService {
       console.warn('[NotificationService] Failed to load initial state:', e);
     }
 
-    this.check();
+    void this.check();
 
     // 시스템 절전 모드 해제 시 즉시 체크 (Catch-up 로직)
     powerMonitor.on('resume', this.resumeHandler);
@@ -47,15 +50,42 @@ export class NotificationService {
     await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
     
     // 데이터가 오면 즉시 알림 체크
-    this.check();
+    await this.check();
   }
 
   /**
    * 알림 체크 및 발송 실행
    */
-  private async check() {
-    if (!this.state) {
+  private check(): Promise<void> {
+    if (this.isChecking) {
+      this.hasPendingCheck = true;
+      return this.checkPromise ?? Promise.resolve();
+    }
+
+    this.checkPromise = this.runQueuedChecks();
+    return this.checkPromise;
+  }
+
+  /**
+   * 동시에 들어온 체크 요청은 현재 체크 이후 한 번 더 실행되도록 직렬화합니다.
+   */
+  private async runQueuedChecks() {
+    this.isChecking = true;
+
+    try {
+      do {
+        this.hasPendingCheck = false;
+        await this.runSingleCheck();
+      } while (this.hasPendingCheck);
+    } finally {
+      this.isChecking = false;
+      this.checkPromise = null;
       this.scheduleNext();
+    }
+  }
+
+  private async runSingleCheck() {
+    if (!this.state) {
       return;
     }
 
@@ -76,8 +106,6 @@ export class NotificationService {
     } catch (err) {
       console.error('[NotificationService] Check failed:', err);
     }
-
-    this.scheduleNext();
   }
 
   /**
@@ -88,7 +116,7 @@ export class NotificationService {
 
     const now = new Date();
     const delay = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 500;
-    this.timer = setTimeout(() => this.check(), Math.max(1000, delay));
+    this.timer = setTimeout(() => void this.check(), Math.max(1000, delay));
   }
 
   /**
