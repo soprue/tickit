@@ -69,3 +69,5 @@ export function useEditState(sections: ReminderSectionData[]) {
     clearEditState,
   };
 }
+
+export type ReminderEditController = ReturnType<typeof useEditState>;
