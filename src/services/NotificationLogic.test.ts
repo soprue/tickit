@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateNotifications } from './NotificationLogic';
 import type { NotificationPersistedState } from './NotificationLogic';
-import { Category } from '../shared/constants';
 
 describe('NotificationLogic - calculateNotifications', () => {
   const testDate = new Date(2026, 4, 13, 10, 0); // 2026-05-13 10:00:00 로컬 시간
@@ -9,7 +8,7 @@ describe('NotificationLogic - calculateNotifications', () => {
   const mockState: NotificationPersistedState = {
     sections: [
       {
-        id: Category.TODO,
+        id: 'todo',
         title: 'To Do',
         isFixed: true,
         items: [

@@ -39,21 +39,6 @@ export const REMINDER_CONFIG = {
   DEFAULT_AMPM: 'AM' as const,
 } as const;
 
-/**
- * 리마인더 카테고리 정의
- */
-export enum Category {
-  EVERYDAY = 'Everyday',
-  TODO = 'To Do',
-  WORK = 'Work',
-}
-
-export const CATEGORY_LIST = [
-  { title: 'Everyday', value: Category.EVERYDAY },
-  { title: 'To Do', value: Category.TODO },
-  { title: 'Work', value: Category.WORK },
-] as const;
-
 export const NOTIFICATION_MESSAGES = {
   INDIVIDUAL_TITLE: '리마인더 알림',
   INDIVIDUAL_BODY: (text: string) => `${text} 할 시간이에요`,

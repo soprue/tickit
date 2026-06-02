@@ -1,5 +1,3 @@
-import { Category } from '@src/shared/constants';
-
 /**
  * 단일 리마인더 할 일 항목의 구조
  */
@@ -18,7 +16,7 @@ export interface Reminder {
  * 여러 개의 Reminder 항목을 포함합니다.
  */
 export interface ReminderSectionData {
-  id: string; // 시스템 구분용 고유 키 (예: 'EVERYDAY', 'TODO', 'WORK')
+  id: string; // 서버에서 내려주는 섹션 고유 키
   title: string; // 화면에 표시될 섹션 이름
   isFixed: boolean; // 시스템 고정 섹션 여부 (삭제 불가)
   items: Reminder[];
