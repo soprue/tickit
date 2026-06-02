@@ -8,7 +8,7 @@ import { AddSectionButton } from './components/AddSectionButton';
 import { useReminderUI } from './hooks/useReminderUI';
 import { useAuthActions } from '@src/features/auth/presentation/hooks/useAuthActions';
 import { useReminderShortcuts } from './hooks/useReminderShortcuts';
-import { ReminderUIProvider } from './context/ReminderUIContext';
+import { ReminderActionsProvider } from './context/ReminderActionsContext';
 
 export default function ReminderPage() {
   // 1. 통합 훅
@@ -28,7 +28,7 @@ export default function ReminderPage() {
     <div ref={containerRef} className="bg-bg duration-normal flex h-full w-full transition-colors">
       <Sidebar isDarkMode={isDarkMode} onToggleTheme={toggleDarkMode} onLogout={logout} />
 
-      <ReminderUIProvider ui={ui}>
+      <ReminderActionsProvider ui={ui}>
         <div className="p-lg px-md gap-md box-border flex h-full flex-1 flex-col overflow-x-hidden overflow-y-auto scroll-smooth">
           {/* 상단 검색 및 필터 바 */}
           <ReminderSearchBar
@@ -63,7 +63,7 @@ export default function ReminderPage() {
           {/* 새 섹션 추가 버튼 */}
           {!ui.searchQuery.trim() && <AddSectionButton onClick={ui.addSection} />}
         </div>
-      </ReminderUIProvider>
+      </ReminderActionsProvider>
     </div>
   );
 }
