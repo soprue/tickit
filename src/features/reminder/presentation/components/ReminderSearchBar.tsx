@@ -1,5 +1,5 @@
 import { Icon } from '@src/shared/presentation/components/Icon';
-import type { FilterMode } from '@src/features/reminder/domain/ReminderUIStore';
+import type { FilterMode } from '@src/features/reminder/domain/ReminderSearchStore';
 
 interface ReminderSearchBarProps {
   value: string;

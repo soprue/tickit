@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
-import { useReminderUIStore } from '@src/features/reminder/domain/ReminderUIStore';
+import { useReminderSearchStore } from '@src/features/reminder/domain/ReminderSearchStore';
 import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
 
 /**
- * 전역 UI 스토어를 활용하여 리마인더 검색 및 필터링 로직을 관리하는 커스텀 훅
+ * 리마인더 검색 및 필터링 로직을 관리하는 커스텀 훅
  */
 export function useSearchFilter(sections: ReminderSectionData[], isEditingAny: boolean) {
-  const searchQuery = useReminderUIStore((state) => state.searchQuery);
-  const filterMode = useReminderUIStore((state) => state.filterMode);
-  const setSearchQuery = useReminderUIStore((state) => state.setSearchQuery);
-  const toggleFilterMode = useReminderUIStore((state) => state.toggleFilterMode);
+  const searchQuery = useReminderSearchStore((state) => state.searchQuery);
+  const filterMode = useReminderSearchStore((state) => state.filterMode);
+  const setSearchQuery = useReminderSearchStore((state) => state.setSearchQuery);
+  const toggleFilterMode = useReminderSearchStore((state) => state.toggleFilterMode);
 
   // 검색어 및 필터 모드에 따른 필터링 결과 계산
   const filteredSections = useMemo(() => {

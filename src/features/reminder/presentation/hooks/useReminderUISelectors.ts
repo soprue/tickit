@@ -1,24 +1,25 @@
-import { useReminderUIStore } from '../../domain/ReminderUIStore';
+import { useReminderEditStore } from '../../domain/ReminderEditStore';
+import { useReminderTimePickerStore } from '../../domain/ReminderTimePickerStore';
 
 export function useIsReminderEditing(reminderId: number) {
-  return useReminderUIStore((state) => state.editingItemId === reminderId);
+  return useReminderEditStore((state) => state.editingItemId === reminderId);
 }
 
 export function useIsSectionTitleEditing(sectionId: string) {
-  return useReminderUIStore((state) => state.editingSectionId === sectionId);
+  return useReminderEditStore((state) => state.editingSectionId === sectionId);
 }
 
 export function useIsAddingReminder(sectionId: string) {
-  return useReminderUIStore((state) => state.addingSectionId === sectionId);
+  return useReminderEditStore((state) => state.addingSectionId === sectionId);
 }
 
 export function useReminderTimePickerViewState() {
-  const selectedTime = useReminderUIStore((state) => state.selectedTime);
-  const isAllDay = useReminderUIStore((state) => state.isAllDay);
-  const showTimePopover = useReminderUIStore((state) => state.showTimePopover);
-  const pickerAMPM = useReminderUIStore((state) => state.pickerAMPM);
-  const pickerHour = useReminderUIStore((state) => state.pickerHour);
-  const pickerMinute = useReminderUIStore((state) => state.pickerMinute);
+  const selectedTime = useReminderTimePickerStore((state) => state.selectedTime);
+  const isAllDay = useReminderTimePickerStore((state) => state.isAllDay);
+  const showTimePopover = useReminderTimePickerStore((state) => state.showTimePopover);
+  const pickerAMPM = useReminderTimePickerStore((state) => state.pickerAMPM);
+  const pickerHour = useReminderTimePickerStore((state) => state.pickerHour);
+  const pickerMinute = useReminderTimePickerStore((state) => state.pickerMinute);
 
   return {
     selectedTime,
