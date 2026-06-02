@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import type { QueryKey } from '@tanstack/react-query';
 import { 
   useSectionsControllerCreate, 
   useSectionsControllerUpdate, 
@@ -14,6 +15,28 @@ import {
   remindersControllerFindAllResponse
 } from '@src/features/auth/infrastructure/api/reminders-리마인더/reminders-리마인더';
 import { SectionEntity, ReminderEntity } from '@src/features/auth/infrastructure/api/model';
+
+type QueryResponse<TItem> = {
+  data: TItem[];
+  status: number;
+  headers: Headers;
+};
+
+type MutationContext<TResponse> = {
+  previous: TResponse | undefined;
+};
+
+const emptySectionsResponse = (): sectionsControllerFindAllResponse => ({
+  data: [],
+  status: 200,
+  headers: new Headers(),
+});
+
+const emptyRemindersResponse = (): remindersControllerFindAllResponse => ({
+  data: [],
+  status: 200,
+  headers: new Headers(),
+});
 
 /**
  * 리마인더와 섹션의 서버 통신(Mutation) 및 낙관적 업데이트 로직을 전담하는 훅.
@@ -34,17 +57,18 @@ export function useReminderMutations() {
     invalidateReminders();
   };
 
-  const handleOnMutate = async <T extends { data: any[] }>(
-    queryKey: readonly any[], 
-    updater: (old: T | undefined) => T
+  const handleOnMutate = async <TItem, TResponse extends QueryResponse<TItem>>(
+    queryKey: QueryKey,
+    fallback: () => TResponse,
+    updater: (old: TResponse) => TResponse
   ) => {
     await queryClient.cancelQueries({ queryKey });
-    const previous = queryClient.getQueryData<T>(queryKey);
-    queryClient.setQueryData<T>(queryKey, updater);
+    const previous = queryClient.getQueryData<TResponse>(queryKey);
+    queryClient.setQueryData<TResponse>(queryKey, (old) => updater(old ?? fallback()));
     return { previous };
   };
 
-  const handleOnError = (queryKey: readonly any[], context: any) => {
+  const handleOnError = <TResponse>(queryKey: QueryKey, context: MutationContext<TResponse> | undefined) => {
     if (context?.previous) {
       queryClient.setQueryData(queryKey, context.previous);
     }
@@ -54,8 +78,8 @@ export function useReminderMutations() {
   const createSection = useSectionsControllerCreate({
     mutation: {
       onMutate: ({ data }) => 
-        handleOnMutate<sectionsControllerFindAllResponse>(getSectionsControllerFindAllQueryKey(), (old) => ({
-          ...old!,
+        handleOnMutate<SectionEntity, sectionsControllerFindAllResponse>(getSectionsControllerFindAllQueryKey(), emptySectionsResponse, (old) => ({
+          ...old,
           data: [...(old?.data || []), { 
             id: 'temp-' + Date.now(), 
             title: data.title, 
@@ -72,8 +96,8 @@ export function useReminderMutations() {
   const updateSection = useSectionsControllerUpdate({
     mutation: {
       onMutate: ({ id, data }) =>
-        handleOnMutate<sectionsControllerFindAllResponse>(getSectionsControllerFindAllQueryKey(), (old) => ({
-          ...old!,
+        handleOnMutate<SectionEntity, sectionsControllerFindAllResponse>(getSectionsControllerFindAllQueryKey(), emptySectionsResponse, (old) => ({
+          ...old,
           data: old?.data?.map((s) => s.id === id ? { ...s, title: data.title ?? s.title } : s) || []
         })),
       onError: (_err, _new, context) => handleOnError(getSectionsControllerFindAllQueryKey(), context),
@@ -84,8 +108,8 @@ export function useReminderMutations() {
   const removeSection = useSectionsControllerRemove({
     mutation: {
       onMutate: ({ id }) =>
-        handleOnMutate<sectionsControllerFindAllResponse>(getSectionsControllerFindAllQueryKey(), (old) => ({
-          ...old!,
+        handleOnMutate<SectionEntity, sectionsControllerFindAllResponse>(getSectionsControllerFindAllQueryKey(), emptySectionsResponse, (old) => ({
+          ...old,
           data: old?.data?.filter((s) => s.id !== id) || []
         })),
       onError: (_err, _new, context) => handleOnError(getSectionsControllerFindAllQueryKey(), context),
@@ -100,10 +124,11 @@ export function useReminderMutations() {
         const temporaryId = Date.now();
         const now = new Date().toISOString();
 
-        const context = await handleOnMutate<remindersControllerFindAllResponse>(
+        const context = await handleOnMutate<ReminderEntity, remindersControllerFindAllResponse>(
           getRemindersControllerFindAllQueryKey(),
+          emptyRemindersResponse,
           (old) => ({
-            ...old!,
+            ...old,
             data: [...(old?.data || []), { 
               id: temporaryId,
               sectionId: data.sectionId,
@@ -122,11 +147,14 @@ export function useReminderMutations() {
       },
       onSuccess: (response, _variables, context) => {
         queryClient.setQueryData<remindersControllerFindAllResponse>(getRemindersControllerFindAllQueryKey(), (old) => {
+          const current = old ?? emptyRemindersResponse();
+          const hasTemporaryItem = current.data.some((item) => item.id === context?.temporaryId);
+
           return {
-            ...old!,
-            data: old?.data?.map((item) => 
-              item.id === context?.temporaryId ? response.data : item
-            ) || [response.data]
+            ...current,
+            data: hasTemporaryItem
+              ? current.data.map((item) => item.id === context?.temporaryId ? response.data : item)
+              : [...current.data, response.data]
           };
         });
       },
@@ -138,8 +166,8 @@ export function useReminderMutations() {
   const updateReminder = useRemindersControllerUpdate({
     mutation: {
       onMutate: ({ id, data }) =>
-        handleOnMutate<remindersControllerFindAllResponse>(getRemindersControllerFindAllQueryKey(), (old) => ({
-          ...old!,
+        handleOnMutate<ReminderEntity, remindersControllerFindAllResponse>(getRemindersControllerFindAllQueryKey(), emptyRemindersResponse, (old) => ({
+          ...old,
           data: old?.data?.map((r) => r.id === id ? { ...r, ...data } : r) || []
         })),
       onError: (_err, _new, context) => handleOnError(getRemindersControllerFindAllQueryKey(), context),
@@ -150,8 +178,8 @@ export function useReminderMutations() {
   const removeReminder = useRemindersControllerRemove({
     mutation: {
       onMutate: ({ id }) =>
-        handleOnMutate<remindersControllerFindAllResponse>(getRemindersControllerFindAllQueryKey(), (old) => ({
-          ...old!,
+        handleOnMutate<ReminderEntity, remindersControllerFindAllResponse>(getRemindersControllerFindAllQueryKey(), emptyRemindersResponse, (old) => ({
+          ...old,
           data: old?.data?.filter((r) => r.id !== id) || []
         })),
       onError: (_err, _new, context) => handleOnError(getRemindersControllerFindAllQueryKey(), context),

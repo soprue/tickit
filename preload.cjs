@@ -30,8 +30,11 @@ contextBridge.exposeInMainWorld('api', {
   on: (channel, callback) => {
     const validChannels = [IPC_CHANNELS.NOTIFY];
     if (validChannels.includes(channel)) {
-      ipcRenderer.on(channel, (event, ...args) => callback(...args));
+      const listener = (_event, ...args) => callback(...args);
+      ipcRenderer.on(channel, listener);
+      return () => ipcRenderer.removeListener(channel, listener);
     }
+    return () => {};
   },
 });
 

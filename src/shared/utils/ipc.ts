@@ -32,6 +32,6 @@ export const ipc = {
   on(channel: string, callback: (...args: unknown[]) => void) {
     if (typeof window === 'undefined' || !window.api) return () => {};
 
-    window.api.on(channel, callback);
+    return window.api.on(channel, callback);
   },
 };

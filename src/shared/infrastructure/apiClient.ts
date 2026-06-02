@@ -7,6 +7,10 @@ type CustomRequestConfig = RequestInit & {
   params?: unknown;
 };
 
+type CancelablePromise<T> = Promise<T> & {
+  cancel: () => void;
+};
+
 /**
  * Orval용 커스텀 Axios 인스턴스 (SRP: Orval 호환성 래퍼 담당)
  * Orval은 (url, config) 형태로 호출하므로 그에 맞춰 매개변수를 정의합니다.
@@ -14,7 +18,7 @@ type CustomRequestConfig = RequestInit & {
 export function customInstance<T>(
   url: string,
   config?: CustomRequestConfig
-): Promise<T> {
+): CancelablePromise<T> {
   const source = axios.CancelToken.source();
   const { body, data, ...requestConfig } = config ?? {};
 
@@ -23,9 +27,8 @@ export function customInstance<T>(
     ...(requestConfig as AxiosRequestConfig),
     data: data ?? body,
     cancelToken: source.token,
-  }).then(({ data }) => data);
+  }).then(({ data }) => data) as CancelablePromise<T>;
 
-  // @ts-ignore
   promise.cancel = () => {
     source.cancel('Query was cancelled');
   };

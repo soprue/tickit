@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { NotificationService } from './services/NotificationService';
 import { mainStorage } from './infrastructure/MainStorage';
 import { IPC_CHANNELS } from './shared/constants';
+import type { UserEntity } from './features/auth/infrastructure/api/model';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,9 +16,15 @@ let mainWindow: BrowserWindow | null = null;
  * 인증 상태 관리 객체
  */
 interface AuthSession {
-  resolve: (value: any) => void;
+  resolve: (value: AuthResult) => void;
   timeout: NodeJS.Timeout;
 }
+
+type AuthResult = {
+  access_token: string;
+  refresh_token?: string;
+  user: UserEntity;
+} | null;
 let currentAuthSession: AuthSession | null = null;
 
 const PROTOCOL = 'tickit';
@@ -116,7 +123,7 @@ ipcMain.handle(IPC_CHANNELS.AUTH_GOOGLE, async () => {
 
   shell.openExternal(`${API_URL}/api/auth/google`);
 
-  return new Promise((resolve) => {
+  return new Promise<AuthResult>((resolve) => {
     const timeout = setTimeout(() => {
       if (currentAuthSession && currentAuthSession.resolve === resolve) {
         console.warn('[Auth] Timeout: User did not complete login in time');
