@@ -1,6 +1,6 @@
 import { useModalStore } from '@src/shared/domain/ModalStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
-import { useActionContext } from '@src/shared/context/ActionContext';
+import { useSyncStatus } from '@src/shared/context/SyncStatusContext';
 import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
 import { useReminderMutations } from './useReminderMutations';
 import type { ReminderEditController } from './useEditState';
@@ -12,11 +12,11 @@ interface UseReminderActionsParams {
 
 export function useReminderActions({ mappedSections, edit }: UseReminderActionsParams) {
   const { showConfirm } = useModalStore((state) => state.actions);
-  const { runAction } = useActionContext();
+  const { runSyncAction } = useSyncStatus();
   const mutations = useReminderMutations();
 
   const addSection = () => {
-    runAction(async () => {
+    runSyncAction(async () => {
       await mutations.createSection.mutateAsync({
         data: { title: REMINDER_CONFIG.NEW_SECTION_TITLE },
       });
@@ -25,7 +25,7 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
 
   const updateSectionTitle = (sectionId: string, title: string) => {
     if (title.trim()) {
-      runAction(async () => {
+      runSyncAction(async () => {
         await mutations.updateSection.mutateAsync({ id: sectionId, data: { title } });
       });
     }
@@ -37,7 +37,7 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
       title: '섹션 삭제',
       message: '이 섹션을 삭제하시겠습니까? 섹션 내 모든 리마인더가 삭제됩니다.',
       onConfirm: () => {
-        runAction(async () => {
+        runSyncAction(async () => {
           await mutations.removeSection.mutateAsync({ id: sectionId });
         });
       },
@@ -49,7 +49,7 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
     const item = section?.items.find((i) => i.id === reminderId);
     if (!item) return;
 
-    runAction(async () => {
+    runSyncAction(async () => {
       await mutations.updateReminder.mutateAsync({
         id: reminderId,
         data: { done: !item.done },
@@ -62,7 +62,7 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
       title: '리마인더 삭제',
       message: '이 항목을 삭제하시겠습니까?',
       onConfirm: () => {
-        runAction(async () => {
+        runSyncAction(async () => {
           await mutations.removeReminder.mutateAsync({ id: reminderId });
         });
       },
@@ -85,7 +85,7 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
       const hasAllDayChanged = item.isAllDay !== finalIsAllDay;
 
       if (hasTextChanged || hasTimeChanged || hasAllDayChanged) {
-        runAction(async () => {
+        runSyncAction(async () => {
           await mutations.updateReminder.mutateAsync({
             id: reminderId,
             data: {
@@ -107,7 +107,7 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
 
     const finalIsAllDay = selectedTime ? isAllDay : true;
 
-    runAction(async () => {
+    runSyncAction(async () => {
       await mutations.createReminder.mutateAsync({
         data: {
           sectionId,

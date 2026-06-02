@@ -1,42 +1,42 @@
 import { useEffect, useState } from 'react';
 import { useToastStore } from '@src/shared/domain/ToastStore';
-import { useActionContext } from '@src/shared/context/ActionContext';
+import { useSyncStatus } from '@src/shared/context/SyncStatusContext';
 import { DELAYS } from '@src/shared/constants';
 
 /**
- * 1. StatusToast: "저장 중...", "저장 완료" 등 시스템 상태를 나타냄
+ * 1. StatusToast: 서버 동기화 상태를 나타냄
  */
 function StatusToast() {
-  const { isPending } = useActionContext();
-  const [displayState, setDisplayState] = useState<'saving' | 'saved' | null>(null);
+  const { isRunning } = useSyncStatus();
+  const [displayState, setDisplayState] = useState<'syncing' | 'synced' | null>(null);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (isPending) {
-      setDisplayState('saving');
+    if (isRunning) {
+      setDisplayState('syncing');
       setShow(true);
-    } else if (displayState === 'saving') {
-      setDisplayState('saved');
+    } else if (displayState === 'syncing') {
+      setDisplayState('synced');
       const timer = setTimeout(() => {
         setShow(false);
         setTimeout(() => setDisplayState(null), DELAYS.ANIMATION_SMOOTH);
       }, DELAYS.STATUS_DISPLAY);
       return () => clearTimeout(timer);
     }
-  }, [isPending]);
+  }, [isRunning, displayState]);
 
   if (!displayState) return null;
 
   const config = {
-    saving: {
+    syncing: {
       borderColor: 'border-border-alpha',
       textColor: 'text-primary',
-      label: '저장 중...',
+      label: '동기화 중...',
     },
-    saved: {
+    synced: {
       borderColor: 'border-green-500/30',
       textColor: 'text-green-600 dark:text-green-400',
-      label: '저장 완료',
+      label: '동기화 완료',
     },
   }[displayState];
 
@@ -50,7 +50,7 @@ function StatusToast() {
         className={`flex items-center gap-2.5 rounded-full border-[1.5px] bg-white/90 px-4 py-2 shadow-lg backdrop-blur-md dark:bg-black/60 ${config.borderColor}`}
       >
         <div className="flex h-3 w-3 items-center justify-center">
-          {displayState === 'saving' ? (
+          {displayState === 'syncing' ? (
             <div className="bg-primary h-2 w-2 animate-pulse rounded-full" />
           ) : (
             <span className="text-[14px] font-black leading-none text-green-500">✓</span>
