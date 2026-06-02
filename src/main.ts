@@ -110,6 +110,10 @@ ipcMain.handle(IPC_CHANNELS.GET_ALL, async <K extends StorageKey>(_event: IpcMai
   return await mainStorage.read<StorageValueMap[K]>(key);
 });
 
+ipcMain.handle(IPC_CHANNELS.REMOVE, async (_event, key: StorageKey) => {
+  return await mainStorage.remove(key);
+});
+
 ipcMain.handle(IPC_CHANNELS.SYNC_NOTIFICATIONS, async (_event, data) => {
   return await notificationService.syncData(data);
 });

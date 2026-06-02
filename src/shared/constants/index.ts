@@ -10,6 +10,7 @@ export const STORAGE_KEYS = {
 export const IPC_CHANNELS = {
   GET_ALL: 'reminder:get-all',
   SAVE: 'reminder:save',
+  REMOVE: 'reminder:remove',
   NOTIFY: 'reminder:notify',
   AUTH_GOOGLE: 'auth:google',
   SYNC_NOTIFICATIONS: 'reminder:sync-notifications',

@@ -17,8 +17,15 @@ async function invoke<K extends StorageKey>(
   channel: typeof IPC_CHANNELS.SAVE,
   data: StorageSavePayload<K>
 ): Promise<void | null>;
+async function invoke<K extends StorageKey>(
+  channel: typeof IPC_CHANNELS.REMOVE,
+  data: K
+): Promise<void | null>;
 async function invoke<
-  K extends Exclude<keyof IpcInvokeMap, typeof IPC_CHANNELS.GET_ALL | typeof IPC_CHANNELS.SAVE>,
+  K extends Exclude<
+    keyof IpcInvokeMap,
+    typeof IPC_CHANNELS.GET_ALL | typeof IPC_CHANNELS.SAVE | typeof IPC_CHANNELS.REMOVE
+  >,
 >(channel: K, data?: IpcInvokeMap[K]['args']): Promise<IpcInvokeMap[K]['returns'] | null>;
 async function invoke<K extends keyof IpcInvokeMap>(
   channel: K,

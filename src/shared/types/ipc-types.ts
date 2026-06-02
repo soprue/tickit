@@ -38,6 +38,11 @@ export interface IpcInvokeMap {
     args: StorageSavePayload;
     returns: void;
   };
+  /** 특정 storage key의 데이터 삭제 */
+  'reminder:remove': {
+    args: StorageKey;
+    returns: void;
+  };
   /** 렌더러의 최신 리마인더 데이터를 메인 프로세스 알림 서비스와 동기화 */
   'reminder:sync-notifications': {
     args: {

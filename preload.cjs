@@ -6,6 +6,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const IPC_CHANNELS = {
   GET_ALL: 'reminder:get-all',
   SAVE: 'reminder:save',
+  REMOVE: 'reminder:remove',
   NOTIFY: 'reminder:notify',
   AUTH_GOOGLE: 'auth:google',
   SYNC_NOTIFICATIONS: 'reminder:sync-notifications',
@@ -18,6 +19,7 @@ contextBridge.exposeInMainWorld('api', {
     const validChannels = [
       IPC_CHANNELS.GET_ALL, 
       IPC_CHANNELS.SAVE, 
+      IPC_CHANNELS.REMOVE,
       IPC_CHANNELS.AUTH_GOOGLE,
       IPC_CHANNELS.SYNC_NOTIFICATIONS
     ];
