@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mapServerDataToReminderSections } from './reminderMapper';
-import type { ReminderEntity, SectionEntity } from '@src/features/auth/infrastructure/api/model';
+import type { ReminderEntity, SectionEntity } from '@src/shared/infrastructure/api/model';
 
 const baseSection = {
   createdAt: '2026-06-01T00:00:00.000Z',
@@ -9,6 +9,7 @@ const baseSection = {
 
 const baseReminder = {
   notified: false,
+  lastResetDate: null,
   createdAt: '2026-06-01T00:00:00.000Z',
   updatedAt: '2026-06-01T00:00:00.000Z',
 };
@@ -21,7 +22,7 @@ function createSection(section: Pick<SectionEntity, 'id' | 'title' | 'isFixed'>)
 }
 
 function createReminder(
-  reminder: Omit<ReminderEntity, 'createdAt' | 'updatedAt' | 'notified'>
+  reminder: Omit<ReminderEntity, 'createdAt' | 'updatedAt' | 'notified' | 'lastResetDate'>
 ): ReminderEntity {
   return {
     ...baseReminder,

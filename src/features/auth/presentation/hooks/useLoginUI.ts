@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@src/features/auth/domain/AuthStore';
 import { useToastStore } from '@src/shared/domain/ToastStore';
-import { useAuthControllerLogin } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
-import type { UserEntity } from '@features/auth/infrastructure/api/model';
+import { useAuthControllerLogin } from '@src/shared/infrastructure/api/인증-auth/인증-auth';
+import type { UserEntity } from '@src/shared/infrastructure/api/model';
 import { ROUTES, IPC_CHANNELS } from '@src/shared/constants';
 import { ipc } from '@src/shared/utils/ipc';
 

@@ -1,4 +1,4 @@
-import type { UserEntity } from '@features/auth/infrastructure/api/model';
+import type { UserEntity } from '@src/shared/infrastructure/api/model';
 import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
 import type { NotificationPersistedState } from '@src/services/NotificationLogic';
 

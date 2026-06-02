@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { STORAGE_KEYS } from '@src/shared/constants';
-import { UserEntity } from '../infrastructure/api/model';
+import type { UserEntity } from '@src/shared/infrastructure/api/model';
 
 interface AuthData {
   isLoggedIn: boolean;

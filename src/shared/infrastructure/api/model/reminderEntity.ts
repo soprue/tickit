@@ -22,6 +22,11 @@ export interface ReminderEntity {
   notified: boolean;
   /** 완료 여부 */
   done: boolean;
+  /**
+     * Everyday 리마인더가 마지막으로 일일 리셋된 날짜
+     * @nullable
+     */
+  lastResetDate: string | null;
   /** 소속 섹션 ID */
   sectionId: string;
   /** 생성일 */

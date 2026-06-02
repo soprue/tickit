@@ -5,15 +5,15 @@ import {
   useSectionsControllerRemove,
   getSectionsControllerFindAllQueryKey,
   type sectionsControllerFindAllResponse,
-} from '@src/features/auth/infrastructure/api/sections-섹션/sections-섹션';
+} from '@src/shared/infrastructure/api/sections-섹션/sections-섹션';
 import {
   useRemindersControllerCreate,
   useRemindersControllerUpdate,
   useRemindersControllerRemove,
   getRemindersControllerFindAllQueryKey,
   type remindersControllerFindAllResponse,
-} from '@src/features/auth/infrastructure/api/reminders-리마인더/reminders-리마인더';
-import type { SectionEntity, ReminderEntity } from '@src/features/auth/infrastructure/api/model';
+} from '@src/shared/infrastructure/api/reminders-리마인더/reminders-리마인더';
+import type { SectionEntity, ReminderEntity } from '@src/shared/infrastructure/api/model';
 import { createOptimisticCache } from './optimisticQueryCache';
 
 const emptySectionsResponse = (): sectionsControllerFindAllResponse => ({
@@ -55,6 +55,7 @@ function createTemporaryReminder(
     isAllDay: data.isAllDay ?? false,
     done: false,
     notified: false,
+    lastResetDate: null,
     createdAt: now,
     updatedAt: now,
   };

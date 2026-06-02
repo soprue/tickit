@@ -31,7 +31,7 @@ import type {
   UpdateReminderDto
 } from '../model';
 
-import { customInstance } from '../../../../../shared/infrastructure/apiClient';
+import { customInstance } from '../../apiClient';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];

@@ -10,6 +10,7 @@ export type RemindersControllerFindAllParams = {
 /**
  * 가져올 데이터의 최대 개수 (기본값: 20)
  * @minimum 1
+ * @maximum 100
  */
 take?: number;
 /**

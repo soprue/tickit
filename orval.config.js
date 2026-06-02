@@ -1,15 +1,16 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
+
 dotenv.config();
 
-module.exports = {
+export default {
   tickit: {
     input: {
       target: `${process.env.VITE_API_URL}/api/docs-json`,
     },
     output: {
       mode: 'tags-split',
-      target: 'src/features/auth/infrastructure/api/tickit.ts',
-      schemas: 'src/features/auth/infrastructure/api/model',
+      target: 'src/shared/infrastructure/api/tickit.ts',
+      schemas: 'src/shared/infrastructure/api/model',
       client: 'react-query',
       override: {
         mutator: {

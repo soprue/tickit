@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuthControllerLogout } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
+import { useAuthControllerLogout } from '@src/shared/infrastructure/api/인증-auth/인증-auth';
 import { useAuthStore } from '../../domain/AuthStore';
 import { useToastStore } from '@src/shared/domain/ToastStore';
 import { ROUTES } from '@src/shared/constants';
@@ -39,4 +39,3 @@ export const useAuthActions = () => {
     isLoggingOut: logoutMutation.isPending,
   };
 };
-

@@ -1,6 +1,6 @@
 import { app, shell, type BrowserWindow } from 'electron';
 import path from 'node:path';
-import type { UserEntity } from '../features/auth/infrastructure/api/model';
+import type { UserEntity } from '../shared/infrastructure/api/model';
 
 type AuthResult = {
   access_token: string;

@@ -9,12 +9,15 @@
 export interface UpdateReminderDto {
   /** 리마인더 내용 */
   text?: string;
-  /** 알림 시간 */
-  time?: string;
   /** 하루 종일 여부 */
   isAllDay?: boolean;
   /** 소속 섹션 ID */
   sectionId?: string;
+  /**
+     * 알림 시간. null을 보내면 알림 시간이 제거됩니다.
+     * @nullable
+     */
+  time?: string | null;
   /** 완료 여부 */
   done?: boolean;
   /** 알림 발송 여부 */
