@@ -62,4 +62,33 @@ describe('NotificationServerMapper - mapServerDataToNotificationSections', () =>
       },
     ]);
   });
+
+  it('알림 상태용 매핑에서는 서버 리마인더 순서를 유지한다', () => {
+    const sections: ServerSection[] = [{ id: 'todo', title: 'To Do', isFixed: true }];
+    const reminders: ServerReminder[] = [
+      {
+        id: 1,
+        sectionId: 'todo',
+        text: 'Done first from server',
+        time: '2026-05-13T12:00:00.000Z',
+        isAllDay: false,
+        notified: false,
+        done: true,
+      },
+      {
+        id: 2,
+        sectionId: 'todo',
+        text: 'All day second from server',
+        time: null,
+        isAllDay: true,
+        notified: false,
+        done: false,
+      },
+    ];
+
+    expect(mapServerDataToNotificationSections(sections, reminders)[0].items.map((item) => item.id)).toEqual([
+      1,
+      2,
+    ]);
+  });
 });

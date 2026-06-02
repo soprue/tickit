@@ -1,21 +1,41 @@
-import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
 import type { UserEntity } from '@features/auth/infrastructure/api/model';
+import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
+import type { NotificationPersistedState } from '@src/services/NotificationLogic';
+
+export interface StorageValueMap {
+  tickit_data: NotificationPersistedState;
+  tickit_theme: {
+    isDarkMode: boolean;
+  };
+  tickit_auth: {
+    isLoggedIn: boolean;
+    user: UserEntity | null;
+    accessToken: string | null;
+    refreshToken: string | null;
+  };
+}
+
+export type StorageKey = keyof StorageValueMap;
+
+export type StorageSavePayload<K extends StorageKey = StorageKey> = {
+  [Key in K]: {
+    key: Key;
+    data: StorageValueMap[Key];
+  };
+}[K];
 
 /**
  * IPC 채널별 요청(Payload) 및 응답(Result) 타입을 정의하는 계약 파일
  */
 export interface IpcInvokeMap {
-  /** 전체 리마인더 데이터 또는 특정 키의 데이터 조회 */
+  /** 특정 storage key의 데이터 조회 */
   'reminder:get-all': {
-    args: string; // key (예: STORAGE_KEYS.REMINDER)
-    returns: { state: { sections: ReminderSectionData[] } } | null; // 반환 데이터 (JSON 객체)
+    args: StorageKey;
+    returns: StorageValueMap[StorageKey] | null;
   };
   /** 특정 키의 데이터를 파일로 저장 */
   'reminder:save': {
-    args: {
-      key: string;
-      data: { state: { sections: ReminderSectionData[] } };
-    };
+    args: StorageSavePayload;
     returns: void;
   };
   /** 렌더러의 최신 리마인더 데이터를 메인 프로세스 알림 서비스와 동기화 */

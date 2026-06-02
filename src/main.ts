@@ -1,10 +1,11 @@
-import { BrowserWindow, app, ipcMain, shell } from 'electron';
+import { BrowserWindow, app, ipcMain, shell, type IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NotificationService } from './services/NotificationService';
 import { mainStorage } from './infrastructure/MainStorage';
 import { IPC_CHANNELS } from './shared/constants';
 import type { UserEntity } from './features/auth/infrastructure/api/model';
+import type { StorageKey, StorageSavePayload, StorageValueMap } from './shared/types/ipc-types';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -101,12 +102,12 @@ if (!gotTheLock) {
 /**
  * IPC 핸들러
  */
-ipcMain.handle(IPC_CHANNELS.SAVE, async (_event, { key, data }) => {
+ipcMain.handle(IPC_CHANNELS.SAVE, async (_event, { key, data }: StorageSavePayload) => {
   return await mainStorage.write(key, data);
 });
 
-ipcMain.handle(IPC_CHANNELS.GET_ALL, async (_event, key) => {
-  return await mainStorage.read(key);
+ipcMain.handle(IPC_CHANNELS.GET_ALL, async <K extends StorageKey>(_event: IpcMainInvokeEvent, key: K) => {
+  return await mainStorage.read<StorageValueMap[K]>(key);
 });
 
 ipcMain.handle(IPC_CHANNELS.SYNC_NOTIFICATIONS, async (_event, data) => {

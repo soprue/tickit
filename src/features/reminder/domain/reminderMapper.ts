@@ -1,5 +1,20 @@
-import type { SectionEntity, ReminderEntity } from '@src/features/auth/infrastructure/api/model';
 import type { Reminder, ReminderSectionData } from './reminder';
+
+export interface ServerSectionLike {
+  id: string;
+  title: string;
+  isFixed: boolean;
+}
+
+export interface ServerReminderLike {
+  id: number;
+  text: string;
+  time: string | null;
+  isAllDay: boolean;
+  notified: boolean;
+  done: boolean;
+  sectionId: string;
+}
 
 interface SortableReminder extends Reminder {
   timeMs: number | null;
@@ -9,7 +24,7 @@ function isAllDayReminder(reminder: Pick<Reminder, 'time' | 'isAllDay'>) {
   return !reminder.time || reminder.isAllDay;
 }
 
-function toReminder(entity: ReminderEntity): Reminder {
+function toReminder(entity: ServerReminderLike): Reminder {
   return {
     id: entity.id,
     text: entity.text,
@@ -20,7 +35,7 @@ function toReminder(entity: ReminderEntity): Reminder {
   };
 }
 
-function toSortableReminder(entity: ReminderEntity): SortableReminder {
+function toSortableReminder(entity: ServerReminderLike): SortableReminder {
   const reminder = toReminder(entity);
 
   return {
@@ -49,13 +64,16 @@ function stripSortableFields(reminder: SortableReminder): Reminder {
   return displayReminder;
 }
 
-export function mapServerDataToReminderSections(
-  sectionsData: { data: SectionEntity[] } | undefined,
-  remindersData: { data: ReminderEntity[] } | undefined
+interface MapServerDataOptions {
+  sortItems?: boolean;
+}
+
+export function mapServerEntitiesToReminderSections(
+  sections: ServerSectionLike[],
+  reminders: ServerReminderLike[],
+  options: MapServerDataOptions = {}
 ): ReminderSectionData[] {
-  const sections = sectionsData?.data || [];
-  const reminders = remindersData?.data || [];
-  const remindersBySectionId = new Map<string, ReminderEntity[]>();
+  const remindersBySectionId = new Map<string, ServerReminderLike[]>();
 
   reminders.forEach((reminder) => {
     const sectionReminders = remindersBySectionId.get(reminder.sectionId);
@@ -72,9 +90,20 @@ export function mapServerDataToReminderSections(
     id: section.id,
     title: section.title,
     isFixed: section.isFixed,
-    items: (remindersBySectionId.get(section.id) || [])
-      .map(toSortableReminder)
-      .sort(compareReminderDisplayOrder)
-      .map(stripSortableFields),
+    items: options.sortItems
+      ? (remindersBySectionId.get(section.id) || [])
+          .map(toSortableReminder)
+          .sort(compareReminderDisplayOrder)
+          .map(stripSortableFields)
+      : (remindersBySectionId.get(section.id) || []).map(toReminder),
   }));
+}
+
+export function mapServerDataToReminderSections(
+  sectionsData: { data: ServerSectionLike[] } | undefined,
+  remindersData: { data: ServerReminderLike[] } | undefined
+): ReminderSectionData[] {
+  return mapServerEntitiesToReminderSections(sectionsData?.data || [], remindersData?.data || [], {
+    sortItems: true,
+  });
 }
