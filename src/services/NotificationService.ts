@@ -1,7 +1,9 @@
-import { Notification, powerMonitor } from 'electron';
-import { STORAGE_KEYS } from '../shared/constants';
-import { mainStorage } from '../infrastructure/MainStorage';
 import { calculateNotifications, type NotificationPersistedState } from './NotificationLogic';
+import { NotificationApiClient } from './NotificationApiClient';
+import { NotificationScheduler } from './NotificationScheduler';
+import { NotificationSender } from './NotificationSender';
+import { mapServerDataToNotificationSections } from './NotificationServerMapper';
+import { NotificationStateStore } from './NotificationStateStore';
 import type { ReminderSectionData } from '../features/reminder/domain/reminder';
 
 interface NotificationSyncPayload {
@@ -9,42 +11,36 @@ interface NotificationSyncPayload {
   accessToken: string | null;
 }
 
-interface ApiResponse<T> {
-  data: T;
-}
-
-interface ServerSection {
-  id: string;
-  title: string;
-  isFixed: boolean;
-}
-
-interface ServerReminder {
-  id: number;
-  text: string;
-  time: string | null;
-  isAllDay: boolean;
-  notified: boolean;
-  done: boolean;
-  sectionId: string;
-}
-
 const DAILY_REFRESH_TIME_ZONE = 'Asia/Seoul';
 
+interface NotificationServiceDependencies {
+  stateStore?: NotificationStateStore;
+  apiClient?: NotificationApiClient;
+  scheduler?: NotificationScheduler;
+  sender?: NotificationSender;
+}
+
 /**
- * 메인 프로세스 전용 알림 서비스 (SRP: 알림 발송 및 생명주기 관리)
+ * 메인 프로세스 전용 알림 서비스.
+ * 알림 계산, 저장, 서버 동기화, 스케줄링을 조립합니다.
  */
 export class NotificationService {
-  private timer: NodeJS.Timeout | null = null;
   private state: NotificationPersistedState | null = null;
   private accessToken: string | null = null;
-  private readonly apiUrl = process.env.VITE_API_URL || 'http://localhost:3000';
   private isChecking = false;
   private hasPendingCheck = false;
   private checkPromise: Promise<void> | null = null;
-  private readonly resumeHandler = () => {
-    void this.check();
-  };
+  private readonly stateStore: NotificationStateStore;
+  private readonly apiClient: NotificationApiClient;
+  private readonly scheduler: NotificationScheduler;
+  private readonly sender: NotificationSender;
+
+  constructor(dependencies: NotificationServiceDependencies = {}) {
+    this.stateStore = dependencies.stateStore ?? new NotificationStateStore();
+    this.apiClient = dependencies.apiClient ?? new NotificationApiClient();
+    this.scheduler = dependencies.scheduler ?? new NotificationScheduler(() => void this.check());
+    this.sender = dependencies.sender ?? new NotificationSender();
+  }
 
   /**
    * 서비스 시작
@@ -52,7 +48,7 @@ export class NotificationService {
   async start() {
     // 앱 시작 시 로컬에 저장된 마지막 데이터를 읽어옴 (오프라인 대비)
     try {
-      this.state = await mainStorage.read<NotificationPersistedState>(STORAGE_KEYS.REMINDER);
+      this.state = await this.stateStore.read();
     } catch (e) {
       console.warn('[NotificationService] Failed to load initial state:', e);
     }
@@ -60,7 +56,7 @@ export class NotificationService {
     void this.check();
 
     // 시스템 절전 모드 해제 시 즉시 체크 (Catch-up 로직)
-    powerMonitor.on('resume', this.resumeHandler);
+    this.scheduler.start();
   }
 
   /**
@@ -78,7 +74,7 @@ export class NotificationService {
     };
 
     // 동기화된 데이터를 로컬에도 저장 (앱 재시작 대비)
-    await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
+    await this.stateStore.write(this.state);
 
     // 데이터가 오면 즉시 알림 체크
     await this.check();
@@ -111,7 +107,7 @@ export class NotificationService {
     } finally {
       this.isChecking = false;
       this.checkPromise = null;
-      this.scheduleNext();
+      this.scheduler.scheduleNext();
     }
   }
 
@@ -132,7 +128,7 @@ export class NotificationService {
       // 상태 변경 시(예: notified 필드 업데이트) 상태 업데이트 및 저장
       if (hasChanges) {
         this.state = updatedState;
-        await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
+        await this.stateStore.write(this.state);
       }
 
       if (notifiedReminderIds.length > 0) {
@@ -152,8 +148,11 @@ export class NotificationService {
       return;
     }
 
+    const accessToken = this.accessToken;
     const uniqueIds = [...new Set(reminderIds)];
-    const results = await Promise.allSettled(uniqueIds.map((id) => this.markReminderNotified(id)));
+    const results = await Promise.allSettled(
+      uniqueIds.map((id) => this.apiClient.markReminderNotified(id, accessToken))
+    );
 
     results.forEach((result, index) => {
       if (result.status === 'rejected') {
@@ -163,21 +162,6 @@ export class NotificationService {
         );
       }
     });
-  }
-
-  private async markReminderNotified(reminderId: number) {
-    const response = await fetch(this.apiUrl + '/api/reminders/' + reminderId, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + this.accessToken,
-      },
-      body: JSON.stringify({ notified: true }),
-    });
-
-    if (!response.ok) {
-      throw new Error('PATCH /api/reminders/' + reminderId + ' failed with ' + response.status);
-    }
   }
 
   private async refreshFromServerAfterDateChange() {
@@ -192,82 +176,20 @@ export class NotificationService {
 
     try {
       const [sections, reminders] = await Promise.all([
-        this.fetchSectionsFromServer(),
-        this.fetchRemindersFromServer(),
+        this.apiClient.fetchSections(this.accessToken),
+        this.apiClient.fetchReminders(this.accessToken),
       ]);
 
       this.state = {
-        sections: this.mapServerData(sections, reminders),
+        sections: mapServerDataToNotificationSections(sections, reminders),
         lastNightCheckDate: this.state.lastNightCheckDate,
         lastServerRefreshDate: today,
       };
 
-      await mainStorage.write(STORAGE_KEYS.REMINDER, this.state);
+      await this.stateStore.write(this.state);
     } catch (err) {
       console.error('[NotificationService] Failed to refresh reminders after date change:', err);
     }
-  }
-
-  private async fetchSectionsFromServer() {
-    const response = await fetch(this.apiUrl + '/api/sections', {
-      headers: {
-        Authorization: 'Bearer ' + this.accessToken,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('GET /api/sections failed with ' + response.status);
-    }
-
-    const body = (await response.json()) as ApiResponse<ServerSection[]>;
-    return body.data;
-  }
-
-  private async fetchRemindersFromServer() {
-    const response = await fetch(this.apiUrl + '/api/reminders', {
-      headers: {
-        Authorization: 'Bearer ' + this.accessToken,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('GET /api/reminders failed with ' + response.status);
-    }
-
-    const body = (await response.json()) as ApiResponse<ServerReminder[]>;
-    return body.data;
-  }
-
-  private mapServerData(
-    sections: ServerSection[],
-    reminders: ServerReminder[]
-  ): ReminderSectionData[] {
-    const remindersBySectionId = new Map<string, ServerReminder[]>();
-
-    reminders.forEach((reminder) => {
-      const sectionReminders = remindersBySectionId.get(reminder.sectionId);
-
-      if (sectionReminders) {
-        sectionReminders.push(reminder);
-        return;
-      }
-
-      remindersBySectionId.set(reminder.sectionId, [reminder]);
-    });
-
-    return sections.map((section) => ({
-      id: section.id,
-      title: section.title,
-      isFixed: section.isFixed,
-      items: (remindersBySectionId.get(section.id) || []).map((item) => ({
-        id: item.id,
-        text: item.text,
-        time: item.time || undefined,
-        isAllDay: item.isAllDay,
-        notified: item.notified,
-        done: item.done,
-      })),
-    }));
   }
 
   private getTodayRefreshDate(date = new Date()) {
@@ -284,30 +206,16 @@ export class NotificationService {
   }
 
   /**
-   * 다음 체크 스케줄링 (1분 간격)
-   */
-  private scheduleNext() {
-    if (this.timer) clearTimeout(this.timer);
-
-    const now = new Date();
-    const delay = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 500;
-    this.timer = setTimeout(() => void this.check(), Math.max(1000, delay));
-  }
-
-  /**
    * 실제 시스템 알림 발송
    */
   private send(title: string, body: string) {
-    if (Notification.isSupported()) {
-      new Notification({ title, body, silent: false }).show();
-    }
+    this.sender.send(title, body);
   }
 
   /**
    * 서비스 정지
    */
   stop() {
-    if (this.timer) clearTimeout(this.timer);
-    powerMonitor.removeListener('resume', this.resumeHandler);
+    this.scheduler.stop();
   }
 }
