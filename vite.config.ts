@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import path from 'node:path';
-import electron from 'vite-plugin-electron/simple';
+import electron from 'vite-plugin-electron';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import svgr from 'vite-plugin-svgr';
@@ -39,8 +39,8 @@ export default defineConfig(({ mode }) => {
       },
       react(),
       !isTest && generateIconTypesPlugin(),
-      !isTest && electron({
-        main: {
+      !isTest && electron([
+        {
           entry: 'src/main.ts',
           vite: { 
             build: { 
@@ -51,11 +51,26 @@ export default defineConfig(({ mode }) => {
             } 
           },
         },
-        preload: {
-          input: 'preload.cjs',
-          vite: { build: { outDir: 'dist-electron/preload' } },
+        {
+          onstart: ({ reload }) => reload(),
+          vite: {
+            build: {
+              outDir: 'dist-electron/preload',
+              rollupOptions: {
+                input: {
+                  preload: 'preload.cjs',
+                },
+                output: {
+                  format: 'cjs',
+                  entryFileNames: '[name].mjs',
+                  chunkFileNames: '[name].mjs',
+                  assetFileNames: '[name].[ext]',
+                },
+              },
+            },
+          },
         },
-      }),
+      ]),
     ].filter(Boolean),
     define: {
       'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL),
