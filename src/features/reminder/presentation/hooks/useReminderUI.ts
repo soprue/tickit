@@ -16,27 +16,38 @@ export function useReminderUI() {
     edit.editState.editingSectionId
   );
   const filter = useSearchFilter(mappedSections, isEditingAny);
-  const actions = useReminderActions({ mappedSections, edit });
+  const actions = useReminderActions();
 
   useReminderNotificationSync(mappedSections, isInitialLoading);
 
   return {
-    state: edit.editState,
-    isEditingAny,
-    isLoading: isInitialLoading,
-    setEditingItemId: edit.setEditingItemId,
-    setEditingSectionId: edit.setEditingSectionId,
-    setAddingSection: edit.setAddingSection,
-    toggleTimePopover: edit.toggleTimePopover,
-    updatePickerTime: edit.updatePickerTime,
-    setAllDay: edit.setAllDay,
-    searchQuery: filter.searchQuery,
-    filterMode: filter.filterMode,
-    filteredSections: filter.filteredSections,
-    hasAnyMatches: filter.hasAnyMatches,
-    setSearchQuery: filter.setSearchQuery,
-    toggleFilterMode: filter.toggleFilterMode,
-    ...actions,
+    data: {
+      sections: mappedSections,
+      filteredSections: filter.filteredSections,
+      hasAnyMatches: filter.hasAnyMatches,
+    },
+    filter: {
+      searchQuery: filter.searchQuery,
+      filterMode: filter.filterMode,
+      setSearchQuery: filter.setSearchQuery,
+      toggleFilterMode: filter.toggleFilterMode,
+    },
+    edit: {
+      state: edit.editState,
+      isEditingAny,
+      setEditingItemId: edit.setEditingItemId,
+      setEditingSectionId: edit.setEditingSectionId,
+      setAddingSection: edit.setAddingSection,
+    },
+    timePicker: {
+      toggleTimePopover: edit.toggleTimePopover,
+      updatePickerTime: edit.updatePickerTime,
+      setAllDay: edit.setAllDay,
+    },
+    actions,
+    status: {
+      isLoading: isInitialLoading,
+    },
   };
 }
 

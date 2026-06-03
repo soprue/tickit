@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderActions } from '../context/ReminderActionsContext';
+import { useReminderActions } from '../hooks/useReminderActions';
 import { Checkbox } from '@src/shared/presentation/components/ui/Checkbox';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { formatKoreanTime } from '@src/shared/utils/date';
@@ -13,16 +13,16 @@ interface ViewModeProps {
 /**
  * 리마인더 항목 일반 모드 UI
  */
-export function ViewMode({ sectionId, item }: ViewModeProps) {
+export function ViewMode({ item }: ViewModeProps) {
   const actions = useReminderActions();
   const toggleDone = () => {
-    actions.toggleReminder(sectionId, item.id);
+    actions.toggleReminder(item);
   };
 
-  const startEdit = () => actions.setEditingItemId(item.id);
+  const startEdit = () => actions.startEditingReminder(item);
   const deleteItemAction = (e: React.MouseEvent) => {
     e.stopPropagation();
-    actions.deleteReminder(sectionId, item.id);
+    actions.deleteReminder(item.id);
   };
 
   const displayTime = item.isAllDay ? 'All Day' : item.time ? formatKoreanTime(item.time) : '';

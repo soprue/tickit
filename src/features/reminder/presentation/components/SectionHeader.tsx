@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderActions } from '../context/ReminderActionsContext';
+import { useReminderActions } from '../hooks/useReminderActions';
 import { useIsSectionTitleEditing } from '../hooks/useReminderUISelectors';
 import { InlineInput } from '@src/shared/presentation/components/ui/InlineInput';
 import { Icon } from '@src/shared/presentation/components/Icon';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderActions } from '../context/ReminderActionsContext';
+import { useReminderActions } from '../hooks/useReminderActions';
 import {
   useIsAddingReminder,
   useReminderTimePickerViewState,

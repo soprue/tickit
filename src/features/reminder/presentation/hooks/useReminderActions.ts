@@ -1,19 +1,37 @@
 import { useModalStore } from '@src/shared/domain/ModalStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
 import { useSyncStatus } from '@src/shared/context/SyncStatusContext';
-import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
+import { useReminderEditStore } from '@src/features/reminder/domain/ReminderEditStore';
+import type { Reminder } from '@src/features/reminder/domain/reminder';
 import { useReminderMutations } from './useReminderMutations';
-import type { ReminderEditController } from './useEditState';
+import { useTimePickerState } from './useTimePickerState';
 
-interface UseReminderActionsParams {
-  mappedSections: ReminderSectionData[];
-  edit: ReminderEditController;
-}
-
-export function useReminderActions({ mappedSections, edit }: UseReminderActionsParams) {
+export function useReminderActions() {
   const { showConfirm } = useModalStore((state) => state.actions);
   const { runSyncAction } = useSyncStatus();
+  const addingSectionId = useReminderEditStore((state) => state.addingSectionId);
+  const editingItemId = useReminderEditStore((state) => state.editingItemId);
+  const setAddingSectionId = useReminderEditStore((state) => state.setAddingSectionId);
+  const setEditingItemId = useReminderEditStore((state) => state.setEditingItemId);
+  const setEditingSectionId = useReminderEditStore((state) => state.setEditingSectionId);
+  const resetEditState = useReminderEditStore((state) => state.resetEditState);
+  const timePicker = useTimePickerState();
   const mutations = useReminderMutations();
+
+  const clearEditState = () => {
+    resetEditState();
+    timePicker.resetTimeState();
+  };
+
+  const setAddingSection = (sectionId: string | null) => {
+    timePicker.resetTimeState();
+    setAddingSectionId(sectionId);
+  };
+
+  const startEditingReminder = (reminder: Reminder) => {
+    timePicker.setInitialTime(reminder.time, reminder.isAllDay);
+    setEditingItemId(reminder.id);
+  };
 
   const addSection = () => {
     runSyncAction(async () => {
@@ -29,7 +47,7 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
         await mutations.updateSection.mutateAsync({ id: sectionId, data: { title } });
       });
     }
-    edit.clearEditState();
+    clearEditState();
   };
 
   const deleteSection = (sectionId: string) => {
@@ -44,20 +62,16 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
     });
   };
 
-  const toggleReminder = (sectionId: string, reminderId: number) => {
-    const section = mappedSections.find((s) => s.id === sectionId);
-    const item = section?.items.find((i) => i.id === reminderId);
-    if (!item) return;
-
+  const toggleReminder = (reminder: Reminder) => {
     runSyncAction(async () => {
       await mutations.updateReminder.mutateAsync({
-        id: reminderId,
-        data: { done: !item.done },
+        id: reminder.id,
+        data: { done: !reminder.done },
       });
     });
   };
 
-  const deleteReminder = (sectionId: string, reminderId: number) => {
+  const deleteReminder = (reminderId: number) => {
     showConfirm({
       title: '리마인더 삭제',
       message: '이 항목을 삭제하시겠습니까?',
@@ -69,25 +83,22 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
     });
   };
 
-  const updateReminder = (sectionId: string, reminderId: number, text: string) => {
-    const { editingItemId, selectedTime, isAllDay } = edit.editState;
-    if (editingItemId !== reminderId) return;
+  const updateReminder = (reminder: Reminder, text: string) => {
+    const { selectedTime, isAllDay } = timePicker.timeState;
+    if (editingItemId !== reminder.id) return;
 
-    const section = mappedSections.find((s) => s.id === sectionId);
-    const item = section?.items.find((i) => i.id === reminderId);
-
-    if (item && text.trim()) {
+    if (text.trim()) {
       const finalIsAllDay = selectedTime ? isAllDay : true;
       const timeString = selectedTime?.toISOString();
 
-      const hasTextChanged = item.text !== text;
-      const hasTimeChanged = item.time !== timeString;
-      const hasAllDayChanged = item.isAllDay !== finalIsAllDay;
+      const hasTextChanged = reminder.text !== text;
+      const hasTimeChanged = reminder.time !== timeString;
+      const hasAllDayChanged = reminder.isAllDay !== finalIsAllDay;
 
       if (hasTextChanged || hasTimeChanged || hasAllDayChanged) {
         runSyncAction(async () => {
           await mutations.updateReminder.mutateAsync({
-            id: reminderId,
+            id: reminder.id,
             data: {
               text,
               time: timeString,
@@ -97,11 +108,11 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
         });
       }
     }
-    edit.clearEditState();
+    clearEditState();
   };
 
   const addReminder = (sectionId: string, text: string) => {
-    const { addingSectionId, selectedTime, isAllDay } = edit.editState;
+    const { selectedTime, isAllDay } = timePicker.timeState;
     if (addingSectionId !== sectionId) return;
     if (!text.trim()) return;
 
@@ -117,10 +128,17 @@ export function useReminderActions({ mappedSections, edit }: UseReminderActionsP
         },
       });
     });
-    edit.setAddingSection(null);
+    setAddingSection(null);
   };
 
   return {
+    setEditingItemId,
+    setEditingSectionId,
+    setAddingSection,
+    startEditingReminder,
+    toggleTimePopover: timePicker.toggleTimePopover,
+    updatePickerTime: timePicker.updatePickerTime,
+    setAllDay: timePicker.setAllDay,
     addSection,
     updateSectionTitle,
     deleteSection,
