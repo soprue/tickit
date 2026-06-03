@@ -53,6 +53,21 @@ export class MainStorage {
   }
 
   /**
+   * 데이터 삭제
+   */
+  async remove(key: string): Promise<void> {
+    const filePath = this.getFilePath(key);
+    try {
+      if (fs.existsSync(filePath)) {
+        await fs.promises.unlink(filePath);
+      }
+    } catch (err) {
+      console.error(`[Infrastructure] [MainStorage] Remove failed (${key}):`, err);
+      throw err;
+    }
+  }
+
+  /**
    * 파일 존재 여부 확인
    */
   exists(key: string): boolean {

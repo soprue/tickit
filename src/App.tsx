@@ -5,7 +5,7 @@ import LoginPage from './features/auth/presentation/LoginPage';
 import RegisterPage from './features/auth/presentation/RegisterPage';
 import { GlobalModal } from './shared/presentation/components/GlobalModal';
 import { GlobalToast } from './shared/presentation/components/GlobalToast';
-import { ActionProvider } from './shared/context/ActionContext';
+import { SyncStatusProvider } from './shared/context/SyncStatusContext';
 import GlobalErrorBoundary from './shared/presentation/components/GlobalErrorBoundary';
 import { useThemeStore } from './shared/domain/ThemeStore';
 import { useAuthStore } from './features/auth/domain/AuthStore';
@@ -52,7 +52,7 @@ export default function App() {
 
   return (
     <GlobalErrorBoundary>
-      <ActionProvider>
+      <SyncStatusProvider>
         <Router>
           <Routes>
             <Route 
@@ -83,8 +83,7 @@ export default function App() {
           <GlobalModal />
           <GlobalToast />
         </Router>
-      </ActionProvider>
+      </SyncStatusProvider>
     </GlobalErrorBoundary>
   );
 }
-

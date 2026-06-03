@@ -6,6 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 
-export * from './loginDto';
-export * from './registerDto';
-export * from './userEntity';
+export interface UpdateSectionDto {
+  /**
+     * 섹션 제목
+     * @maxLength 50
+     */
+  title?: string;
+}

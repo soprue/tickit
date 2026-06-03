@@ -8,6 +8,29 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+let refreshAccessTokenPromise: Promise<string> | null = null;
+
+const refreshAccessToken = () => {
+  if (!refreshAccessTokenPromise) {
+    refreshAccessTokenPromise = axios
+      .post(
+        `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
+        {},
+        { withCredentials: true }
+      )
+      .then((response) => {
+        const { accessToken } = response.data as { accessToken: string };
+        useAuthStore.getState().actions.setAccessToken(accessToken);
+        return accessToken;
+      })
+      .finally(() => {
+        refreshAccessTokenPromise = null;
+      });
+  }
+
+  return refreshAccessTokenPromise;
+};
+
 // 요청 인터셉터 (인증 토큰 주입)
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -24,7 +47,11 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as (AxiosRequestConfig & { _retry?: boolean }) | undefined;
+
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/refresh')) {
@@ -35,13 +62,12 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/refresh`, {}, { withCredentials: true });
-        const { accessToken } = response.data as { accessToken: string };
-
-        useAuthStore.getState().actions.setAccessToken(accessToken);
+        const accessToken = await refreshAccessToken();
 
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        } else {
+          originalRequest.headers = { Authorization: `Bearer ${accessToken}` };
         }
         return axiosInstance(originalRequest);
       } catch (refreshError) {

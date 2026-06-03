@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToastStore } from '@src/shared/domain/ToastStore';
-import { useAuthControllerRegister } from '@features/auth/infrastructure/api/인증-auth/인증-auth';
+import { useAuthControllerRegister } from '@src/shared/infrastructure/api/인증-auth/인증-auth';
 import { ROUTES } from '@src/shared/constants';
 import { isApiError } from '@src/shared/utils/error';
 

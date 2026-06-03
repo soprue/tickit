@@ -20,8 +20,10 @@ import type {
   UseQueryResult
 } from '@tanstack/react-query';
 
-import { customInstance } from '../../../../../shared/infrastructure/apiClient';
+import { customInstance } from '../../apiClient';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -71,16 +73,16 @@ export const getAppControllerGetHelloQueryKey = () => {
     }
 
 
-export const getAppControllerGetHelloQueryOptions = <TData = Awaited<ReturnType<typeof appControllerGetHello>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, }
+export const getAppControllerGetHelloQueryOptions = <TData = Awaited<ReturnType<typeof appControllerGetHello>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAppControllerGetHelloQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof appControllerGetHello>>> = ({ signal }) => appControllerGetHello({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof appControllerGetHello>>> = ({ signal }) => appControllerGetHello({ signal, ...requestOptions });
 
 
 
@@ -100,7 +102,7 @@ export function useAppControllerGetHello<TData = Awaited<ReturnType<typeof appCo
           TError,
           Awaited<ReturnType<typeof appControllerGetHello>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAppControllerGetHello<TData = Awaited<ReturnType<typeof appControllerGetHello>>, TError = unknown>(
@@ -110,11 +112,11 @@ export function useAppControllerGetHello<TData = Awaited<ReturnType<typeof appCo
           TError,
           Awaited<ReturnType<typeof appControllerGetHello>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAppControllerGetHello<TData = Awaited<ReturnType<typeof appControllerGetHello>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -122,7 +124,7 @@ export function useAppControllerGetHello<TData = Awaited<ReturnType<typeof appCo
  */
 
 export function useAppControllerGetHello<TData = Awaited<ReturnType<typeof appControllerGetHello>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof appControllerGetHello>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

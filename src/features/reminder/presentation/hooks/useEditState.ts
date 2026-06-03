@@ -1,47 +1,64 @@
-import { useReminderStore } from '@src/features/reminder/domain/ReminderStore';
-import { useReminderUIStore } from '@src/features/reminder/domain/ReminderUIStore';
+import { useMemo } from 'react';
+import { useReminderEditStore } from '@src/features/reminder/domain/ReminderEditStore';
 import { useTimePickerState } from './useTimePickerState';
+import type { ReminderSectionData } from '@src/features/reminder/domain/reminder';
 
 /**
- * 전역 UI 스토어를 활용하여 리마인더 편집/추가 관련 아이디 상태를 관리하는 커스텀 훅.
+ * 리마인더 편집/추가 관련 아이디 상태를 관리하는 커스텀 훅.
  */
-export function useEditState() {
-  const ui = useReminderUIStore();
-  const sections = useReminderStore((state) => state.sections);
+export function useEditState(sections: ReminderSectionData[]) {
+  const addingSectionId = useReminderEditStore((state) => state.addingSectionId);
+  const editingItemId = useReminderEditStore((state) => state.editingItemId);
+  const editingSectionId = useReminderEditStore((state) => state.editingSectionId);
+  const storeSetEditingItemId = useReminderEditStore((state) => state.setEditingItemId);
+  const storeSetEditingSectionId = useReminderEditStore((state) => state.setEditingSectionId);
+  const setAddingSectionId = useReminderEditStore((state) => state.setAddingSectionId);
+  const resetEditState = useReminderEditStore((state) => state.resetEditState);
   const timePicker = useTimePickerState();
+
+  const itemsById = useMemo(() => {
+    const map = new Map<number, { time?: string; isAllDay: boolean }>();
+    sections.forEach((section) => {
+      section.items.forEach((item) => {
+        map.set(item.id, { time: item.time, isAllDay: item.isAllDay });
+      });
+    });
+    return map;
+  }, [sections]);
 
   const setEditingItemId = (reminderId: number | null) => {
     if (reminderId === null) {
-      ui.setEditingItemId(null);
+      storeSetEditingItemId(null);
       return;
     }
 
-    const foundItem = sections.flatMap((s) => s.items).find((it) => it.id === reminderId);
+    const foundItem = itemsById.get(reminderId);
 
     if (foundItem) {
       timePicker.setInitialTime(foundItem.time, foundItem.isAllDay);
-      ui.setEditingItemId(reminderId);
+      storeSetEditingItemId(reminderId);
     }
   };
 
   const setEditingSectionId = (sectionId: string | null) => {
-    ui.setEditingSectionId(sectionId);
+    storeSetEditingSectionId(sectionId);
   };
 
   const setAddingSection = (sectionId: string | null) => {
     timePicker.resetTimeState();
-    ui.setAddingSectionId(sectionId);
+    setAddingSectionId(sectionId);
   };
 
   const clearEditState = () => {
-    ui.resetEditState();
+    resetEditState();
+    timePicker.resetTimeState();
   };
 
   return {
     editState: {
-      addingSectionId: ui.addingSectionId,
-      editingItemId: ui.editingItemId,
-      editingSectionId: ui.editingSectionId,
+      addingSectionId,
+      editingItemId,
+      editingSectionId,
       ...timePicker.timeState,
     },
     setEditingItemId,
@@ -54,3 +71,4 @@ export function useEditState() {
   };
 }
 
+export type ReminderEditController = ReturnType<typeof useEditState>;

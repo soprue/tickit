@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateNotifications } from './NotificationLogic';
 import type { NotificationPersistedState } from './NotificationLogic';
-import { Category } from '../shared/constants';
 
 describe('NotificationLogic - calculateNotifications', () => {
   const testDate = new Date(2026, 4, 13, 10, 0); // 2026-05-13 10:00:00 로컬 시간
@@ -9,7 +8,7 @@ describe('NotificationLogic - calculateNotifications', () => {
   const mockState: NotificationPersistedState = {
     sections: [
       {
-        id: Category.TODO,
+        id: 'todo',
         title: 'To Do',
         isFixed: true,
         items: [
@@ -25,6 +24,7 @@ describe('NotificationLogic - calculateNotifications', () => {
       },
     ],
     lastNightCheckDate: '2026-05-12',
+    lastServerRefreshDate: '2026-05-13',
   };
 
   it('밤 9시 이후에 미완료 항목이 있으면 밤 9시 알림을 생성한다', () => {
@@ -52,6 +52,7 @@ describe('NotificationLogic - calculateNotifications', () => {
       })
     );
     expect(result.updatedState.sections[0].items[0].notified).toBe(true);
+    expect(result.notifiedReminderIds).toEqual([1]);
     expect(result.hasChanges).toBe(true);
   });
 
@@ -70,6 +71,7 @@ describe('NotificationLogic - calculateNotifications', () => {
     const result = calculateNotifications(notifiedState, now);
 
     expect(result.notifications.length).toBe(0);
+    expect(result.notifiedReminderIds).toEqual([]);
     expect(result.hasChanges).toBe(false);
   });
 

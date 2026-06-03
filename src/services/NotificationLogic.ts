@@ -8,11 +8,13 @@ import type { Reminder, ReminderSectionData } from '../features/reminder/domain/
 export interface NotificationPersistedState {
   sections: ReminderSectionData[];
   lastNightCheckDate: string | null;
+  lastServerRefreshDate: string | null;
 }
 
 interface NotificationCheckResult {
   hasChanges: boolean;
   notifications: Array<{ title: string; body: string }>;
+  notifiedReminderIds: number[];
   updatedState: NotificationPersistedState;
 }
 
@@ -48,6 +50,7 @@ export function calculateNotifications(
   now: Date
 ): NotificationCheckResult {
   const notifications: Array<{ title: string; body: string }> = [];
+  const notifiedReminderIds: number[] = [];
   let hasChanges = false;
 
   const updatedState = produce(state, (draft) => {
@@ -97,6 +100,7 @@ export function calculateNotifications(
           }
 
           item.notified = true;
+          notifiedReminderIds.push(item.id);
           hasChanges = true;
         }
       });
@@ -106,6 +110,7 @@ export function calculateNotifications(
   return {
     hasChanges,
     notifications,
+    notifiedReminderIds,
     updatedState,
   };
 }

@@ -10,8 +10,10 @@ export const STORAGE_KEYS = {
 export const IPC_CHANNELS = {
   GET_ALL: 'reminder:get-all',
   SAVE: 'reminder:save',
+  REMOVE: 'reminder:remove',
   NOTIFY: 'reminder:notify',
   AUTH_GOOGLE: 'auth:google',
+  SYNC_NOTIFICATIONS: 'reminder:sync-notifications',
 } as const;
 
 export const ROUTES = {
@@ -26,7 +28,7 @@ export const DELAYS = {
   UI_TRANSITION: 150, // 일반적인 UI 전환/닫힘 대기 시간 (ms)
   ANIMATION_SMOOTH: 500, // 부드러운 애니메이션/트랜지션 시간 (ms)
   AUTO_CLOSE: 3000, // 토스트/알림 자동 닫힘 시간 (ms)
-  STATUS_DISPLAY: 2000, // "저장 완료" 등 상태 메시지 유지 시간 (ms)
+  STATUS_DISPLAY: 2000, // 동기화 완료 등 상태 메시지 유지 시간 (ms)
 } as const;
 
 export const REMINDER_CONFIG = {
@@ -36,21 +38,6 @@ export const REMINDER_CONFIG = {
   DEFAULT_MINUTE: '00',
   DEFAULT_AMPM: 'AM' as const,
 } as const;
-
-/**
- * 리마인더 카테고리 정의
- */
-export enum Category {
-  EVERYDAY = 'Everyday',
-  TODO = 'To Do',
-  WORK = 'Work',
-}
-
-export const CATEGORY_LIST = [
-  { title: 'Everyday', value: Category.EVERYDAY },
-  { title: 'To Do', value: Category.TODO },
-  { title: 'Work', value: Category.WORK },
-] as const;
 
 export const NOTIFICATION_MESSAGES = {
   INDIVIDUAL_TITLE: '리마인더 알림',

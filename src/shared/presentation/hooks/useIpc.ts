@@ -8,12 +8,10 @@ import { ipc } from '../../utils/ipc';
  */
 export function useIpc(channel: string, callback: (...args: unknown[]) => void) {
   useEffect(() => {
-    ipc.on(channel, callback);
+    const unsubscribe = ipc.on(channel, callback);
 
-    // TODO: preload.cjs에 removeListener 로직 추가 시 여기에 cleanup 코드 작성
     return () => {
-      // window.api.off(channel, callback);
+      unsubscribe();
     };
   }, [channel, callback]);
 }
-

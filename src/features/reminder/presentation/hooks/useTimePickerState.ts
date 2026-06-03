@@ -1,14 +1,22 @@
-import { useReminderUIStore } from '@src/features/reminder/domain/ReminderUIStore';
+import { useReminderTimePickerStore } from '@src/features/reminder/domain/ReminderTimePickerStore';
 import { REMINDER_CONFIG } from '@src/shared/constants';
 import { parseDateToPickerState, createDateFromPickerState } from '@src/shared/utils/date';
 
 /**
- * 전역 UI 스토어와 공통 시간 유틸리티를 활용하여 타임 피커 상태를 관리하는 커스텀 훅
+ * 공통 시간 유틸리티를 활용하여 타임 피커 상태를 관리하는 커스텀 훅
  */
 export function useTimePickerState() {
-  const state = useReminderUIStore();
+  const showTimePopover = useReminderTimePickerStore((state) => state.showTimePopover);
+  const selectedTime = useReminderTimePickerStore((state) => state.selectedTime);
+  const isAllDay = useReminderTimePickerStore((state) => state.isAllDay);
+  const pickerAMPM = useReminderTimePickerStore((state) => state.pickerAMPM);
+  const pickerHour = useReminderTimePickerStore((state) => state.pickerHour);
+  const pickerMinute = useReminderTimePickerStore((state) => state.pickerMinute);
+  const setTimePickerState = useReminderTimePickerStore((state) => state.setTimePickerState);
+  const resetTimePickerState = useReminderTimePickerStore((state) => state.resetTimePickerState);
 
   const toggleTimePopover = (currentTime?: Date) => {
+    const state = useReminderTimePickerStore.getState();
     const isOpening = !state.showTimePopover;
 
     if (isOpening) {
@@ -29,18 +37,20 @@ export function useTimePickerState() {
               minute: REMINDER_CONFIG.DEFAULT_MINUTE,
             };
 
-      state.setUIState({
+      setTimePickerState({
         showTimePopover: true,
         pickerAMPM: pickerState.ampm,
         pickerHour: pickerState.hour,
         pickerMinute: pickerState.minute,
       });
     } else {
-      state.setUIState({ showTimePopover: false });
+      setTimePickerState({ showTimePopover: false });
     }
   };
 
   const updatePickerTime = (key: 'pickerAMPM' | 'pickerHour' | 'pickerMinute', value: string) => {
+    const state = useReminderTimePickerStore.getState();
+
     // 입력값을 기반으로 실제 Date 객체 생성 (유틸리티 활용)
     const ampm = key === 'pickerAMPM' ? (value as 'AM' | 'PM') : state.pickerAMPM;
     const hour = key === 'pickerHour' ? value : state.pickerHour;
@@ -48,7 +58,7 @@ export function useTimePickerState() {
 
     const date = createDateFromPickerState(ampm, hour, minute);
 
-    state.setUIState({
+    setTimePickerState({
       [key]: value,
       selectedTime: date,
       isAllDay: false,
@@ -57,7 +67,7 @@ export function useTimePickerState() {
   };
 
   const setAllDay = () => {
-    state.setUIState({
+    setTimePickerState({
       selectedTime: undefined,
       isAllDay: true,
       showTimePopover: false,
@@ -76,7 +86,7 @@ export function useTimePickerState() {
           minute: REMINDER_CONFIG.DEFAULT_MINUTE,
         };
 
-    state.setUIState({
+    setTimePickerState({
       selectedTime: timeDate,
       isAllDay,
       pickerAMPM: pickerState.ampm,
@@ -88,18 +98,17 @@ export function useTimePickerState() {
 
   return {
     timeState: {
-      showTimePopover: state.showTimePopover,
-      selectedTime: state.selectedTime,
-      isAllDay: state.isAllDay,
-      pickerAMPM: state.pickerAMPM,
-      pickerHour: state.pickerHour,
-      pickerMinute: state.pickerMinute,
+      showTimePopover,
+      selectedTime,
+      isAllDay,
+      pickerAMPM,
+      pickerHour,
+      pickerMinute,
     },
     toggleTimePopover,
     updatePickerTime,
     setAllDay,
     setInitialTime,
-    resetTimeState: state.resetEditState,
+    resetTimeState: resetTimePickerState,
   };
 }
-

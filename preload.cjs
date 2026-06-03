@@ -6,15 +6,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 const IPC_CHANNELS = {
   GET_ALL: 'reminder:get-all',
   SAVE: 'reminder:save',
+  REMOVE: 'reminder:remove',
   NOTIFY: 'reminder:notify',
   AUTH_GOOGLE: 'auth:google',
+  SYNC_NOTIFICATIONS: 'reminder:sync-notifications',
 };
 
 contextBridge.exposeInMainWorld('api', {
   // 메인 프로세스에 데이터를 보내고 결과를 기다리는 (invoke) 래퍼
   invoke: (channel, data) => {
     // 허용된 채널 목록 (보안 검사)
-    const validChannels = [IPC_CHANNELS.GET_ALL, IPC_CHANNELS.SAVE, IPC_CHANNELS.AUTH_GOOGLE];
+    const validChannels = [
+      IPC_CHANNELS.GET_ALL, 
+      IPC_CHANNELS.SAVE, 
+      IPC_CHANNELS.REMOVE,
+      IPC_CHANNELS.AUTH_GOOGLE,
+      IPC_CHANNELS.SYNC_NOTIFICATIONS
+    ];
     if (validChannels.includes(channel)) {
       return ipcRenderer.invoke(channel, data);
     }
@@ -24,8 +32,11 @@ contextBridge.exposeInMainWorld('api', {
   on: (channel, callback) => {
     const validChannels = [IPC_CHANNELS.NOTIFY];
     if (validChannels.includes(channel)) {
-      ipcRenderer.on(channel, (event, ...args) => callback(...args));
+      const listener = (_event, ...args) => callback(...args);
+      ipcRenderer.on(channel, listener);
+      return () => ipcRenderer.removeListener(channel, listener);
     }
+    return () => {};
   },
 });
 

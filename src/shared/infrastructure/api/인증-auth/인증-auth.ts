@@ -26,12 +26,15 @@ import type {
 
 import type {
   LoginDto,
+  RefreshTokenDto,
   RegisterDto,
   UserEntity
 } from '../model';
 
-import { customInstance } from '../../../../../shared/infrastructure/apiClient';
+import { customInstance } from '../../apiClient';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -74,15 +77,15 @@ export const authControllerLogout = async ( options?: RequestInit): Promise<auth
 
 
 export const getAuthControllerLogoutMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogout>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogout>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerLogout>>, TError,void, TContext> => {
 
 const mutationKey = ['authControllerLogout'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -90,7 +93,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerLogout>>, void> = () => {
 
 
-          return  authControllerLogout()
+          return  authControllerLogout(requestOptions)
         }
 
 
@@ -108,7 +111,7 @@ const {mutation: mutationOptions} = options ?
  * @summary 로그아웃
  */
 export const useAuthControllerLogout = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogout>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogout>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerLogout>>,
         TError,
@@ -141,14 +144,15 @@ export const getAuthControllerRefreshUrl = () => {
  * 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.
  * @summary 액세스 토큰 갱신
  */
-export const authControllerRefresh = async ( options?: RequestInit): Promise<authControllerRefreshResponse> => {
+export const authControllerRefresh = async (refreshTokenDto: RefreshTokenDto, options?: RequestInit): Promise<authControllerRefreshResponse> => {
 
   return customInstance<authControllerRefreshResponse>(getAuthControllerRefreshUrl(),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      refreshTokenDto,)
   }
 );}
 
@@ -156,23 +160,23 @@ export const authControllerRefresh = async ( options?: RequestInit): Promise<aut
 
 
 export const getAuthControllerRefreshMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,void, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,{data: RefreshTokenDto}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,{data: RefreshTokenDto}, TContext> => {
 
 const mutationKey = ['authControllerRefresh'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerRefresh>>, void> = () => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerRefresh>>, {data: RefreshTokenDto}> = (props) => {
+          const {data} = props ?? {};
 
-
-          return  authControllerRefresh()
+          return  authControllerRefresh(data,requestOptions)
         }
 
 
@@ -183,18 +187,18 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type AuthControllerRefreshMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerRefresh>>>
-
+    export type AuthControllerRefreshMutationBody = RefreshTokenDto
     export type AuthControllerRefreshMutationError = unknown
 
     /**
  * @summary 액세스 토큰 갱신
  */
 export const useAuthControllerRefresh = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,{data: RefreshTokenDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerRefresh>>,
         TError,
-        void,
+        {data: RefreshTokenDto},
         TContext
       > => {
       return useMutation(getAuthControllerRefreshMutationOptions(options), queryClient);
@@ -245,16 +249,16 @@ export const getAuthControllerGoogleAuthQueryKey = () => {
     }
 
 
-export const getAuthControllerGoogleAuthQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, }
+export const getAuthControllerGoogleAuthQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerGoogleAuthQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleAuth>>> = ({ signal }) => authControllerGoogleAuth({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleAuth>>> = ({ signal }) => authControllerGoogleAuth({ signal, ...requestOptions });
 
 
 
@@ -274,7 +278,7 @@ export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof au
           TError,
           Awaited<ReturnType<typeof authControllerGoogleAuth>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = unknown>(
@@ -284,11 +288,11 @@ export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof au
           TError,
           Awaited<ReturnType<typeof authControllerGoogleAuth>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -296,7 +300,7 @@ export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof au
  */
 
 export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuth>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -313,7 +317,7 @@ export function useAuthControllerGoogleAuth<TData = Awaited<ReturnType<typeof au
 
 
 export type authControllerGoogleAuthRedirectResponse200 = {
-  data: unknown
+  data: void
   status: 200
 }
 
@@ -333,7 +337,7 @@ export const getAuthControllerGoogleAuthRedirectUrl = () => {
 }
 
 /**
- * 구글 로그인 성공 후 리다이렉트되어 JWT를 발급받는 엔드포인트입니다.
+ * 구글 로그인 성공 후 리다이렉트되어 앱(Deep Link)으로 데이터를 전달합니다.
  * @summary 구글 로그인 콜백 처리
  */
 export const authControllerGoogleAuthRedirect = async ( options?: RequestInit): Promise<authControllerGoogleAuthRedirectResponse> => {
@@ -358,16 +362,16 @@ export const getAuthControllerGoogleAuthRedirectQueryKey = () => {
     }
 
 
-export const getAuthControllerGoogleAuthRedirectQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError, TData>>, }
+export const getAuthControllerGoogleAuthRedirectQueryOptions = <TData = Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerGoogleAuthRedirectQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>> = ({ signal }) => authControllerGoogleAuthRedirect({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>> = ({ signal }) => authControllerGoogleAuthRedirect({ signal, ...requestOptions });
 
 
 
@@ -387,7 +391,7 @@ export function useAuthControllerGoogleAuthRedirect<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleAuthRedirect<TData = Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError = unknown>(
@@ -397,11 +401,11 @@ export function useAuthControllerGoogleAuthRedirect<TData = Awaited<ReturnType<t
           TError,
           Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useAuthControllerGoogleAuthRedirect<TData = Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -409,7 +413,7 @@ export function useAuthControllerGoogleAuthRedirect<TData = Awaited<ReturnType<t
  */
 
 export function useAuthControllerGoogleAuthRedirect<TData = Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerGoogleAuthRedirect>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -477,15 +481,15 @@ export const authControllerRegister = async (registerDto: RegisterDto, options?:
 
 
 export const getAuthControllerRegisterMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext> => {
 
 const mutationKey = ['authControllerRegister'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -493,7 +497,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerRegister>>, {data: RegisterDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  authControllerRegister(data,)
+          return  authControllerRegister(data,requestOptions)
         }
 
 
@@ -511,7 +515,7 @@ const {mutation: mutationOptions} = options ?
  * @summary 이메일 회원가입
  */
 export const useAuthControllerRegister = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRegister>>, TError,{data: RegisterDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerRegister>>,
         TError,
@@ -567,15 +571,15 @@ export const authControllerLogin = async (loginDto: LoginDto, options?: RequestI
 
 
 export const getAuthControllerLoginMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext> => {
 
 const mutationKey = ['authControllerLogin'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -583,7 +587,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerLogin>>, {data: LoginDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  authControllerLogin(data,)
+          return  authControllerLogin(data,requestOptions)
         }
 
 
@@ -601,7 +605,7 @@ const {mutation: mutationOptions} = options ?
  * @summary 이메일 로그인
  */
 export const useAuthControllerLogin = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerLogin>>, TError,{data: LoginDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authControllerLogin>>,
         TError,

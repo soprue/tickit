@@ -35,8 +35,8 @@ export function InlineInput({
   const handleSave = () => {
     if (isSaving.current) return;
 
-    // 1. 값이 변하지 않았거나 비어있으면 저장 대신 취소 처리
-    if (value === defaultValue || value.trim() === '') {
+    // 1. 값이 비어있으면 저장 대신 취소 처리
+    if (value.trim() === '') {
       onCancel?.();
       return;
     }

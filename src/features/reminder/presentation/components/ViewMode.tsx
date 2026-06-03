@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReminderUI } from '../hooks/useReminderUI';
+import { useReminderActions } from '../hooks/useReminderActions';
 import { Checkbox } from '@src/shared/presentation/components/ui/Checkbox';
 import { Icon } from '@src/shared/presentation/components/Icon';
 import { formatKoreanTime } from '@src/shared/utils/date';
@@ -13,17 +13,16 @@ interface ViewModeProps {
 /**
  * 리마인더 항목 일반 모드 UI
  */
-export function ViewMode({ sectionId, item }: ViewModeProps) {
-  const ui = useReminderUI();
-
+export function ViewMode({ item }: ViewModeProps) {
+  const actions = useReminderActions();
   const toggleDone = () => {
-    ui.toggleReminder(sectionId, item.id);
+    actions.toggleReminder(item);
   };
 
-  const startEdit = () => ui.setEditingItemId(item.id);
+  const startEdit = () => actions.startEditingReminder(item);
   const deleteItemAction = (e: React.MouseEvent) => {
     e.stopPropagation();
-    ui.deleteReminder(sectionId, item.id);
+    actions.deleteReminder(item.id);
   };
 
   const displayTime = item.isAllDay ? 'All Day' : item.time ? formatKoreanTime(item.time) : '';
@@ -63,7 +62,7 @@ export function ViewMode({ sectionId, item }: ViewModeProps) {
           ✎
         </button>
         <button
-          className="text-text-muted hover:bg-red-500/10 hover:text-red-500 flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none transition-all"
+          className="text-text-muted flex h-8 w-6 cursor-pointer items-center justify-center rounded-md border-none bg-none transition-all hover:bg-red-500/10 hover:text-red-500"
           onClick={deleteItemAction}
           title="삭제"
         >

@@ -24,8 +24,10 @@ import type {
   UserEntity
 } from '../model';
 
-import { customInstance } from '../../../../../shared/infrastructure/apiClient';
+import { customInstance } from '../../apiClient';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -82,16 +84,16 @@ export const getUsersControllerGetProfileQueryKey = () => {
     }
 
 
-export const getUsersControllerGetProfileQueryOptions = <TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, }
+export const getUsersControllerGetProfileQueryOptions = <TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUsersControllerGetProfileQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersControllerGetProfile>>> = ({ signal }) => usersControllerGetProfile({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersControllerGetProfile>>> = ({ signal }) => usersControllerGetProfile({ signal, ...requestOptions });
 
 
 
@@ -111,7 +113,7 @@ export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof u
           TError,
           Awaited<ReturnType<typeof usersControllerGetProfile>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = void>(
@@ -121,11 +123,11 @@ export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof u
           TError,
           Awaited<ReturnType<typeof usersControllerGetProfile>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -133,7 +135,7 @@ export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof u
  */
 
 export function useUsersControllerGetProfile<TData = Awaited<ReturnType<typeof usersControllerGetProfile>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersControllerGetProfile>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
