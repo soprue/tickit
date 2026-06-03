@@ -5,7 +5,7 @@ import type { ReminderSectionData } from '@src/features/reminder/domain/reminder
 /**
  * 리마인더 검색 및 필터링 로직을 관리하는 커스텀 훅
  */
-export function useSearchFilter(sections: ReminderSectionData[], isEditingAny: boolean) {
+export function useSearchFilter(sections: ReminderSectionData[]) {
   const searchQuery = useReminderSearchStore((state) => state.searchQuery);
   const filterMode = useReminderSearchStore((state) => state.filterMode);
   const setSearchQuery = useReminderSearchStore((state) => state.setSearchQuery);
@@ -33,11 +33,10 @@ export function useSearchFilter(sections: ReminderSectionData[], isEditingAny: b
         }),
       }))
       .filter((section) => {
-        if (isEditingAny) return true;
         if (isSearching || filterMode !== 'all') return section.items.length > 0;
         return true;
       });
-  }, [sections, searchQuery, filterMode, isEditingAny]);
+  }, [sections, searchQuery, filterMode]);
 
   const hasAnyMatches = useMemo(
     () => filteredSections.some((s) => s.items.length > 0),

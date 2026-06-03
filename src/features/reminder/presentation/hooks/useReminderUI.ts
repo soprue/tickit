@@ -15,7 +15,7 @@ export function useReminderUI() {
     edit.editState.editingItemId ||
     edit.editState.editingSectionId
   );
-  const filter = useSearchFilter(mappedSections, isEditingAny);
+  const filter = useSearchFilter(mappedSections);
   const actions = useReminderActions();
 
   useReminderNotificationSync(mappedSections, isInitialLoading);
