@@ -1,29 +1,86 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNetworkStatusStore } from '@src/shared/domain/NetworkStatusStore';
+import { checkServerHealth } from '@src/shared/infrastructure/serverHealth';
+
+const SERVER_UNREACHABLE_RETRY_MS = 10000;
 
 export function useNetworkStatus() {
-  const isOnline = useNetworkStatusStore((state) => state.isOnline);
-  const setOnlineStatus = useNetworkStatusStore((state) => state.actions.setOnlineStatus);
+  const status = useNetworkStatusStore((state) => state.status);
+  const isCheckingServer = useNetworkStatusStore((state) => state.isCheckingServer);
+  const setStatus = useNetworkStatusStore((state) => state.actions.setStatus);
+  const setCheckingServer = useNetworkStatusStore((state) => state.actions.setCheckingServer);
+  const healthCheckId = useRef(0);
+
+  const verifyServerHealth = useCallback(async () => {
+    const checkId = healthCheckId.current + 1;
+    healthCheckId.current = checkId;
+
+    setCheckingServer(true);
+
+    const isServerReachable = await checkServerHealth();
+
+    if (healthCheckId.current !== checkId) {
+      return;
+    }
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setStatus('offline');
+    } else {
+      setStatus(isServerReachable ? 'online' : 'server-unreachable');
+    }
+
+    setCheckingServer(false);
+  }, [setCheckingServer, setStatus]);
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || typeof window === 'undefined') {
       return;
     }
 
-    const updateOnlineStatus = () => {
-      setOnlineStatus(navigator.onLine);
+    const updateNetworkStatus = () => {
+      if (!navigator.onLine) {
+        healthCheckId.current += 1;
+        setCheckingServer(false);
+        setStatus('offline');
+        return;
+      }
+
+      void verifyServerHealth();
     };
 
-    updateOnlineStatus();
+    updateNetworkStatus();
 
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
 
     return () => {
-      window.removeEventListener('online', updateOnlineStatus);
-      window.removeEventListener('offline', updateOnlineStatus);
+      healthCheckId.current += 1;
+      window.removeEventListener('online', updateNetworkStatus);
+      window.removeEventListener('offline', updateNetworkStatus);
     };
-  }, [setOnlineStatus]);
+  }, [setCheckingServer, setStatus, verifyServerHealth]);
 
-  return { isOnline };
+  useEffect(() => {
+    if (
+      status !== 'server-unreachable' ||
+      typeof navigator === 'undefined' ||
+      typeof window === 'undefined'
+    ) {
+      return;
+    }
+
+    const retryId = window.setInterval(() => {
+      if (navigator.onLine) {
+        void verifyServerHealth();
+      }
+    }, SERVER_UNREACHABLE_RETRY_MS);
+
+    return () => window.clearInterval(retryId);
+  }, [status, verifyServerHealth]);
+
+  return {
+    status,
+    isOnline: status === 'online',
+    isCheckingServer,
+  };
 }

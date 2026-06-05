@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+export type NetworkStatus = 'online' | 'offline' | 'server-unreachable';
+
 const getInitialOnlineStatus = () => {
   if (typeof navigator === 'undefined') {
     return true;
@@ -9,16 +11,19 @@ const getInitialOnlineStatus = () => {
 };
 
 interface NetworkStatusState {
-  isOnline: boolean;
+  status: NetworkStatus;
+  isCheckingServer: boolean;
   actions: {
-    setOnlineStatus: (isOnline: boolean) => void;
+    setStatus: (status: NetworkStatus) => void;
+    setCheckingServer: (isCheckingServer: boolean) => void;
   };
 }
 
 export const useNetworkStatusStore = create<NetworkStatusState>((set) => ({
-  isOnline: getInitialOnlineStatus(),
+  status: getInitialOnlineStatus() ? 'online' : 'offline',
+  isCheckingServer: false,
   actions: {
-    setOnlineStatus: (isOnline) => set({ isOnline }),
+    setStatus: (status) => set({ status }),
+    setCheckingServer: (isCheckingServer) => set({ isCheckingServer }),
   },
 }));
-
