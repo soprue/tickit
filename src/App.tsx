@@ -5,6 +5,7 @@ import LoginPage from './features/auth/presentation/LoginPage';
 import RegisterPage from './features/auth/presentation/RegisterPage';
 import { GlobalModal } from './shared/presentation/components/GlobalModal';
 import { GlobalToast } from './shared/presentation/components/GlobalToast';
+import { OfflineBanner } from './shared/presentation/components/OfflineBanner';
 import { SyncStatusProvider } from './shared/context/SyncStatusContext';
 import GlobalErrorBoundary from './shared/presentation/components/GlobalErrorBoundary';
 import { useThemeStore } from './shared/domain/ThemeStore';
@@ -82,6 +83,7 @@ export default function App() {
               } 
             />
           </Routes>
+          <OfflineBanner />
           <GlobalModal />
           <GlobalToast />
         </Router>
