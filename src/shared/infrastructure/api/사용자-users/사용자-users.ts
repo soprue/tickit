@@ -59,7 +59,7 @@ export const getUsersControllerGetProfileUrl = () => {
 }
 
 /**
- * JWT 토큰을 사용하여 현재 인증된 사용자의 정보를 가져옵니다.
+ * Bearer 액세스 토큰으로 인증된 현재 사용자의 정보를 조회합니다.
  * @summary 현재 로그인한 사용자 프로필 조회
  */
 export const usersControllerGetProfile = async ( options?: RequestInit): Promise<usersControllerGetProfileResponse> => {

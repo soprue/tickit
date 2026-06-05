@@ -14,7 +14,7 @@ export interface UpdateReminderDto {
   /** 소속 섹션 ID */
   sectionId?: string;
   /**
-     * 알림 시간. null을 보내면 알림 시간이 제거됩니다.
+     * 알림 시간. 생략하면 기존 값을 유지하고, null을 보내면 알림 시간이 제거됩니다.
      * @nullable
      */
   time?: string | null;

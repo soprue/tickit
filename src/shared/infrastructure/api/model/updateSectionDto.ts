@@ -8,7 +8,7 @@
 
 export interface UpdateSectionDto {
   /**
-     * 섹션 제목
+     * 섹션 제목. 최대 50자까지 입력할 수 있습니다.
      * @maxLength 50
      */
   title?: string;

@@ -59,7 +59,7 @@ export const getAuthControllerLogoutUrl = () => {
 }
 
 /**
- * 서버의 리프레시 토큰을 무효화하여 로그아웃 처리합니다.
+ * 현재 사용자의 저장된 리프레시 토큰을 제거하여 이후 토큰 갱신을 막습니다.
  * @summary 로그아웃
  */
 export const authControllerLogout = async ( options?: RequestInit): Promise<authControllerLogoutResponse> => {
@@ -141,8 +141,8 @@ export const getAuthControllerRefreshUrl = () => {
 }
 
 /**
- * 리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급받습니다.
- * @summary 액세스 토큰 갱신
+ * 유효한 리프레시 토큰을 검증한 뒤 새 액세스 토큰과 리프레시 토큰을 발급하고, 서버에 저장된 리프레시 토큰 해시를 교체합니다.
+ * @summary 토큰 갱신
  */
 export const authControllerRefresh = async (refreshTokenDto: RefreshTokenDto, options?: RequestInit): Promise<authControllerRefreshResponse> => {
 
@@ -191,7 +191,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type AuthControllerRefreshMutationError = unknown
 
     /**
- * @summary 액세스 토큰 갱신
+ * @summary 토큰 갱신
  */
 export const useAuthControllerRefresh = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerRefresh>>, TError,{data: RefreshTokenDto}, TContext>, request?: SecondParameter<typeof customInstance>}
@@ -337,7 +337,7 @@ export const getAuthControllerGoogleAuthRedirectUrl = () => {
 }
 
 /**
- * 구글 로그인 성공 후 리다이렉트되어 앱(Deep Link)으로 데이터를 전달합니다.
+ * 구글 로그인 성공 후 사용자를 생성 또는 갱신하고, 앱 딥링크로 토큰과 사용자 정보를 전달하는 완료 페이지를 반환합니다.
  * @summary 구글 로그인 콜백 처리
  */
 export const authControllerGoogleAuthRedirect = async ( options?: RequestInit): Promise<authControllerGoogleAuthRedirectResponse> => {
@@ -462,7 +462,7 @@ export const getAuthControllerRegisterUrl = () => {
 }
 
 /**
- * 이메일과 비밀번호를 사용하여 새로운 계정을 생성합니다.
+ * 이메일과 비밀번호로 계정을 생성하고 기본 섹션을 함께 생성합니다.
  * @summary 이메일 회원가입
  */
 export const authControllerRegister = async (registerDto: RegisterDto, options?: RequestInit): Promise<authControllerRegisterResponse> => {
@@ -552,7 +552,7 @@ export const getAuthControllerLoginUrl = () => {
 }
 
 /**
- * 이메일과 비밀번호로 로그인하여 JWT 액세스 토큰을 발급받습니다.
+ * 이메일과 비밀번호를 검증하고 액세스 토큰과 리프레시 토큰을 발급합니다.
  * @summary 이메일 로그인
  */
 export const authControllerLogin = async (loginDto: LoginDto, options?: RequestInit): Promise<authControllerLoginResponse> => {

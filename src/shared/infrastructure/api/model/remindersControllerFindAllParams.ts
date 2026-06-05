@@ -8,17 +8,17 @@
 
 export type RemindersControllerFindAllParams = {
 /**
- * 가져올 데이터의 최대 개수 (기본값: 20)
+ * 가져올 데이터의 최대 개수. 기본값은 20, 최대값은 100입니다.
  * @minimum 1
  * @maximum 100
  */
 take?: number;
 /**
- * 마지막으로 조회한 데이터의 ID (Cursor)
+ * 마지막으로 조회한 리마인더 ID. 해당 ID 다음 항목부터 조회합니다.
  */
 cursor?: number;
 /**
- * 특정 섹션으로 필터링
+ * 특정 섹션으로 필터링할 때 사용하는 섹션 ID
  */
 sectionId?: string;
 };
