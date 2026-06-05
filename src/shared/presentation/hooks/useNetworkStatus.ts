@@ -4,6 +4,14 @@ import { checkServerHealth } from '@src/shared/infrastructure/serverHealth';
 
 const SERVER_UNREACHABLE_RETRY_MS = 10000;
 
+const logNetworkStatus = (message: string, data?: Record<string, unknown>) => {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
+  console.info('[NetworkStatus]', message, data ?? '');
+};
+
 export function useNetworkStatus() {
   const status = useNetworkStatusStore((state) => state.status);
   const isCheckingServer = useNetworkStatusStore((state) => state.isCheckingServer);
@@ -15,17 +23,24 @@ export function useNetworkStatus() {
     const checkId = healthCheckId.current + 1;
     healthCheckId.current = checkId;
 
+    logNetworkStatus('Checking server health');
     setCheckingServer(true);
 
     const isServerReachable = await checkServerHealth();
 
     if (healthCheckId.current !== checkId) {
+      logNetworkStatus('Ignored stale server health result', { checkId });
       return;
     }
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      logNetworkStatus('Browser reported offline during health check');
       setStatus('offline');
     } else {
+      logNetworkStatus('Server health check finished', {
+        isServerReachable,
+        nextStatus: isServerReachable ? 'online' : 'server-unreachable',
+      });
       setStatus(isServerReachable ? 'online' : 'server-unreachable');
     }
 
@@ -40,11 +55,13 @@ export function useNetworkStatus() {
     const updateNetworkStatus = () => {
       if (!navigator.onLine) {
         healthCheckId.current += 1;
+        logNetworkStatus('Browser reported offline');
         setCheckingServer(false);
         setStatus('offline');
         return;
       }
 
+      logNetworkStatus('Browser reported online');
       void verifyServerHealth();
     };
 
@@ -71,6 +88,7 @@ export function useNetworkStatus() {
 
     const retryId = window.setInterval(() => {
       if (navigator.onLine) {
+        logNetworkStatus('Retrying server health check');
         void verifyServerHealth();
       }
     }, SERVER_UNREACHABLE_RETRY_MS);

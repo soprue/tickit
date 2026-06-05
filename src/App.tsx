@@ -9,6 +9,7 @@ import { SyncStatusProvider } from './shared/context/SyncStatusContext';
 import GlobalErrorBoundary from './shared/presentation/components/GlobalErrorBoundary';
 import { useThemeStore } from './shared/domain/ThemeStore';
 import { useAuthStore } from './features/auth/domain/AuthStore';
+import { useNetworkStatus } from './shared/presentation/hooks/useNetworkStatus';
 import { ROUTES } from './shared/constants';
 
 /**
@@ -39,6 +40,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const isDarkMode = useThemeStore((state) => state.isDarkMode);
+  useNetworkStatus();
 
   // 다크모드 상태 동기화
   useEffect(() => {
