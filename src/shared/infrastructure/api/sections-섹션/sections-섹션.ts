@@ -58,6 +58,7 @@ export const getSectionsControllerCreateUrl = () => {
 }
 
 /**
+ * 현재 사용자에게 새 섹션을 생성합니다.
  * @summary 섹션 생성
  */
 export const sectionsControllerCreate = async (createSectionDto: CreateSectionDto, options?: RequestInit): Promise<sectionsControllerCreateResponse> => {
@@ -140,6 +141,7 @@ export const getSectionsControllerFindAllUrl = () => {
 }
 
 /**
+ * 삭제되지 않은 현재 사용자의 섹션을 생성일 오름차순으로 조회합니다.
  * @summary 나의 모든 섹션 조회
  */
 export const sectionsControllerFindAll = async ( options?: RequestInit): Promise<sectionsControllerFindAllResponse> => {
@@ -252,6 +254,7 @@ export const getSectionsControllerFindOneUrl = (id: string,) => {
 }
 
 /**
+ * 삭제되지 않았고 현재 사용자가 소유한 섹션을 조회합니다.
  * @summary 특정 섹션 상세 조회
  */
 export const sectionsControllerFindOne = async (id: string, options?: RequestInit): Promise<sectionsControllerFindOneResponse> => {
@@ -364,7 +367,8 @@ export const getSectionsControllerUpdateUrl = (id: string,) => {
 }
 
 /**
- * @summary 섹션 수정 (기본 섹션 제외)
+ * 고정 섹션이 아닌 현재 사용자의 섹션 제목을 수정합니다.
+ * @summary 섹션 수정
  */
 export const sectionsControllerUpdate = async (id: string,
     updateSectionDto: UpdateSectionDto, options?: RequestInit): Promise<sectionsControllerUpdateResponse> => {
@@ -414,7 +418,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SectionsControllerUpdateMutationError = unknown
 
     /**
- * @summary 섹션 수정 (기본 섹션 제외)
+ * @summary 섹션 수정
  */
 export const useSectionsControllerUpdate = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sectionsControllerUpdate>>, TError,{id: string;data: UpdateSectionDto}, TContext>, request?: SecondParameter<typeof customInstance>}
@@ -447,7 +451,8 @@ export const getSectionsControllerRemoveUrl = (id: string,) => {
 }
 
 /**
- * @summary 섹션 삭제 (기본 섹션 제외)
+ * 고정 섹션이 아닌 현재 사용자의 섹션과 그 안의 리마인더를 함께 소프트 삭제합니다.
+ * @summary 섹션 삭제
  */
 export const sectionsControllerRemove = async (id: string, options?: RequestInit): Promise<sectionsControllerRemoveResponse> => {
 
@@ -495,7 +500,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SectionsControllerRemoveMutationError = unknown
 
     /**
- * @summary 섹션 삭제 (기본 섹션 제외)
+ * @summary 섹션 삭제
  */
 export const useSectionsControllerRemove = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sectionsControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}

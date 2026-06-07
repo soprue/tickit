@@ -5,19 +5,23 @@
  * Tickit 클라우드 서버 API 명세서
  * OpenAPI spec version: 1.0
  */
-import type { ReminderEntity } from './reminderEntity';
 
-export interface SectionEntity {
+export interface SyncSectionEntity {
   /** 섹션 고유 ID */
   id: string;
   /** 섹션 제목 */
   title: string;
   /** 고정 섹션 여부 */
   isFixed: boolean;
+  /** 소유자 ID */
+  userId: number;
   /** 생성일 */
   createdAt: string;
   /** 수정일 */
   updatedAt: string;
-  /** 섹션에 포함된 리마인더 목록. 포함 조회 시에만 제공됩니다. */
-  reminders?: ReminderEntity[];
+  /**
+     * 삭제일. 삭제되지 않은 데이터는 null입니다.
+     * @nullable
+     */
+  deletedAt: string | null;
 }

@@ -9,6 +9,6 @@
 export interface LoginDto {
   /** 사용자 이메일 주소 */
   email: string;
-  /** 비밀번호 */
+  /** 사용자 비밀번호 */
   password: string;
 }

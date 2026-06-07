@@ -9,8 +9,11 @@
 export interface CreateReminderDto {
   /** 리마인더 내용 */
   text: string;
-  /** 알림 시간 */
-  time?: string;
+  /**
+     * 알림 시간
+     * @nullable
+     */
+  time?: string | null;
   /** 하루 종일 여부 */
   isAllDay?: boolean;
   /** 소속 섹션 ID */

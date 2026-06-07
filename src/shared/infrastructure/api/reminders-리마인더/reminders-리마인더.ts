@@ -59,6 +59,7 @@ export const getRemindersControllerCreateUrl = () => {
 }
 
 /**
+ * 현재 사용자가 소유한 섹션에 새 리마인더를 생성합니다.
  * @summary 리마인더 생성
  */
 export const remindersControllerCreate = async (createReminderDto: CreateReminderDto, options?: RequestInit): Promise<remindersControllerCreateResponse> => {
@@ -148,7 +149,8 @@ export const getRemindersControllerFindAllUrl = (params?: RemindersControllerFin
 }
 
 /**
- * @summary 나의 리마인더 목록 조회 (Cursor 기반 페이지네이션)
+ * 삭제되지 않은 리마인더를 커서 기반으로 조회합니다. Everyday 섹션의 리마인더는 하루에 한 번 조회 시점에 자동 리셋됩니다.
+ * @summary 나의 리마인더 목록 조회
  */
 export const remindersControllerFindAll = async (params?: RemindersControllerFindAllParams, options?: RequestInit): Promise<remindersControllerFindAllResponse> => {
 
@@ -219,7 +221,7 @@ export function useRemindersControllerFindAll<TData = Awaited<ReturnType<typeof 
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary 나의 리마인더 목록 조회 (Cursor 기반 페이지네이션)
+ * @summary 나의 리마인더 목록 조회
  */
 
 export function useRemindersControllerFindAll<TData = Awaited<ReturnType<typeof remindersControllerFindAll>>, TError = unknown>(
@@ -260,6 +262,7 @@ export const getRemindersControllerFindOneUrl = (id: number,) => {
 }
 
 /**
+ * 삭제되지 않았고 현재 사용자가 접근할 수 있는 리마인더를 조회합니다. Everyday 섹션의 리마인더는 하루에 한 번 조회 시점에 자동 리셋됩니다.
  * @summary 리마인더 상세 조회
  */
 export const remindersControllerFindOne = async (id: number, options?: RequestInit): Promise<remindersControllerFindOneResponse> => {
@@ -372,6 +375,7 @@ export const getRemindersControllerUpdateUrl = (id: number,) => {
 }
 
 /**
+ * 리마인더 내용을 수정합니다. time에 null을 보내면 알림 시간이 제거됩니다.
  * @summary 리마인더 수정
  */
 export const remindersControllerUpdate = async (id: number,
@@ -455,6 +459,7 @@ export const getRemindersControllerRemoveUrl = (id: number,) => {
 }
 
 /**
+ * 리마인더를 실제 삭제하지 않고 deletedAt을 설정해 숨깁니다.
  * @summary 리마인더 삭제
  */
 export const remindersControllerRemove = async (id: number, options?: RequestInit): Promise<remindersControllerRemoveResponse> => {

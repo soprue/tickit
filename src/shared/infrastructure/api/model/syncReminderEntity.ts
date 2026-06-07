@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface ReminderEntity {
+export interface SyncReminderEntity {
   /** 리마인더 고유 ID */
   id: number;
   /** 리마인더 내용 */
@@ -33,4 +33,9 @@ export interface ReminderEntity {
   createdAt: string;
   /** 수정일 */
   updatedAt: string;
+  /**
+     * 삭제일. 삭제되지 않은 데이터는 null입니다.
+     * @nullable
+     */
+  deletedAt: string | null;
 }
