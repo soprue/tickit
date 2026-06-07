@@ -43,6 +43,9 @@ export default defineConfig(({ mode }) => {
         {
           entry: 'src/main.ts',
           vite: { 
+            define: {
+              'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL),
+            },
             build: { 
               outDir: 'dist-electron/main',
               rollupOptions: {
