@@ -27,6 +27,7 @@
     },
     "files": [
       "dist/**/*",
+      "dist-electron/**/*",
       "src/assets/**/*",
       "preload.cjs"
     ],
