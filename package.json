@@ -2,7 +2,7 @@
   "name": "tickit",
   "productName": "Tickit",
   "version": "1.0.1",
-  "description": "A simple desktop app for reminders, tasks, and schedules.",
+  "description": "Tickit Reminder",
   "main": "dist-electron/main/main.js",
   "author": "soprue",
   "license": "ISC",
@@ -51,7 +51,7 @@
       "icon": "src/assets/logo.ico",
       "protocols": [
         {
-          "name": "tickit",
+          "name": "Tickit",
           "schemes": [
             "tickit"
           ]
