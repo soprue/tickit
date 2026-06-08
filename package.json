@@ -2,7 +2,7 @@
   "name": "tickit",
   "productName": "Tickit",
   "version": "1.0.0",
-  "description": "Tickit - Simple, Pure, React 19 & Zustand Reminder App",
+  "description": "A simple desktop app for reminders, tasks, and schedules.",
   "main": "dist-electron/main/main.js",
   "author": "soprue",
   "license": "ISC",
