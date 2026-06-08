@@ -1,7 +1,7 @@
 {
   "name": "tickit",
   "productName": "Tickit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple desktop app for reminders, tasks, and schedules.",
   "main": "dist-electron/main/main.js",
   "author": "soprue",
