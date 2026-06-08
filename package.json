@@ -21,7 +21,7 @@
   "build": {
     "appId": "com.tickit.app",
     "productName": "Tickit",
-    "copyright": "Copyright © 2024 soprue",
+    "copyright": "Copyright © 2026 soprue",
     "directories": {
       "output": "release"
     },
