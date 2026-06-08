@@ -12,6 +12,7 @@ interface NotificationSyncPayload {
 }
 
 const DAILY_REFRESH_TIME_ZONE = 'Asia/Seoul';
+const isNotificationDebugEnabled = () => process.env.TICKIT_DEBUG_NOTIFICATIONS === '1';
 
 interface NotificationServiceDependencies {
   stateStore?: NotificationStateStore;
@@ -65,6 +66,29 @@ export class NotificationService {
   async syncData({ sections, accessToken }: NotificationSyncPayload) {
     console.log('[NotificationService] Data synced from renderer');
     this.accessToken = accessToken;
+
+    if (isNotificationDebugEnabled()) {
+      const reminders = sections.flatMap((section) => section.items);
+      const timedReminders = reminders.filter((item) => item.time && !item.isAllDay);
+      console.log('[NotificationService][debug] synced state', {
+        sections: sections.length,
+        reminders: reminders.length,
+        timedReminders: timedReminders.length,
+        now: new Date().toISOString(),
+        items: timedReminders.map((item) => ({
+          id: item.id,
+          text: item.text,
+          time: item.time,
+          parsedTime: item.time ? new Date(item.time).toISOString() : null,
+          minutesUntil: item.time
+            ? Math.round((new Date(item.time).getTime() - Date.now()) / 60000)
+            : null,
+          isAllDay: item.isAllDay,
+          done: item.done,
+          notified: item.notified,
+        })),
+      });
+    }
 
     // 기존의 lastNightCheckDate는 유지하고 섹션만 업데이트
     this.state = {
@@ -121,6 +145,14 @@ export class NotificationService {
 
       const { hasChanges, notifications, notifiedReminderIds, updatedState } =
         calculateNotifications(this.state, new Date());
+
+      if (isNotificationDebugEnabled()) {
+        console.log('[NotificationService][debug] check result', {
+          notifications,
+          notifiedReminderIds,
+          hasChanges,
+        });
+      }
 
       // 알림 발송
       notifications.forEach((note) => this.send(note.title, note.body));
@@ -210,6 +242,10 @@ export class NotificationService {
    */
   private send(title: string, body: string) {
     this.sender.send(title, body);
+  }
+
+  sendTestNotification() {
+    this.sender.send('Tickit 알림 테스트', 'Electron 시스템 알림이 표시되는지 확인 중입니다.');
   }
 
   /**

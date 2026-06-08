@@ -42,8 +42,8 @@ export function TimePickerTrigger({
     <div className="relative inline-block">
       <Button
         variant={hasTime ? 'primary' : 'secondary'}
-        className={`shrink-0 !px-2.5 !py-1 !text-[10px] ${buttonClassName} ${
-          !hasTime ? 'dark:!bg-white/10 !bg-white' : ''
+        className={`shrink-0 px-2.5! py-1! text-[10px]! ${buttonClassName} ${
+          !hasTime ? 'bg-white! dark:bg-white/10!' : ''
         }`}
         onClick={(e) => {
           e.stopPropagation();
@@ -56,14 +56,12 @@ export function TimePickerTrigger({
           color={hasTime ? 'white' : 'currentColor'}
           className={hasTime ? 'opacity-100' : 'opacity-60'}
         />
-        <span className="ml-1.5 leading-none tracking-tight">
-          {displayTime || '시간 추가'}
-        </span>
+        <span className="ml-1.5 leading-none tracking-tight">{displayTime || '시간 추가'}</span>
       </Button>
 
       {showTimePopover && (
-        <div 
-          className={`animate-in fade-in slide-in-from-top-1 zoom-in-95 absolute z-[5000] origin-top-right duration-200 ease-out ${popoverClassName}`}
+        <div
+          className={`animate-in fade-in slide-in-from-top-1 zoom-in-95 absolute z-5000 origin-top-right duration-200 ease-out ${popoverClassName}`}
           onClick={(e) => e.stopPropagation()}
         >
           <TimePicker
@@ -76,4 +74,3 @@ export function TimePickerTrigger({
     </div>
   );
 }
-

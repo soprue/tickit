@@ -93,5 +93,10 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       emptyOutDir: true,
     },
+    server: {
+      watch: {
+        ignored: ['**/.tmp/**', '**/release/**', '**/dist-electron/**'],
+      },
+    },
   };
 });
