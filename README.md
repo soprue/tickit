@@ -1,62 +1,117 @@
-# 🎫 Tickit (틱잇)
+# Tickit
 
-> **React 19 & Electron으로 구현한 현대적인 데스크탑 리마인더**
+> 할 일과 일정을 간단하게 관리하는 데스크톱 리마인더 앱
 
 <div align="center">
   <img src="src/assets/logo.webp" width="120" height="120" alt="Tickit Logo" />
 </div>
 
-## 📖 프로젝트 소개
+## 프로젝트 소개
 
-Tickit은 데스크탑 환경에서 중요한 일정과 루틴을 놓치지 않도록 도와주는 리마인더 애플리케이션입니다.
-초기에는 Vanilla TypeScript로 React 아키텍처를 직접 구현하며 학습하는 프로젝트로 시작했으나, 현재는 **React 19**와 **Zustand**를 기반으로 한 현대적이고 견고한 구조로 마이그레이션되었습니다.
+Tickit은 데스크톱 환경에서 리마인더, 할 일, 일정을 관리할 수 있는 Electron 기반 앱입니다.
 
-## 🛠 기술 스택
+사용자는 섹션별로 리마인더를 정리하고, 완료 상태를 관리하며, 검색과 알림 기능을 통해 중요한 일정을 놓치지 않도록 도와줍니다.
 
-- **Frontend**: React 19, TypeScript, Tailwind CSS v4
-- **State Management**: Zustand (with Persistence & Immer)
-- **Data Fetching**: TanStack Query v5, Axios, Orval (API Code Gen)
-- **Desktop Framework**: Electron (Main/Preload/Renderer Separation)
-- **Build Tool**: Vite
-- **Testing**: Vitest
+## 주요 기능
 
-## 🚀 주요 기능
+- 리마인더 섹션 생성, 수정, 삭제
+- 리마인더 생성, 수정, 완료 처리, 삭제
+- 리마인더 검색 및 필터링
+- Google OAuth 기반 로그인
+- 서버 API를 통한 리마인더 동기화
+- 데스크톱 알림
+- 온라인/오프라인 상태 감지
+- 라이트/다크 테마 지원
 
-- **리마인더 관리**: 카테고리별 일정 CRUD 및 티켓 스타일의 UI.
-- **클라우드 인증**: Electron IPC와 `BrowserWindow`를 활용한 구글 OAuth2 로그인 및 JWT 기반 세션 관리.
-- **시스템 알림**: Electron 네이티브 API를 활용한 실시간 푸시 알림.
-- **테마 시스템**: 다크 모드 및 라이트 모드 실시간 전환 지원.
-- **데이터 보안**: 로그아웃 시 로컬 스토리지 및 메모리 데이터 완전 초기화로 보안성 강화.
+## 기술 스택
 
-## 📅 개발 로드맵 (Roadmap)
+- React 19
+- TypeScript
+- Electron
+- Vite
+- Zustand
+- TanStack Query
+- Axios / Orval
+- Tailwind CSS v4
+- Vitest
+- electron-builder
 
-### 🟢 Phase 1: 아키텍처 현대화 (React & Zustand) - 완료 ✅
+## 시작하기
 
-- [x] **빌드 도구 전환**: Webpack에서 Vite로 전환하여 HMR 및 빌드 속도 개선.
-- [x] **React Core 도입**: 커스텀 `Component`에서 React 19 함수형 컴포넌트와 Hooks로 전환.
-- [x] **상태 관리 전환**: Zustand(with Persistence) 기반의 현대적 상태 관리 체계로 마이그레이션.
-- [x] **아키텍처 정립**: 기능 중심(Feature-based) 계층형 아키텍처 도입.
+### 요구 사항
 
-### 🟢 Phase 2: 클라우드 연동 및 인증 시스템 - 완료 ✅
+- Node.js 22
+- npm
 
-- [x] **백엔드 인프라**: Nest.js 기반 API 서버 연동 및 클라우드 배포 환경 구축.
-- [x] **인증 시스템**: 구글 OAuth2 및 JWT(Access/Refresh Token) 기반 인증 로직 개발.
-- [x] **Electron 인증 브릿지**: IPC 통신과 별도 창 제어를 통한 안전한 소셜 로그인 흐름 구현.
-- [x] **세션 정교화**: 로그아웃 시 모든 로컬 데이터(Reminders, Auth) 완전 리셋 로직 적용.
+### 의존성 설치
 
-### 🟡 Phase 3: 기능 고도화 및 오프라인 전략 - 진행 중 🏗️
+```bash
+npm ci
+```
 
-- [ ] **오프라인 우선(Offline-first)**: 서버 연결이 끊겨도 로컬 데이터를 유지하고 재연결 시 동기화하는 로직 최적화.
-- [ ] **정교한 루틴 설정**: 매일, 매주, 특정 요일 반복 등 맞춤형 반복 알림 로직 구현.
-- [ ] **다국어 지원 (i18n)**: 한국어와 영어 지원을 통한 글로벌 서비스 대응.
-- [ ] **데이터 시각화**: 완료된 리마인더 기반의 주간/월간 달성도 통계 대시보드.
+### 환경 변수 설정
 
-### 🔴 Phase 4: 자동화 및 안정성
+프로젝트 루트에 `.env` 파일을 생성합니다.
 
-- [ ] **CI/CD 파이프라인**: GitHub Actions를 통한 빌드 및 Release 자동화.
-- [x] **테스트 커버리지**: Vitest를 이용한 핵심 도메인 로직 단위 테스트 구축.
-- [ ] **자동 업데이트**: Electron-updater를 활용한 클라이언트 업데이트 기능.
+```env
+VITE_API_URL=https://tickit-server-production.up.railway.app
+```
 
----
+### 개발 서버 실행
 
-**Author**: [soprue](https://github.com/soprue)
+```bash
+npm run dev
+```
+
+### 테스트 실행
+
+```bash
+npm test
+```
+
+### 빌드
+
+```bash
+npm run build
+```
+
+### 데스크톱 앱 패키징
+
+```bash
+npm run dist
+```
+
+## 릴리즈
+
+Tickit은 GitHub Actions와 electron-builder를 사용해 릴리즈 빌드를 자동화합니다.
+
+`v*` 형식의 태그를 푸시하면 릴리즈 워크플로가 실행됩니다.
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+릴리즈 워크플로는 다음 순서로 실행됩니다.
+
+- `npm ci`
+- `npm test`
+- `npm run build`
+- macOS / Windows 앱 패키징
+- GitHub Release에 빌드 산출물 업로드
+
+릴리즈 빌드에 필요한 `VITE_API_URL`은 GitHub Actions의 Repository Variable로 설정해야 합니다.
+
+## 로드맵
+
+- [x] React 19 기반 프론트엔드 마이그레이션
+- [x] Zustand 기반 상태 관리 도입
+- [x] 인증 시스템 연동
+- [x] 리마인더 / 섹션 CRUD 구현
+- [x] GitHub Actions 릴리즈 자동화
+- [ ] 오프라인 동기화
+- [ ] 자동 업데이트
+
+## 작성자
+
+[soprue](https://github.com/soprue)
