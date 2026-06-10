@@ -2,6 +2,8 @@ import { BrowserWindow } from 'electron';
 import path from 'node:path';
 
 export function createMainWindow(mainDir: string) {
+  const appIconPath = path.join(mainDir, '../../src/assets/logo.ico');
+
   const mainWindow = new BrowserWindow({
     width: 400,
     height: 750,
@@ -9,7 +11,7 @@ export function createMainWindow(mainDir: string) {
     maxWidth: 600,
     minHeight: 650,
     useContentSize: true,
-    icon: path.join(mainDir, '../src/assets/logo.webp'),
+    icon: appIconPath,
     webPreferences: {
       preload: path.join(mainDir, '../preload/preload.mjs'),
       contextIsolation: true,
