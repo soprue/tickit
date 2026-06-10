@@ -69,6 +69,12 @@ npm run dev
 npm test
 ```
 
+### 타입 체크
+
+```bash
+npx tsc --noEmit
+```
+
 ### 빌드
 
 ```bash
@@ -88,8 +94,8 @@ Tickit은 GitHub Actions와 electron-builder를 사용해 릴리즈 빌드를 �
 `v*` 형식의 태그를 푸시하면 릴리즈 워크플로가 실행됩니다.
 
 ```bash
-git tag v1.0.1
-git push origin v1.0.1
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 릴리즈 워크플로는 다음 순서로 실행됩니다.
@@ -98,9 +104,21 @@ git push origin v1.0.1
 - `npm test`
 - `npm run build`
 - macOS / Windows 앱 패키징
-- GitHub Release에 빌드 산출물 업로드
+- GitHub Release 초안 생성 및 빌드 산출물 업로드
 
 릴리즈 빌드에 필요한 `VITE_API_URL`은 GitHub Actions의 Repository Variable로 설정해야 합니다.
+
+## 알림 디버깅
+
+알림 동작을 확인할 때는 아래 환경 변수를 사용할 수 있습니다.
+
+```env
+TICKIT_DEBUG_NOTIFICATIONS=1
+TICKIT_TEST_NOTIFICATION=1
+```
+
+- `TICKIT_DEBUG_NOTIFICATIONS`: 메인 프로세스에서 알림 동기화와 체크 결과를 로그로 출력합니다.
+- `TICKIT_TEST_NOTIFICATION`: 앱 시작 후 테스트 시스템 알림을 한 번 발송합니다.
 
 ## 로드맵
 
