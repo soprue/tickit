@@ -134,6 +134,7 @@ export function useReminderActions() {
       const hasTextChanged = reminder.text !== text;
       const hasTimeChanged = reminder.time !== timeString;
       const hasAllDayChanged = reminder.isAllDay !== finalIsAllDay;
+      const shouldResetNotification = hasTimeChanged || hasAllDayChanged;
 
       if (hasTextChanged || hasTimeChanged || hasAllDayChanged) {
         const didStart = runOnlineSyncAction(async () => {
@@ -143,6 +144,7 @@ export function useReminderActions() {
               text,
               time: timeString,
               isAllDay: finalIsAllDay,
+              ...(shouldResetNotification ? { notified: false } : {}),
             },
           });
         });

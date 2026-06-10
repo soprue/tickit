@@ -62,7 +62,6 @@ export function useTimePickerState() {
       [key]: value,
       selectedTime: date,
       isAllDay: false,
-      showTimePopover: false,
     });
   };
 

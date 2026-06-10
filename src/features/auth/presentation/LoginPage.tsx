@@ -5,10 +5,6 @@ import { SocialButton } from '@src/shared/presentation/components/ui/SocialButto
 import logoIcon from '@assets/logo.webp';
 import { useLoginUI } from './hooks/useLoginUI';
 
-/**
- * 로그인 페이지 컴포넌트
- * UI 렌더링에만 집중하며, 로직은 useLoginUI 훅에서 관리합니다.
- */
 export default function LoginPage() {
   const ui = useLoginUI();
 
@@ -18,7 +14,6 @@ export default function LoginPage() {
         padded={false}
         className="animate-in fade-in zoom-in-95 flex w-full max-w-[360px] flex-col duration-500"
       >
-        {/* Header Section */}
         <div className="px-xl pt-2xl pb-lg flex flex-col items-center text-center">
           <div className="flex items-center gap-2">
             <img
@@ -30,10 +25,11 @@ export default function LoginPage() {
               Tickit
             </h1>
           </div>
-          <p className="text-gray-medium mt-2 text-[14px]">반가워요! 다시 만나서 기뻐요</p>
+          <p className="text-gray-medium mt-2 text-[14px]">
+            반가워요! 다시 만나서 기뻐요.
+          </p>
         </div>
 
-        {/* Content Section */}
         <div className="px-xl pb-xl flex flex-col gap-5">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3">
@@ -55,8 +51,10 @@ export default function LoginPage() {
             </div>
 
             {ui.errorMsg && (
-              <div className="bg-red-50 dark:bg-red-500/10 rounded-lg p-3 text-center">
-                <p className="text-red-500 text-[12px] font-medium leading-relaxed">{ui.errorMsg}</p>
+              <div className="rounded-lg bg-red-50 p-3 text-center dark:bg-red-500/10">
+                <p className="text-red-500 text-[12px] leading-relaxed font-medium">
+                  {ui.errorMsg}
+                </p>
               </div>
             )}
 
@@ -80,7 +78,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Footer Section */}
         <div className="bg-gray-soft/50 px-xl py-lg flex flex-col items-center gap-3 text-center dark:bg-white/5">
           <p className="text-gray-medium text-[13px]">
             계정이 없으신가요?{' '}
