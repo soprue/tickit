@@ -13,7 +13,7 @@ export interface NotificationPersistedState {
 
 interface NotificationCheckResult {
   hasChanges: boolean;
-  notifications: Array<{ title: string; body: string }>;
+  notifications: Array<{ title: string; body: string; reminderId?: number }>;
   notifiedReminderIds: number[];
   updatedState: NotificationPersistedState;
 }
@@ -49,7 +49,7 @@ export function calculateNotifications(
   state: NotificationPersistedState,
   now: Date
 ): NotificationCheckResult {
-  const notifications: Array<{ title: string; body: string }> = [];
+  const notifications: Array<{ title: string; body: string; reminderId?: number }> = [];
   const notifiedReminderIds: number[] = [];
   let hasChanges = false;
 
@@ -96,7 +96,10 @@ export function calculateNotifications(
             notifications.push({
               title: NOTIFICATION_MESSAGES.INDIVIDUAL_TITLE,
               body: NOTIFICATION_MESSAGES.INDIVIDUAL_BODY(item.text),
+              reminderId: item.id,
             });
+
+            return;
           }
 
           item.notified = true;

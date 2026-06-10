@@ -44,6 +44,7 @@ interface Window {
 }
 
 interface ImportMetaEnv {
+  readonly DEV: boolean;
   readonly VITE_API_URL: string;
 }
 

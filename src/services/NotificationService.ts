@@ -14,6 +14,37 @@ interface NotificationSyncPayload {
 const DAILY_REFRESH_TIME_ZONE = 'Asia/Seoul';
 const isNotificationDebugEnabled = () => process.env.TICKIT_DEBUG_NOTIFICATIONS === '1';
 
+function parseDebugDate(value: string | null | undefined) {
+  if (!value) {
+    return { parsedTime: null, minutesUntil: null };
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return { parsedTime: null, minutesUntil: null };
+  }
+
+  return {
+    parsedTime: parsed.toISOString(),
+    minutesUntil: Math.round((parsed.getTime() - Date.now()) / 60000),
+  };
+}
+
+function markRemindersNotified(
+  state: NotificationPersistedState,
+  reminderIds: number[]
+): NotificationPersistedState {
+  const ids = new Set(reminderIds);
+
+  return {
+    ...state,
+    sections: state.sections.map((section) => ({
+      ...section,
+      items: section.items.map((item) => (ids.has(item.id) ? { ...item, notified: true } : item)),
+    })),
+  };
+}
+
 interface NotificationServiceDependencies {
   stateStore?: NotificationStateStore;
   apiClient?: NotificationApiClient;
@@ -75,18 +106,20 @@ export class NotificationService {
         reminders: reminders.length,
         timedReminders: timedReminders.length,
         now: new Date().toISOString(),
-        items: timedReminders.map((item) => ({
-          id: item.id,
-          text: item.text,
-          time: item.time,
-          parsedTime: item.time ? new Date(item.time).toISOString() : null,
-          minutesUntil: item.time
-            ? Math.round((new Date(item.time).getTime() - Date.now()) / 60000)
-            : null,
-          isAllDay: item.isAllDay,
-          done: item.done,
-          notified: item.notified,
-        })),
+        items: timedReminders.map((item) => {
+          const debugTime = parseDebugDate(item.time);
+
+          return {
+            id: item.id,
+            text: item.text,
+            time: item.time,
+            parsedTime: debugTime.parsedTime,
+            minutesUntil: debugTime.minutesUntil,
+            isAllDay: item.isAllDay,
+            done: item.done,
+            notified: item.notified,
+          };
+        }),
       });
     }
 
@@ -154,17 +187,23 @@ export class NotificationService {
         });
       }
 
-      // 알림 발송
-      notifications.forEach((note) => this.send(note.title, note.body));
+      const sentReminderIds = notifications
+        .filter((note) => this.send(note.title, note.body))
+        .flatMap((note) => (note.reminderId === undefined ? [] : [note.reminderId]));
+      const allNotifiedReminderIds = [...notifiedReminderIds, ...sentReminderIds];
+      const nextState =
+        sentReminderIds.length > 0
+          ? markRemindersNotified(updatedState, sentReminderIds)
+          : updatedState;
 
       // 상태 변경 시(예: notified 필드 업데이트) 상태 업데이트 및 저장
-      if (hasChanges) {
-        this.state = updatedState;
+      if (hasChanges || sentReminderIds.length > 0) {
+        this.state = nextState;
         await this.stateStore.write(this.state);
       }
 
-      if (notifiedReminderIds.length > 0) {
-        await this.syncNotifiedReminders(notifiedReminderIds);
+      if (allNotifiedReminderIds.length > 0) {
+        await this.syncNotifiedReminders(allNotifiedReminderIds);
       }
     } catch (err) {
       console.error('[NotificationService] Check failed:', err);
@@ -241,7 +280,7 @@ export class NotificationService {
    * 실제 시스템 알림 발송
    */
   private send(title: string, body: string) {
-    this.sender.send(title, body);
+    return this.sender.send(title, body);
   }
 
   sendTestNotification() {
