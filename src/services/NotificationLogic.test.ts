@@ -49,11 +49,12 @@ describe('NotificationLogic - calculateNotifications', () => {
     expect(result.notifications).toContainEqual(
       expect.objectContaining({
         body: expect.stringContaining('Test Item 1'),
+        reminderId: 1,
       })
     );
-    expect(result.updatedState.sections[0].items[0].notified).toBe(true);
-    expect(result.notifiedReminderIds).toEqual([1]);
-    expect(result.hasChanges).toBe(true);
+    expect(result.updatedState.sections[0].items[0].notified).toBe(false);
+    expect(result.notifiedReminderIds).toEqual([]);
+    expect(result.hasChanges).toBe(false);
   });
 
   it('이미 완료되었거나 알림이 간 항목은 중복 알림을 생성하지 않는다', () => {
